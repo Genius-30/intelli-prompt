@@ -3,6 +3,7 @@ import dbConnect from '@/lib/db'
 import { Prompt } from '@/models/prompt.model'
 import { auth } from '@clerk/nextjs/server'
 
+// to add a new prompt
 export async function POST(req: NextRequest) {
   try {
     await dbConnect()
@@ -34,7 +35,6 @@ export async function POST(req: NextRequest) {
       { status: 201 }
     )
   } catch (err) {
-    console.error('error creating prompt: ',err)
     return NextResponse.json(
       { message: 'error creating prompt' },
       { status: 500 }

@@ -4,6 +4,7 @@ import dbConnect from '@/lib/db'
 import mongoose from "mongoose";
 import { auth } from '@clerk/nextjs/server'
 
+// to get a specific prompts of a specific user
 export async function GET(
   req: NextRequest,
   { params }: { params: { id: string } }
@@ -40,7 +41,6 @@ export async function GET(
       { status: 200 }
     )
   } catch (err) {
-    console.error('error fetching prompt: ',err)
     return NextResponse.json(
       { message: 'error fetching prompt' },
       { status: 500 }
