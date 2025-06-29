@@ -44,4 +44,4 @@ const PromptSchema: Schema<IPrompt> = new Schema(
   { timestamps: true }
 );
 
-export const PromptModel: Model<IPrompt> = mongoose.models.Prompt || mongoose.model<IPrompt>('Prompt', PromptSchema);
+export const Prompt: Model<IPrompt> = mongoose.models.Prompt || mongoose.model<IPrompt>('Prompt', PromptSchema);
