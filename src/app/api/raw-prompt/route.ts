@@ -5,9 +5,7 @@ import { auth } from '@clerk/nextjs/server'
 
 // to add a new prompt
 export async function POST(req: NextRequest) {
-  try {
-    await dbConnect()
-    
+  try {    
     const { userId } = await auth()
     if(!userId){
       return NextResponse.json(
@@ -15,6 +13,8 @@ export async function POST(req: NextRequest) {
         { status: 401 }
       )
     }
+
+    await dbConnect()
 
     const { title, rawPrompt } = await req.json()
     if(!title || !rawPrompt){
