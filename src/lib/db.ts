@@ -1,21 +1,30 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose'
 
-const MONGODB_URI = process.env.MONGODB_URI!;
-
-if (!MONGODB_URI) {
-  throw new Error("Please define the MONGODB_URI in your .env file");
+type ConnectionObj = {
+  isConnect?: number;
 }
 
-let cached = (global as any).mongoose || { conn: null, promise: null };
+const connection: ConnectionObj = {}
 
-export async function connectDB() {
-  if (cached.conn) return cached.conn;
+const connectDb = async (): Promise<void> => {
+  if(connection.isConnect === 1){
+    console.log('Already connected to database');
+    return
+  }
 
-  cached.promise ??= mongoose.connect(MONGODB_URI, {
-    dbName: "intellistack",
-    bufferCommands: false,
-  });
+  if (!process.env.MONGODB_URI) {
+    throw new Error('mongodbUri isnt available!');
+  }
 
-  cached.conn = await cached.promise;
-  return cached.conn;
+  try {
+    const dbInstance = await mongoose.connect(process.env.MONGODB_URI);
+    connection.isConnect = dbInstance.connection.readyState;
+
+    console.log('DB Connected!');
+  } catch (err) {
+    console.error('dbConnection failed: ', err);
+    process.exit(1);
+  }
 }
+
+export default connectDb
