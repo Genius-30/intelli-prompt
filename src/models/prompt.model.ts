@@ -1,5 +1,6 @@
 import mongoose, { Schema, Document, Model } from 'mongoose'
 import { IUser } from './user.model'
+import { IFolder } from './folder.model';
 
 interface IEnhancedPrompt {
   version: string;
@@ -15,6 +16,7 @@ interface IModelResponse {
 
 export interface IPrompt extends Document {
   owner: IUser['_id'];
+  folder: IFolder['_id'];
   title: string;
   rawPrompt: string;
   enhancedPrompts: IEnhancedPrompt[];
@@ -24,19 +26,20 @@ export interface IPrompt extends Document {
 const PromptSchema: Schema<IPrompt> = new Schema(
   {
     owner: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    folder: { type: Schema.Types.ObjectId, ref: 'Folder', default: null },
     title: { type: String, required: true, maxlength: 75},
     rawPrompt: { type: String, required: true },
     enhancedPrompts: [
       {
-        version: String,
-        content: String,
+        version: { type: String, required: true },
+        content: { type: String, required: true },
         createdAt: { type: Date, default: Date.now },
       },
     ],
     modelResponses: [
       {
-        model: String,
-        response: String,
+        model: { type: String, required: true },
+        response: { type: String, required: true },
         createdAt: { type: Date, default: Date.now }
       }
     ]

@@ -6,8 +6,6 @@ import { auth } from '@clerk/nextjs/server'
 // to get all the prompts of a specific user
 export async function GET(req: NextRequest){
   try {
-    await dbConnect()
-
     const { userId } = await auth()
     if(!userId){
       return NextResponse.json(
@@ -16,6 +14,8 @@ export async function GET(req: NextRequest){
       )
     }
 
+    await dbConnect()
+    
     const prompts = await Prompt.find({ owner: userId }).sort({ createdAt: -1 })
 
     return NextResponse.json(

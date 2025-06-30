@@ -10,8 +10,6 @@ export async function POST(
   { params }: { params : { id : string } }
 ) {
   try {
-    await dbConnect()
-
     const { userId } = await auth()
     if(!userId){
       return NextResponse.json(
@@ -19,6 +17,8 @@ export async function POST(
         { status: 401 }
       )
     }
+
+    await dbConnect()
 
     const promptId = params.id
     if(!mongoose.Types.ObjectId.isValid(promptId)) {
@@ -71,8 +71,6 @@ export async function PATCH(
   { params }: { params: { id: string } }
 ) {
   try {
-    await dbConnect()
-
     const { userId } = await auth()
     if(!userId){
       return NextResponse.json(
@@ -80,6 +78,8 @@ export async function PATCH(
         { status: 401 }
       )
     }
+
+    await dbConnect()
 
     const promptId = params.id
     if(!mongoose.Types.ObjectId.isValid(promptId)) {
@@ -132,8 +132,6 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    await dbConnect()
-
     const { userId } = await auth()
     if(!userId){
       return NextResponse.json(
@@ -141,6 +139,8 @@ export async function DELETE(
         { status: 401 }
       )
     }
+
+    await dbConnect()
 
     const promptId = params.id
     if(!mongoose.Types.ObjectId.isValid(promptId)) {

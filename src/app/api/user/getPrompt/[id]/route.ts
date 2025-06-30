@@ -10,8 +10,6 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    await dbConnect()
-
     const { userId } = await auth()
     if(!userId){
       return NextResponse.json(
@@ -19,6 +17,8 @@ export async function GET(
         { status: 401 }
       )
     }
+
+    await dbConnect()
 
     const promptId = params.id
     if(!mongoose.Types.ObjectId.isValid(promptId)) {
