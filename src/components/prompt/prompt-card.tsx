@@ -7,6 +7,7 @@ import {
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
+import { SquarePenIcon, TestTube2Icon } from "lucide-react";
 
 export function PromptCard({
   prompt,
@@ -28,13 +29,28 @@ export function PromptCard({
           {prompt.prompt}
         </p>
       </CardContent>
-      <CardFooter className="flex justify-between text-xs">
+      <CardFooter className="flex flex-col items-start gap-3 text-xs">
         <span className="text-muted-foreground">
           Updated {formatDistanceToNow(new Date(prompt.updatedAt))} ago
         </span>
-        <Button asChild size="sm" variant="outline">
-          <Link href={`/dashboard/prompts/${prompt._id}`}>Edit</Link>
-        </Button>
+
+        <div className="flex items-center gap-2">
+          <Button asChild size="sm" variant="outline" className="px-3">
+            <Link href={`/dashboard/prompts/${prompt._id}`}>
+              <SquarePenIcon /> Edit
+            </Link>
+          </Button>
+          <Button
+            asChild
+            size="sm"
+            variant="default"
+            className="bg-green-500 hover:bg-green-600 px-3"
+          >
+            <Link href={`/dashboard/prompts/test/${prompt._id}`}>
+              <TestTube2Icon /> Test
+            </Link>
+          </Button>
+        </div>
       </CardFooter>
     </Card>
   );

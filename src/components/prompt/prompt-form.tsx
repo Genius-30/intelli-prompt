@@ -1,17 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { useCreatePrompt, useUpdatePrompt } from "@/lib/mutations/prompt";
-import { extractPromptVariables } from "@/utils/extractVariables";
 import { Loader } from "../ui/loader";
-import { Badge } from "../ui/badge";
-import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
-import { CircleAlert } from "lucide-react";
+import { ArrowRightIcon, Redo2Icon, Undo2Icon } from "lucide-react";
+import { AnimatedShinyText } from "../magicui/animated-shiny-text";
 import { toast } from "sonner";
+import { enhancePrompt } from "@/utils/enhancePrompt";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
+import { useRouter } from "next/navigation";
+import { useCreatePrompt, useUpdatePrompt } from "@/lib/queries/prompt";
 
 type PromptData = {
   _id?: string;
@@ -22,42 +23,74 @@ type PromptData = {
 export function PromptForm({
   initialData,
 }: Readonly<{ initialData?: PromptData }>) {
-  const isEditing = !!initialData;
-
-  const createPromptMutation = useCreatePrompt();
-  const updatePromptMutation = useUpdatePrompt();
-
-  const mutation = isEditing ? updatePromptMutation : createPromptMutation;
-  const { mutate, isPending } = mutation;
-
   const [title, setTitle] = useState(initialData?.title || "");
   const [prompt, setPrompt] = useState(initialData?.prompt || "");
-  const [variables, setVariables] = useState<string[]>([]);
+  const [showEnhancer, setShowEnhancer] = useState(false);
+  const [enhancedPrompt, setEnhancedPrompt] = useState("");
+  const [loadingEnhance, setLoadingEnhance] = useState(false);
+  const [history, setHistory] = useState<string[]>([]);
+  const [redoStack, setRedoStack] = useState<string[]>([]);
 
-  useEffect(() => {
-    const detected = extractPromptVariables(prompt);
+  const isPromptValid = title.trim().length > 0 && prompt.trim().length > 0;
 
-    setVariables(detected);
-  }, [prompt]);
+  const isUnchanged =
+    initialData &&
+    title.trim() === initialData.title.trim() &&
+    prompt.trim() === initialData.prompt.trim();
 
-  const duplicateVars = variables.filter((v, i, arr) => arr.indexOf(v) !== i);
+  const disableSaveButton = !isPromptValid || (!!initialData && isUnchanged);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const router = useRouter();
+  const createPrompt = useCreatePrompt();
+  const updatePrompt = useUpdatePrompt();
+
+  const isMutating = createPrompt.isPending || updatePrompt.isPending;
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (duplicateVars.length > 0) {
-      toast.error("Please fix duplicate variable names before saving.");
-      return;
-    }
 
     const payload = {
       title,
-      prompt,
-      variables,
-      ...(isEditing && { id: initialData?._id }), // only send id if updating
+      rawPrompt: prompt,
     };
 
-    mutation.mutate(payload);
+    try {
+      if (initialData?._id) {
+        await updatePrompt.mutateAsync({ id: initialData?._id, ...payload });
+        toast.success("Prompt updated successfully!");
+      } else {
+        await createPrompt.mutateAsync(payload);
+        toast.success("Prompt saved successfully!");
+        router.push(`/dashboard/prompts`);
+      }
+    } catch (error) {
+      console.error("Error submitting prompt:", error);
+      toast.error("Something went wrong.");
+    }
+  };
+
+  const handleEnhanceClick = async () => {
+    try {
+      setLoadingEnhance(true);
+      setShowEnhancer(true);
+      setEnhancedPrompt("");
+      setHistory((prev) => [...prev, prompt]); // track only enhanced prompt edits
+      setRedoStack([]);
+
+      const result = await enhancePrompt(prompt);
+
+      if (!result || typeof result !== "string") {
+        toast.error("Failed to enhance the prompt.");
+        return;
+      }
+
+      setEnhancedPrompt(result);
+    } catch (error) {
+      toast.error("Error enhancing prompt.");
+      console.error("Enhance Error:", error);
+    } finally {
+      setLoadingEnhance(false);
+    }
   };
 
   const buttonLabel = initialData ? "Update Prompt" : "Save Prompt";
@@ -71,56 +104,143 @@ export function PromptForm({
           placeholder="e.g. Product Description Generator"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          className="mt-2"
+          className="mt-2 h-10"
         />
       </div>
 
-      {/* Prompt Template */}
-      <div>
-        <div className="flex items-center gap-1">
-          <Label>Prompt Template</Label>
+      {/* Prompt & Enhancer */}
+      <div className="flex flex-col md:flex-row gap-6">
+        {/* Left: Prompt Template */}
+        <div className="flex-1">
+          <div className="flex items-center justify-between">
+            <Label>Prompt Template</Label>
+
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              onClick={handleEnhanceClick}
+              className="group cursor-pointer select-none"
+              disabled={loadingEnhance || !prompt.trim()}
+            >
+              <AnimatedShinyText className="inline-flex items-center text-sm font-medium text-muted-foreground hover:text-foreground">
+                ✨ Enhance with AI
+                {loadingEnhance ? (
+                  <Loader className="ml-2 w-4 h-4 animate-spin text-muted-foreground" />
+                ) : (
+                  <ArrowRightIcon className="ml-1 size-3 transition-transform duration-300 ease-in-out group-hover:translate-x-0.5" />
+                )}
+              </AnimatedShinyText>
+            </Button>
+          </div>
+
+          <Textarea
+            rows={6}
+            placeholder="e.g. Write a tweet about {{product}}"
+            value={prompt}
+            onChange={(e) => setPrompt(e.target.value)}
+            className="mt-2 h-auto min-h-32 md:min-h-48"
+          />
+        </div>
+
+        {/* Right: Enhanced Prompt */}
+        {showEnhancer && (
+          <div className="flex-1 bg-muted p-4 rounded-md space-y-2 min-h-[180px]">
+            <p className="text-sm text-muted-foreground font-medium">
+              ✨ Enhanced Prompt
+            </p>
+            <div className="bg-input dark:bg-input/30 border py-2 px-3 rounded-md text-sm min-h-[50px] flex items-center">
+              {enhancedPrompt ? (
+                <span>{enhancedPrompt}</span>
+              ) : (
+                <Loader className="w-6 h-6" />
+              )}
+            </div>
+            <div className="flex gap-2 pt-2">
+              <Button
+                size="sm"
+                onClick={() => {
+                  setHistory((prev) => [...prev.slice(-49), prompt]);
+                  setRedoStack([]);
+                  setPrompt(enhancedPrompt);
+                }}
+              >
+                Replace
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => setShowEnhancer(false)}
+              >
+                Discard
+              </Button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Submit */}
+      <div className="flex items-center gap-2 pt-4">
+        {disableSaveButton ? (
           <Tooltip>
-            <TooltipTrigger>
-              <CircleAlert className="w-4 h-4 text-muted-foreground cursor-pointer" />
+            <TooltipTrigger asChild>
+              <Button type="button" variant={"outline"}>
+                {buttonLabel}
+              </Button>
             </TooltipTrigger>
             <TooltipContent>
-              Use <code>{`{{your_variable}}`}</code> format to define dynamic
-              placeholders.
+              {!isPromptValid
+                ? "Title and prompt are required."
+                : "No changes made to the prompt."}
             </TooltipContent>
           </Tooltip>
-        </div>
-        <Textarea
-          rows={6}
-          placeholder="e.g. Write a tweet about {{product}}"
-          value={prompt}
-          onChange={(e) => setPrompt(e.target.value)}
-          className="mt-2 h-auto min-h-32 md:min-h-48"
-        />
-      </div>
+        ) : (
+          <Button
+            type="submit"
+            disabled={isMutating}
+            className="cursor-pointer"
+          >
+            {isMutating ? <Loader className="mr-2" /> : null} {buttonLabel}
+          </Button>
+        )}
 
-      {/* Variables */}
-      <div className="flex flex-wrap gap-2 mt-2">
-        {[...new Set(variables)].map((variable) => (
-          <Badge key={variable} variant="secondary" className="px-3 py-1">
-            {variable}
-          </Badge>
-        ))}
-      </div>
+        {history.length > 0 && (
+          <Button
+            type="button"
+            variant="ghost"
+            className="text-muted-foreground hover:text-foreground"
+            onClick={() => {
+              const last = history[history.length - 1];
+              if (last !== undefined) {
+                setRedoStack((prev) => [...prev.slice(-49), prompt]);
+                setPrompt(last);
+                setHistory((prev) => prev.slice(0, -1));
+              }
+            }}
+          >
+            <Undo2Icon className="mr-1 h-4 w-4" />
+            Undo
+          </Button>
+        )}
 
-      {duplicateVars.length > 0 && (
-        <p className="text-sm text-red-500 flex items-center gap-1">
-          <CircleAlert className="w-4 h-4" />
-          Duplicate variable name(s): {duplicateVars.join(", ")} — please ensure
-          each variable is unique.
-        </p>
-      )}
-
-      {/* Save Button */}
-      <div className="pt-2">
-        <Button type="submit" disabled={isPending} className="cursor-pointer">
-          {isPending && <Loader />}
-          {buttonLabel}
-        </Button>
+        {redoStack.length > 0 && (
+          <Button
+            type="button"
+            variant="ghost"
+            className="text-muted-foreground hover:text-foreground"
+            onClick={() => {
+              const redoLast = redoStack[redoStack.length - 1];
+              if (redoLast !== undefined) {
+                setHistory((prev) => [...prev.slice(-49), prompt]);
+                setPrompt(redoLast);
+                setRedoStack((prev) => prev.slice(0, -1));
+              }
+            }}
+          >
+            <Redo2Icon className="mr-1 h-4 w-4" />
+            Redo
+          </Button>
+        )}
       </div>
     </form>
   );

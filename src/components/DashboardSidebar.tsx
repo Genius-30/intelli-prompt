@@ -30,24 +30,9 @@ const items = [
     icon: LayoutDashboard,
   },
   {
-    title: "Agents",
-    url: "/dashboard/agents",
-    icon: Bot,
-  },
-  {
     title: "Prompts",
     url: "/dashboard/prompts",
     icon: Terminal,
-  },
-  {
-    title: "Logs",
-    url: "/dashboard/logs",
-    icon: ScrollText,
-  },
-  {
-    title: "Settings",
-    url: "/dashboard/settings",
-    icon: Settings,
   },
 ];
 
@@ -62,7 +47,7 @@ export function DashboardSidebar() {
             <Logo />
           </SidebarGroupLabel>
 
-          <SidebarGroupContent className="mt-4">
+          <SidebarGroupContent className="mt-8">
             <SidebarMenu>
               {items.map((item) => {
                 const isActive =
