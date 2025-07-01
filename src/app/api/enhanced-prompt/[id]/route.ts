@@ -158,7 +158,7 @@ export async function DELETE(
       )
     }
 
-    const updatedPrompt = await Prompt.findOneAndUpdate(
+    await Prompt.findOneAndUpdate(
       { _id: promptId, owner: userId },
       {
         $pull: {
@@ -168,15 +168,8 @@ export async function DELETE(
       { new: true }
     )
 
-    if(!updatedPrompt) {
-      return NextResponse.json(
-        { message: 'prompt not found' },
-        { status: 404 }
-      )
-    }
-
     return NextResponse.json(
-      { message: 'Enhanced prompt deleted', updatedPrompt },
+      { message: 'Enhanced prompt deleted' },
       { status: 200 }
     )
   } catch (err) {

@@ -4,7 +4,7 @@ import { Prompt } from '@/models/prompt.model'
 import { auth } from '@clerk/nextjs/server'
 import mongoose from 'mongoose'
 
-// adds a model response to prompt
+// adds a model response to specific rawPrompt
 export async function POST(
   req: NextRequest,
   { params }: { params: { id: string } }
@@ -158,7 +158,7 @@ export async function DELETE(
       )
     }
 
-    const updatedPrompt = await Prompt.findOneAndUpdate(
+    await Prompt.findOneAndUpdate(
       { _id: promptId, owner: userId },
       {
         $pull: {
@@ -168,20 +168,13 @@ export async function DELETE(
       { new: true }
     )
     
-    if(!updatedPrompt) {
-      return NextResponse.json(
-        { message: 'prompt not found' },
-        { status: 404 }
-      )
-    }
-
     return NextResponse.json(
-      { message: 'response added in prompt', updatedPrompt },
+      { message: 'response deleted in prompt' },
       { status: 200 }
     )
   } catch (err) {
     return NextResponse.json(
-      { message: 'error updating modelResponse' },
+      { message: 'error deleting modelResponse' },
       { status: 500 }
     )
   }
