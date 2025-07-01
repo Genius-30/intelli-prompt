@@ -9,7 +9,7 @@ export async function enhancedPrompt( rawPrompt: string ) {
       { role: 'system', content: systemPrompt },
       { role: 'user', content: userPrompt }
     ],
-    model: '',
+    model: 'gemini-2.0-flash',
     temperature: 0.7
   })
 

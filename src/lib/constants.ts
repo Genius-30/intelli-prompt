@@ -1,19 +1,34 @@
-export const AI_MODELS = [
-  { id: "gpt-4", label: "GPT-4", logo: "/logos/chatgpt.webp" },
-  { id: "gpt-3.5-turbo", label: "GPT-3.5 Turbo", logo: "/logos/chatgpt.webp" },
-  { id: "claude-3-opus", label: "Claude 3 Opus", logo: "/logos/claude.png" },
-  { id: "gemini-2.5-pro", label: "Gemini 2.5 Pro", logo: "/logos/gemini.png" },
-  {
-    id: "gemini-2.5-flash",
-    label: "Gemini 2.5 Flash",
-    logo: "/logos/gemini.png",
+export const AI_MODELS = {
+  openai: {
+    logo: '/logos/openai.png',
+    models: [
+      { id: 'gpt-3.5-turbo', name: 'GPT-3.5 Turbo' },
+      { id: 'gpt-4', name: 'GPT-4' },
+      { id: 'gpt-4o', name: 'GPT-4 Omni' },
+    ],
   },
-  {
-    id: "gemini-2.0-flash",
-    label: "Gemini 2.0 Flash",
-    logo: "/logos/gemini.png",
+  gemini: {
+    logo: '/logos/gemini.png',
+    models: [
+      { id: 'gemini-pro', name: 'Gemini Pro' },
+      { id: 'gemini-1.5-pro', name: 'Gemini 1.5 Pro' },
+      { id: 'gemini-2.0-flash', name: 'Gemini 2.0 Flash' },
+    ],
   },
-  { id: "gemini-1.5-pro", label: "Gemini 1.5 Pro", logo: "/logos/gemini.png" },
-];
-
-export const MODEL_ENUM = AI_MODELS.map((m) => m.id);
+  mistral: {
+    logo: '/logos/mistral.png',
+    models: [
+      { id: 'mistral-small', name: 'Mistral Small' },
+      { id: 'mistral-medium', name: 'Mistral Medium' },
+      { id: 'mistral-large', name: 'Mistral Large' },
+    ],
+  },
+  anthropic: {
+    logo: '/logos/claude.png',
+    models: [
+      { id: 'claude-3-opus-20240229', name: 'Claude 3 Opus' },
+      { id: 'claude-3-sonnet-20240229', name: 'Claude 3 Sonnet' },
+      { id: 'claude-3-haiku-20240307', name: 'Claude 3 Haiku' },
+    ],
+  },
+};
