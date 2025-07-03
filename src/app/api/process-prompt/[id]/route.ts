@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { enhancedPrompt } from '@/utils/enhancePrompt';
 import { testPromptOnModels } from '@/utils/testModels';
-import { auth } from '@clerk/nextjs/server'
 import { Prompt as rawPrompt } from '@/models/prompt.model';
-import dbConnect from '@/lib/db';
+import { getAuthenticatedUser } from '@/utils/getAuthenticatedUser';
 
 // ai processing and linking everything together
 export async function POST(
@@ -11,18 +10,11 @@ export async function POST(
   { params }: { params: { id: string } }
 ) {
   try {
-    const { userId } = await auth()
-    if(!userId){
-      return NextResponse.json(
-        { message: 'Unauthorized Request' },
-        { status: 401 }
-      )
-    }
-
-    await dbConnect()
+    const { mongoUser, error } = await getAuthenticatedUser()
+    if(error) return error
 
     const { provider, model } = await req.json()
-    const promptId = params.id
+    const promptId = (await params).id
 
     const rawPromptDoc = await rawPrompt.findById({ _id: promptId })
     if(!rawPromptDoc){
@@ -34,11 +26,11 @@ export async function POST(
 
     const rawText = rawPromptDoc.rawPrompt
 
-    const enhancedContent = await enhancedPrompt(rawText)
+    const enhancedContent = await enhancedPrompt(rawText) // discuss
 
-    const modelResponse = await testPromptOnModels({ provider, model, prompt: enhancedContent, })
+    const modelResponse = await testPromptOnModels({ provider, model, prompt: enhancedContent || ''})
 
-    rawPromptDoc.enhancedPrompts.push({ version: model, content: enhancedContent})
+    rawPromptDoc.enhancedPrompts.push({ version: model, content: enhancedContent || ''})
 
     rawPromptDoc.modelResponses.push({ model, response: modelResponse || ''})
 

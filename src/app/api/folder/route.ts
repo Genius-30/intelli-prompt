@@ -1,20 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
-import dbConnect from '@/lib/db' 
 import { Folder } from '@/models/folder.model'
-import { auth } from '@clerk/nextjs/server'
+import { getAuthenticatedUser } from '@/utils/getAuthenticatedUser'
 
 // create new folder
 export async function POST(req: NextRequest) {
   try {
-    const { userId } = await auth()
-    if(!userId){
-      return NextResponse.json(
-        { message: 'Unauthorized Request' },
-        { status: 401 }
-      )
-    }
-
-    await dbConnect()
+    const { mongoUser, error } = await getAuthenticatedUser()
+    if(error) return error
 
     const { name } = await req.json()
     if(!name){
@@ -26,7 +18,7 @@ export async function POST(req: NextRequest) {
 
     const folder = await Folder.create({
       name,
-      owner: userId
+      owner: mongoUser._id
     })
 
     return NextResponse.json(
@@ -44,17 +36,10 @@ export async function POST(req: NextRequest) {
 // Fetch all folders for user
 export async function GET(req: NextRequest){
   try {
-    const { userId } = await auth()
-    if(!userId){
-      return NextResponse.json(
-        { message: 'Unauthorized Request' },
-        { status: 401 }
-      )
-    }
+    const { mongoUser, error } = await getAuthenticatedUser()
+    if(error) return error
 
-    await dbConnect()
-
-    const folders = await Folder.find({ owner: userId }).sort({ createdAt: -1 })
+    const folders = await Folder.find({ owner: mongoUser._id }).sort({ createdAt: -1 })
 
     return NextResponse.json(
       { message: 'folders fetched successfully', folders },

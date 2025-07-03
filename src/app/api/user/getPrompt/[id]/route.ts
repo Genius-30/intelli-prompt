@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Prompt } from "@/models/prompt.model";
-import dbConnect from '@/lib/db'
 import mongoose from "mongoose";
-import { auth } from '@clerk/nextjs/server'
+import { getAuthenticatedUser } from "@/utils/getAuthenticatedUser";
 
 // to get a specific prompts of a specific user
 export async function GET(
@@ -10,17 +9,10 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const { userId } = await auth()
-    if(!userId){
-      return NextResponse.json(
-        { message: 'Unauthorized Request' },
-        { status: 401 }
-      )
-    }
+    const { mongoUser, error } = await getAuthenticatedUser()
+    if(error) return error
 
-    await dbConnect()
-
-    const promptId = params.id
+    const promptId = (await params).id
     if(!mongoose.Types.ObjectId.isValid(promptId)) {
       return NextResponse.json(
         { message: 'invalid promptId' },

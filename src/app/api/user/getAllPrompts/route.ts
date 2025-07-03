@@ -1,22 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Prompt } from '@/models/prompt.model'
-import dbConnect from '@/lib/db' 
-import { auth } from '@clerk/nextjs/server'
+import { getAuthenticatedUser } from '@/utils/getAuthenticatedUser'
 
 // to get all the prompts of a specific user
 export async function GET(req: NextRequest){
   try {
-    const { userId } = await auth()
-    if(!userId){
-      return NextResponse.json(
-        { message: 'Unauthorized Request' },
-        { status: 401 }
-      )
-    }
-
-    await dbConnect()
+    const { mongoUser, error } = await getAuthenticatedUser()
+    if(error) return error
     
-    const prompts = await Prompt.find({ owner: userId }).sort({ createdAt: -1 })
+    const prompts = await Prompt.find({ owner: mongoUser._id }).sort({ createdAt: -1 })
 
     return NextResponse.json(
       { message: 'prompts fetched successfully', prompts },

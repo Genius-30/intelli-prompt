@@ -16,7 +16,7 @@ export async function callOpenAI({
   model = 'gpt-3.5-turbo',
   messages,
   temperature = 0.7,
-  max_tokens = 1000
+  max_tokens = 80
 }: ModelCallProps): Promise<string> {
   try {
     const response = await axios.post(
@@ -39,7 +39,7 @@ export async function callAnthropic({
   model = 'claude-3-opus-20240229',
   messages,
   temperature = 0.7,
-  max_tokens = 1000,
+  max_tokens = 80,
 }: ModelCallProps): Promise<string> {
   try {
     const response = await axios.post(
@@ -97,7 +97,7 @@ export async function callMistral({
   model = 'mistral-small-latest',
   messages,
   temperature = 0.7,
-  max_tokens = 1000
+  max_tokens = 80
 }: ModelCallProps): Promise<string>{
   try {
     const response = await axios.post(

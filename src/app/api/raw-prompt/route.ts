@@ -1,20 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
-import dbConnect from '@/lib/db' 
 import { Prompt } from '@/models/prompt.model'
-import { auth } from '@clerk/nextjs/server'
+import { getAuthenticatedUser } from '@/utils/getAuthenticatedUser'
 
 // to add a new prompt
 export async function POST(req: NextRequest) {
   try {    
-    const { userId } = await auth()
-    if(!userId){
-      return NextResponse.json(
-        { message: 'Unauthorized Request' },
-        { status: 401 }
-      )
-    }
-
-    await dbConnect()
+    const { mongoUser, error } = await getAuthenticatedUser()
+    if(error) return error
 
     const { title, rawPrompt } = await req.json()
     if(!title || !rawPrompt){
@@ -25,7 +17,7 @@ export async function POST(req: NextRequest) {
     }
 
     const prompt = await Prompt.create({
-      owner: userId,
+      owner: mongoUser._id, 
       title,
       rawPrompt
     })

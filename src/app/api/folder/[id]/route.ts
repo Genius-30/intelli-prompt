@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Folder } from '@/models/folder.model'
-import dbConnect from '@/lib/db' 
 import mongoose from 'mongoose'
-import { auth } from '@clerk/nextjs/server'
+import { getAuthenticatedUser } from '@/utils/getAuthenticatedUser'
 
 // delete folder along with prompts
 export async function DELETE(
@@ -10,17 +9,10 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    const { userId } = await auth()
-    if(!userId){
-      return NextResponse.json(
-        { message: 'Unauthorized Request' },
-        { status: 401 }
-      )
-    }
-    
-    await dbConnect()
+    const { mongoUser, error } = await getAuthenticatedUser()
+    if(error) return error
 
-    const folderId = params.id
+    const folderId = (await params).id
     if(!mongoose.Types.ObjectId.isValid(folderId)) {
       return NextResponse.json(
         { message: 'invalid folderId' },
