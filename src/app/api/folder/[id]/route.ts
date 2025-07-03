@@ -3,13 +3,60 @@ import { Folder } from '@/models/folder.model'
 import mongoose from 'mongoose'
 import { getAuthenticatedUser } from '@/utils/getAuthenticatedUser'
 
+// renames folder
+export async function PATCH(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const { userId, error } = await getAuthenticatedUser()
+    if(error) return error
+
+    const folderId = (await params).id
+    if(!mongoose.Types.ObjectId.isValid(folderId)) {
+      return NextResponse.json(
+        { message: 'invalid folderId' },
+        { status: 400 }
+      )
+    }
+    
+    const { newTitle } = await req.json()
+    if(!newTitle) {
+      return NextResponse.json(
+        { message: 'invalid title' },
+        { status: 400 }
+      )
+    }
+
+    const renamedFolder = await Folder.findOneAndUpdate(
+      { _id: folderId },
+      {
+        $set: {
+          'title': newTitle
+        }
+      },
+      { new: true }
+    )
+
+    return NextResponse.json(
+      { message: 'folder deleted', renamedFolder },
+      { status: 200 }
+    ) 
+  } catch (err) {
+    return NextResponse.json(
+      { message: 'error deleting folder' },
+      { status: 500 }
+    )
+  }
+}
+
 // delete folder along with prompts
 export async function DELETE(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    const { mongoUser, error } = await getAuthenticatedUser()
+    const { userId, error } = await getAuthenticatedUser()
     if(error) return error
 
     const folderId = (await params).id
@@ -20,10 +67,10 @@ export async function DELETE(
       )
     }
 
-    await Folder.findByIdAndDelete(folderId)
+    await Folder.findByIdAndDelete({ _id: folderId })
 
     return NextResponse.json(
-      { message: 'folder deleted successfully' },
+      { message: 'folder deleted' },
       { status: 200 }
     ) 
   } catch (err) {

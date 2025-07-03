@@ -2,7 +2,7 @@ import mongoose, { Schema, Document, Model } from 'mongoose';
 import { IUser } from './user.model';
 
 export interface ISubscription extends Document {
-  userId: IUser['_id'];
+  ownerId: IUser['_id'];
   paymentId: string;
   amount: number;
   currency: string;
@@ -14,7 +14,7 @@ export interface ISubscription extends Document {
 
 const SubscriptionSchema: Schema<ISubscription> = new Schema(
   {
-    userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    ownerId: { type: String, required: true },
     paymentId: { type: String, required: true },
     amount: { type: Number, required: true },
     currency: { type: String, default: 'INR' },

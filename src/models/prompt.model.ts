@@ -7,18 +7,18 @@ export interface IPrompt extends Document {
   folderId: IFolder['_id'];
   title: string;
   content: string;
-  version: string;
+  version: number;
   isCurrent: boolean;
   isFavorite: boolean;
 }
 
 const PromptSchema: Schema<IPrompt> = new Schema(
   {
-    ownerId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    ownerId: { type: String, required: true },
     folderId: { type: Schema.Types.ObjectId, ref: 'Folder', default: null },
     title: { type: String, required: true, trim: true},
     content: { type: String, required: true },
-    version: { type: String, required: true, default: '1.0'},
+    version: { type: Number, required: true, default: 1 },
     isCurrent: { type: Boolean, default: true },
     isFavorite: { type: Boolean, default: false}
   },

@@ -1,24 +1,33 @@
 import { callOpenAI, callAnthropic, callGemini, callMistral, callGrok } from './models'
+import { IMessage } from './models'
 
-interface TestModelOption {
+export interface ITestModelOption {
   provider: 'openai' | 'claude' | 'anthropic' | 'google' | 'mistral' | 'grok',
   model: string,
+  temperature: number,
   prompt: string;
 } 
 
-export async function testPromptOnModels({ provider, model, prompt }: TestModelOption) {
-  switch (provider) {
-    case 'openai':
-      return callOpenAI({ model, messages: [{ role: 'user', content: prompt }] })
-    case 'anthropic': 
-      return callAnthropic({ model, messages: [{ role: 'user', content: prompt }] })
-    case 'grok':
-      return callGrok({ model, messages: [{ role: 'user', content: prompt }] })
-    case 'google':
-      return callGemini({ model, messages: [{ role: 'user', content: prompt }] })
-    case 'mistral':
-      return callMistral({ model, messages: [{ role: 'user', content: prompt }] })
-    default:
-      return 'Model not supported yet'
+export async function testPromptOnModels({ provider, model, temperature=0.7, prompt }: ITestModelOption) {
+  const messages: IMessage[] = [{ role: 'user', content: prompt }] 
+
+  try {
+    switch (provider) {
+      case 'openai':
+        return await callOpenAI({ model, temperature, messages })
+      case 'anthropic': 
+        return await callAnthropic({ model, temperature, messages })
+      case 'grok':
+        return await callGrok({ model, temperature, messages })
+      case 'google':
+        return await callGemini({ model, temperature, messages })
+      case 'mistral':
+        return await callMistral({ model, temperature, messages })
+      default:
+        throw new Error(`Unsupported provider: ${provider}`);
+    }
+  } catch (err) {
+    return { 'err': `Failed to test on ${provider} - ${model}. ${err}`, }
   }
+  
 }

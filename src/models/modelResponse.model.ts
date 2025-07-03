@@ -15,7 +15,7 @@ export interface IModelResponse {
 const ModelResponseSchema: Schema<IModelResponse> = new Schema(
   {
     promptId: { type: Schema.Types.ObjectId, ref: 'Prompt', required: true },
-    ownerId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    ownerId: { type: String, required: true },
     model: { type: String, required: true },
     temperature: { type: Number, required: true, default: 0.7 },
     response: { type: String, required: true },

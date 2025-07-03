@@ -1,13 +1,13 @@
 import axios from "axios";
 
-export interface Message {
+export interface IMessage {
   role: 'system' | 'user' | 'assistant';
   content: string;
 }
 
-export interface ModelCallProps {
+export interface IModelCallProps {
   model?: string;
-  messages: Message[];
+  messages: IMessage[];
   temperature?: number;
   max_tokens?: number;
 }
@@ -17,7 +17,7 @@ export async function callOpenAI({
   messages,
   temperature = 0.7,
   max_tokens = 80
-}: ModelCallProps): Promise<string> {
+}: IModelCallProps): Promise<string> {
   try {
     const response = await axios.post(
       'https://api.openai.com/v1/chat/completions',
@@ -40,7 +40,7 @@ export async function callAnthropic({
   messages,
   temperature = 0.7,
   max_tokens = 80,
-}: ModelCallProps): Promise<string> {
+}: IModelCallProps): Promise<string> {
   try {
     const response = await axios.post(
       'https://api.anthropic.com/v1/messages',
@@ -67,7 +67,7 @@ export async function callGemini({
   model = 'gemini-2.0-flash',
   messages,
   temperature = 0.7
-}: ModelCallProps): Promise<string> {
+}: IModelCallProps): Promise<string> {
   try {
     const formattedMessages = messages.map(msg => ({
       role: msg.role === 'assistant'? 'model': 'user',
@@ -98,7 +98,7 @@ export async function callMistral({
   messages,
   temperature = 0.7,
   max_tokens = 80
-}: ModelCallProps): Promise<string>{
+}: IModelCallProps): Promise<string>{
   try {
     const response = await axios.post(
       'https://api.mistral.ai/v1/chat/completions',
@@ -120,7 +120,7 @@ export async function callMistral({
 export async function callGrok({
   model = 'mistral-small-latest',
   messages
-}: ModelCallProps) {
+}: IModelCallProps) {
   try {
     
   } catch (err) {

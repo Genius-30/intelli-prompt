@@ -3,13 +3,13 @@ import { IUser } from './user.model'
 
 export interface IFolder extends Document {
   title: string;
-  owner: IUser['_id'];
+  ownerId: IUser['_id'];
 }
 
 const FolderSchema: Schema<IFolder> = new Schema(
   {
     title: { type: String, required: true, maxlength: 75 },
-    owner: { type: Schema.Types.ObjectId, ref: 'User', required: true }
+    ownerId: { type: String, required: true }
   },
   { timestamps: { createdAt: true, updatedAt: false } }
 )

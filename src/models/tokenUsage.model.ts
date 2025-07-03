@@ -3,7 +3,7 @@ import { IUser } from './user.model'
 import { IPrompt } from './prompt.model';
 
 export interface ITokenUsage {
-  userId: IUser['_id'];
+  ownerId: IUser['_id'];
   promptId: IPrompt['_id'];
   date: Date;
   model: string;
@@ -15,7 +15,7 @@ export interface ITokenUsage {
 
 const TokenUsageSchema: Schema<ITokenUsage> = new Schema(
   {
-    userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    ownerId: { type: String, required: true },
     promptId: { type: Schema.Types.ObjectId, ref: 'Prompt', required: true },
     date: { type: Date, required: true },
     model: { type: String, required: true },
