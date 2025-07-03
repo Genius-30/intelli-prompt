@@ -1,6 +1,12 @@
 "use client";
 
-import { Plus, MoreVertical } from "lucide-react";
+import {
+  Plus,
+  MoreVertical,
+  FoldersIcon,
+  LayoutDashboardIcon,
+  CreditCardIcon,
+} from "lucide-react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -25,7 +31,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useState } from "react";
 
-export function FolderSidebar() {
+export function DashboardSidebar() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const activeFolderId = searchParams.get("folder");
@@ -52,6 +58,46 @@ export function FolderSidebar() {
             </SidebarGroupLabel>
 
             <SidebarGroupContent className="mt-8">
+              {/* Dashboard & Plans */}
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild>
+                    <Link
+                      href="/dashboard"
+                      className={cn(
+                        "text-sm font-medium w-full text-left",
+                        pathname === "/dashboard"
+                          ? "text-primary"
+                          : "text-muted-foreground hover:text-foreground"
+                      )}
+                    >
+                      <LayoutDashboardIcon size={20} /> Dashboard
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild>
+                    <Link
+                      href="/plans"
+                      className={cn(
+                        "text-sm font-medium w-full text-left",
+                        pathname === "/plans"
+                          ? "text-primary"
+                          : "text-muted-foreground hover:text-foreground"
+                      )}
+                    >
+                      <CreditCardIcon size={20} /> Plans
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+
+              {/* Folder Section Title */}
+              <p className="text-xs uppercase text-muted-foreground mt-6 px-2 mb-3 flex items-center gap-2">
+                <FoldersIcon size={20} /> Your Folders
+              </p>
+
               <SidebarMenu>
                 {folders.length === 0 && (
                   <p className="text-sm text-muted-foreground px-3">
@@ -95,18 +141,10 @@ export function FolderSidebar() {
                                 </Button>
                               </DropdownMenuTrigger>
                               <DropdownMenuContent>
-                                <DropdownMenuItem
-                                  onClick={() => {
-                                    /* openEditFolder(folder) */
-                                  }}
-                                >
+                                <DropdownMenuItem onClick={() => {}}>
                                   Rename
                                 </DropdownMenuItem>
-                                <DropdownMenuItem
-                                  onClick={() => {
-                                    /* confirmDeleteFolder(folder._id) */
-                                  }}
-                                >
+                                <DropdownMenuItem onClick={() => {}}>
                                   Delete
                                 </DropdownMenuItem>
                               </DropdownMenuContent>
@@ -117,23 +155,23 @@ export function FolderSidebar() {
                     );
                   })
                 )}
+
+                {/* 👉 New Folder button moved here */}
+                <SidebarMenuItem className="mt-2">
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start cursor-pointer text-sm"
+                    onClick={() => {
+                      // openCreateFolderModal()
+                    }}
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    New Folder
+                  </Button>
+                </SidebarMenuItem>
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
-        </div>
-
-        {/* Bottom: Add Folder Button */}
-        <div className="mt-4 pt-4 border-t">
-          <Button
-            variant="outline"
-            className="w-full justify-start cursor-pointer"
-            onClick={() => {
-              // openCreateFolderModal()
-            }}
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            New Folder
-          </Button>
         </div>
       </SidebarContent>
     </Sidebar>

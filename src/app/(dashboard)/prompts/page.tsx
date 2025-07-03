@@ -25,16 +25,14 @@ export default function PromptListPage() {
   }
 
   return (
-    <>
-      <SignedIn>
-        <div className="p-6">
-          <div className="flex justify-between items-center mb-6">
-            <h1 className="text-2xl font-bold">Your Prompts</h1>
-            <Button asChild>
-              <Link href="/dashboard/prompts/new">+ New Prompt</Link>
-            </Button>
-          </div>
-
+    <div className="p-6">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">Your Prompts</h1>
+        <Button asChild>
+          <Link href="/dashboard/prompts/new">+ New Prompt</Link>
+        </Button>
+      </div>
+      {/* 
           {prompts?.length === 0 && (
             <p className="text-start text-muted-foreground mt-10">
               {" "}
@@ -45,13 +43,7 @@ export default function PromptListPage() {
             {prompts.map((prompt: any) => (
               <PromptCard key={prompt._id} prompt={prompt} />
             ))}
-          </div>
-        </div>
-      </SignedIn>
-
-      <SignedOut>
-        <RedirectToSignIn redirectUrl="/prompts" />
-      </SignedOut>
-    </>
+          </div> */}
+    </div>
   );
 }
