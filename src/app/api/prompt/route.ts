@@ -2,28 +2,32 @@ import { NextRequest, NextResponse } from 'next/server'
 import { Prompt } from '@/models/prompt.model'
 import { getAuthenticatedUser } from '@/utils/getAuthenticatedUser'
 
-// to add a new prompt
+// create new prompt
 export async function POST(req: NextRequest) {
-  try {    
-    const { mongoUser, error } = await getAuthenticatedUser()
+  try {
+    const { userId, error } = await getAuthenticatedUser()
     if(error) return error
 
-    const { title, rawPrompt } = await req.json()
-    if(!title || !rawPrompt){
+    const { title, content , folderId } = await req.json()
+    if(!title || !content || !folderId){
       return NextResponse.json(
-        { message: 'title or prompt isnt there' },
+        { message: 'missing required fields' },
         { status: 400 }
       )
     }
 
-    const prompt = await Prompt.create({
-      owner: mongoUser._id, 
+    const newPrompt = await Prompt.create({
+      ownerId: userId, 
+      folderId: folderId,
       title,
-      rawPrompt
+      content,
+      version: 1,
+      isCurrent: true,
+      isFavorite: false
     })
 
     return NextResponse.json(
-      { message: 'prompt created successfully', prompt },
+      { message: 'prompt created', newPrompt },
       { status: 201 }
     )
   } catch (err) {

@@ -1,13 +1,13 @@
 import axios from "axios";
 
-export interface Message {
+export interface IMessage {
   role: 'system' | 'user' | 'assistant';
   content: string;
 }
 
-export interface ModelCallProps {
+export interface IModelCallProps {
   model?: string;
-  messages: Message[];
+  messages: IMessage[];
   temperature?: number;
   max_tokens?: number;
 }
@@ -17,7 +17,7 @@ export async function callOpenAI({
   messages,
   temperature = 0.7,
   max_tokens = 80
-}: ModelCallProps): Promise<string> {
+}: IModelCallProps): Promise<object> {
   try {
     const response = await axios.post(
       'https://api.openai.com/v1/chat/completions',
@@ -29,9 +29,11 @@ export async function callOpenAI({
         }
       }
     )
-    return response.data.choices?.[0]?.message?.content || 'no response'
+
+    return { tokensUsed: response.data.usage?.total_tokens || 200, 
+              response: response.data.choices?.[0]?.message?.content || 'no response'}
   } catch (err) {
-    return 'Error calling OpenAI'
+    return { tokensUsed: 0, response: 'Error calling OpenAI' }
   }
 }
 
@@ -40,7 +42,7 @@ export async function callAnthropic({
   messages,
   temperature = 0.7,
   max_tokens = 80,
-}: ModelCallProps): Promise<string> {
+}: IModelCallProps): Promise<object> {
   try {
     const response = await axios.post(
       'https://api.anthropic.com/v1/messages',
@@ -57,9 +59,10 @@ export async function callAnthropic({
       }
     );
 
-    return response.data.content?.[0]?.text || 'No response';
+    return { tokensUsed: (response.data.usage?.input_tokens + response.data.usage?.output_tokens) || 200,
+              response: response.data.content?.[0]?.text || 'no response'}
   } catch (error) {
-    return 'Error calling Anthropic';
+    return { tokensUsed: 0, response: 'Error calling OpenAI' }
   }
 }
 
@@ -67,7 +70,7 @@ export async function callGemini({
   model = 'gemini-2.0-flash',
   messages,
   temperature = 0.7
-}: ModelCallProps): Promise<string> {
+}: IModelCallProps): Promise<object> {
   try {
     const formattedMessages = messages.map(msg => ({
       role: msg.role === 'assistant'? 'model': 'user',
@@ -86,10 +89,11 @@ export async function callGemini({
         }
       }
     );
-    
-    return response.data.candidates?.[0]?.content?.parts?.[0]?.text || 'No response'
+
+    return { tokensUsed: response.data.usageMetadata?.totalTokenCount || 200,
+              response: response.data.candidates?.[0]?.content?.parts?.[0]?.text || 'no response'}
   } catch (err) {
-    return 'Error calling Gemini'
+    return { tokensUsed: 0, response: 'Error calling OpenAI' }
   }
 }
 
@@ -98,7 +102,7 @@ export async function callMistral({
   messages,
   temperature = 0.7,
   max_tokens = 80
-}: ModelCallProps): Promise<string>{
+}: IModelCallProps): Promise<object>{
   try {
     const response = await axios.post(
       'https://api.mistral.ai/v1/chat/completions',
@@ -111,19 +115,9 @@ export async function callMistral({
       }
     )
 
-    return response.data.choices?.[0]?.message?.content || 'No response'
+    return { tokensUsed: 200,
+              response: response.data.choices?.[0]?.message?.content || 'no response'}
   } catch (err) {
-    return 'Error calling Mistral'
-  }
-}
-
-export async function callGrok({
-  model = 'mistral-small-latest',
-  messages
-}: ModelCallProps) {
-  try {
-    
-  } catch (err) {
-    
+    return { tokensUsed: 0, response: 'Error calling OpenAI' }
   }
 }
