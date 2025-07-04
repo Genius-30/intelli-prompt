@@ -16,13 +16,13 @@ export async function POST( req: NextRequest ) {
     }
 
     if(plan === 'pro'){
-      user.subscriptionEnd = new Date(new Date().setMonth(new Date().getMonth() + 6)),
+      user.subscriptionEnds = new Date(new Date().setMonth(new Date().getMonth() + 6)),
       user.tokenLimit = 100000
     } else if(plan === 'enterprise'){
-      user.subscriptionEnd = new Date(new Date().setMonth(new Date().getMonth() + 12)),
+      user.subscriptionEnds = new Date(new Date().setMonth(new Date().getMonth() + 12)),
       user.tokenLimit = 10000000
     } else{
-      user.subscriptionEnd = new Date(new Date().setMonth(new Date().getMonth() + 12)),
+      user.subscriptionEnds = new Date(new Date().setMonth(new Date().getMonth() + 12)),
       user.tokenLimit = 1000
     }
 
@@ -37,11 +37,11 @@ export async function POST( req: NextRequest ) {
       currency,
       plan,
       subscriptionStart: new Date(),
-      subscriptionEnd: user.subscriptionEnd
+      subscriptionEnds: user.subscriptionEnds
     })
 
     return NextResponse.json({ message: 'subscription recharged' }, { status: 200 })
   } catch (err) {
-    return NextResponse.json({ message: 'err creating user '}, { status: 500 })
+    return NextResponse.json({ message: 'err creating user ', err}, { status: 500 })
   }
 }

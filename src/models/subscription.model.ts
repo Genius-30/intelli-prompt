@@ -6,7 +6,7 @@ export interface ISubscription extends Document {
   paymentId: string;
   amount: number;
   currency: string;
-  plan: 'free' | 'pro' | 'enterpise';
+  plan: 'free' | 'pro' | 'enterprise';
   subscriptionStart: Date;
   subscriptionEnds: Date;
   createdAt: Date;
@@ -18,7 +18,7 @@ const SubscriptionSchema: Schema<ISubscription> = new Schema(
     paymentId: { type: String, required: true },
     amount: { type: Number, required: true },
     currency: { type: String, default: 'INR' },
-    plan: { type: String, enum: ['free', 'pro', 'enterpise'], required: true },
+    plan: { type: String, enum: ['free', 'pro', 'enterprise'], required: true },
     subscriptionStart: { type: Date, required: true },
     subscriptionEnds: { type: Date, required: true }
   },

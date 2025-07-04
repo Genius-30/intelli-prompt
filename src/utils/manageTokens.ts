@@ -36,7 +36,7 @@ export async function checkSubscription( { userId }: { userId: string }) {
     if (!user) throw new Error('User not found');
 
     const now = new Date()
-    if(now > user.subscriptionEnd) throw new Error('subscription expired');
+    if(now > user.subscriptionEnds) throw new Error('subscription expired');
     
     return { success: true }
   } catch (err) {
