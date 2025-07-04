@@ -12,11 +12,13 @@ export function DashboardHeader() {
   const { resolvedTheme } = useTheme();
 
   return (
-    <header className="flex items-center justify-between pr-6 py-4 border-b bg-background">
-      <SidebarTrigger size={"lg"} className="mx-2" />
-      <Separator orientation="vertical" />
+    <header className="flex items-center justify-between pr-3 sm:pr-6 py-4 border-b bg-background gap-1">
+      <div className="h-full flex items-center gap-1 mx-2">
+        <SidebarTrigger size={"lg"} />
+        <Separator orientation="vertical" />
+      </div>
 
-      <div className="ml-6 mr-auto">
+      <div className="sm:ml-6 mr-auto">
         <BreadcrumbResponsive />
       </div>
 
