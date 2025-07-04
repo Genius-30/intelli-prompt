@@ -11,7 +11,7 @@ const FolderSchema: Schema<IFolder> = new Schema(
     title: { type: String, required: true, maxlength: 75 },
     ownerId: { type: String, required: true }
   },
-  { timestamps: { createdAt: true, updatedAt: false } }
+  { timestamps: true }
 )
 
 export const Folder: Model<IFolder> = mongoose.models.Folder || mongoose.model<IFolder>('Folder', FolderSchema)
