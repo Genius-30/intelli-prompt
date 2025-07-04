@@ -6,6 +6,7 @@ import { useTheme } from "next-themes";
 import { dark } from "@clerk/themes";
 import { SidebarTrigger } from "./ui/sidebar";
 import { Separator } from "./ui/separator";
+import { BreadcrumbResponsive } from "./BreadCrumbResponsive";
 
 export function DashboardHeader() {
   const { resolvedTheme } = useTheme();
@@ -15,7 +16,10 @@ export function DashboardHeader() {
       <SidebarTrigger size={"lg"} className="mx-2" />
       <Separator orientation="vertical" />
 
-      <h1 className="text-xl font-semibold mr-auto ml-6">Dashboard</h1>
+      <div className="ml-6 mr-auto">
+        <BreadcrumbResponsive />
+      </div>
+
       <div className="flex items-center gap-4">
         <ModeToggle />
         <UserButton

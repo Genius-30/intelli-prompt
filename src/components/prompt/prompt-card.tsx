@@ -36,7 +36,7 @@ export function PromptCard({
 
         <div className="flex items-center gap-2">
           <Button asChild size="sm" variant="outline" className="px-3">
-            <Link href={`/dashboard/prompts/${prompt._id}`}>
+            <Link href={`/prompts/${prompt._id}/versions/versionId`}>
               <SquarePenIcon /> Edit
             </Link>
           </Button>
@@ -46,7 +46,7 @@ export function PromptCard({
             variant="default"
             className="bg-green-500 hover:bg-green-600 px-3"
           >
-            <Link href={`/dashboard/prompts/test/${prompt._id}`}>
+            <Link href={`/prompts/${prompt._id}/versions/versionId/test`}>
               <TestTube2Icon /> Test
             </Link>
           </Button>

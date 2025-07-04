@@ -9,7 +9,7 @@ import { Loader } from "../ui/loader";
 import { ArrowRightIcon, Redo2Icon, Undo2Icon } from "lucide-react";
 import { AnimatedShinyText } from "../magicui/animated-shiny-text";
 import { toast } from "sonner";
-import { enhancePrompt } from "@/utils/enhancePrompt";
+import { enhancedPrompt } from "@/utils/enhancePrompt";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import { useRouter } from "next/navigation";
 import { useCreatePrompt, useUpdatePrompt } from "@/lib/queries/prompt";
@@ -26,7 +26,7 @@ export function PromptForm({
   const [title, setTitle] = useState(initialData?.title || "");
   const [prompt, setPrompt] = useState(initialData?.prompt || "");
   const [showEnhancer, setShowEnhancer] = useState(false);
-  const [enhancedPrompt, setEnhancedPrompt] = useState("");
+  const [enhancePrompt, setEnhancePrompt] = useState("");
   const [loadingEnhance, setLoadingEnhance] = useState(false);
   const [history, setHistory] = useState<string[]>([]);
   const [redoStack, setRedoStack] = useState<string[]>([]);
@@ -73,18 +73,18 @@ export function PromptForm({
     try {
       setLoadingEnhance(true);
       setShowEnhancer(true);
-      setEnhancedPrompt("");
+      setEnhancePrompt("");
       setHistory((prev) => [...prev, prompt]); // track only enhanced prompt edits
       setRedoStack([]);
 
-      const result = await enhancePrompt(prompt);
+      const result = await enhancedPrompt(prompt);
 
       if (!result || typeof result !== "string") {
         toast.error("Failed to enhance the prompt.");
         return;
       }
 
-      setEnhancedPrompt(result);
+      setEnhancePrompt(result);
     } catch (error) {
       toast.error("Error enhancing prompt.");
       console.error("Enhance Error:", error);
@@ -150,8 +150,8 @@ export function PromptForm({
               ✨ Enhanced Prompt
             </p>
             <div className="bg-input dark:bg-input/30 border py-2 px-3 rounded-md text-sm min-h-[50px] flex items-center">
-              {enhancedPrompt ? (
-                <span>{enhancedPrompt}</span>
+              {enhancePrompt ? (
+                <span>{enhancePrompt}</span>
               ) : (
                 <Loader className="w-6 h-6" />
               )}
@@ -162,7 +162,7 @@ export function PromptForm({
                 onClick={() => {
                   setHistory((prev) => [...prev.slice(-49), prompt]);
                   setRedoStack([]);
-                  setPrompt(enhancedPrompt);
+                  setPrompt(enhancePrompt);
                 }}
               >
                 Replace
