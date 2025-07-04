@@ -3,9 +3,10 @@ import mongoose, { Schema, Document, Model } from "mongoose";
 export interface IUser extends Document {
   name: string;
   email: string;
-  plan: 'free' | 'pro' | 'enterpise';
+  plan: 'free' | 'pro' | 'enterprise';
   subscriptionEnd: Date;
-  tokensRemaining: number;
+  tokenLimit: number;
+  tokensUsed: number;
   createdAt: Date;
 }
 
@@ -15,8 +16,9 @@ const UserSchema: Schema<IUser> = new Schema(
     name: { type: String, required: true },
     email: { type: String, required: true },
     plan: { type: String, enum: ['free', 'pro', 'enterprise'], default: 'free' },
-    subscriptionEnd: { type: Date , default: null },
-    tokensRemaining: { type: Number, default: 0 },
+    subscriptionEnd: { type: Date , required: true, default: new Date(new Date().setMonth(new Date().getMonth() + 12)) },
+    tokenLimit: { type: Number, default: 1000 },
+    tokensUsed: { type: Number, default: 0 },
     createdAt: { type: Date, default: Date.now }
   },
   { _id: false }

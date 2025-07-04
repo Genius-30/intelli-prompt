@@ -1,8 +1,8 @@
-import { callOpenAI, callAnthropic, callGemini, callMistral, callGrok } from './models'
+import { callOpenAI, callAnthropic, callGemini, callMistral } from './models'
 import { IMessage } from './models'
 
 export interface ITestModelOption {
-  provider: 'openai' | 'claude' | 'anthropic' | 'google' | 'mistral' | 'grok',
+  provider: 'openai' | 'claude' | 'anthropic' | 'google' | 'mistral' ,
   model: string,
   temperature: number,
   prompt: string;
@@ -17,8 +17,6 @@ export async function testPromptOnModels({ provider, model, temperature=0.7, pro
         return await callOpenAI({ model, temperature, messages })
       case 'anthropic': 
         return await callAnthropic({ model, temperature, messages })
-      case 'grok':
-        return await callGrok({ model, temperature, messages })
       case 'google':
         return await callGemini({ model, temperature, messages })
       case 'mistral':

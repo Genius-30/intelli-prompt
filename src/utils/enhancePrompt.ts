@@ -1,5 +1,10 @@
 import { callGemini } from './models'
 
+export interface IResponse {
+  tokensUsed: number;
+  response: string;
+}
+
 export async function enhancedPrompt( content: string ) {
   try {
     const systemPrompt = `You are an expert prompt engineer. 
@@ -12,18 +17,18 @@ export async function enhancedPrompt( content: string ) {
                           `;
     const userPrompt = `Original Prompt: ${content}`;
 
-    const enhanced = await callGemini({
+    const response = await callGemini({
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userPrompt }
       ],
       model: 'gemini-2.0-flash',
       temperature: 0.7
-    })
+    }) as IResponse
 
-    return enhanced?.trim()
+    return { tokensUsed: response.tokensUsed, response: response.response}
   } catch (err) {
     console.log('Error in utility fn while enhancing: ',err)
-    return null
+    return { tokensUsed: 0, response: 'Error in utility fn '}
   }
 }
