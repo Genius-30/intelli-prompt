@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { Prompt } from "@/models/prompt.model"
 import { getAuthenticatedUser } from '@/utils/getAuthenticatedUser'
 import mongoose from "mongoose"
+import { Folder } from "@/models/folder.model";
 
 export async function PATCH(
   req: NextRequest, 
@@ -16,8 +17,8 @@ export async function PATCH(
       return NextResponse.json({ message: 'invalid promptId' },{ status: 400 })
     }
     
-    const { title,content } = await req.json();
-    if (!title && !content){
+    const { content } = await req.json();
+    if (!content){
       return NextResponse.json({ error: "missing required feild" },{ status: 400 });
     }
 
@@ -35,12 +36,20 @@ export async function PATCH(
     const newPrompt = await Prompt.create({
       ownerId: userId,
       folderId: existingPrompt.folderId,
-      title: title || existingPrompt.title,
       content: content || existingPrompt.content,
       version: existingPrompt.version + 1,
       isCurrent: true,
       isFavorite: false
-    });
+    })
+
+    await Folder.findOneAndUpdate(
+      { _id: existingPrompt.folderId, ownerId: userId },
+      {
+        $inc: { totalVersions: 1 },
+        $set: { activeVersion: newPrompt._id }
+      },
+      { new: false }
+    )
 
     return NextResponse.json({ message: "New version created", newPrompt }, { status: 201 });
   } catch (err) {

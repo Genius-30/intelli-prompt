@@ -80,3 +80,27 @@ export async function DELETE(
     )
   }
 }
+
+// to fetch a specific folder
+export async function GET(
+  { params }: { params: { id: string } }
+) {
+  try {
+    const { userId, error } = await getAuthenticatedUser()
+    if(error) return error
+
+    const folderId = (await params).id
+    if(!mongoose.Types.ObjectId.isValid(folderId)) {
+      return NextResponse.json({ message: 'invalid folderId' }, { status: 400 })
+    }
+
+    const folder = await Folder.findById({ _id: folderId })
+    if(!folder) {
+      return NextResponse.json({ message: 'folder not found!' }, { status: 404 })
+    }
+
+    return NextResponse.json({ message: 'folder found', folder }, { status: 200 }) 
+  } catch (err) {
+    return NextResponse.json({ message: 'err fetching folder' }, { status: 500 })
+  }
+}

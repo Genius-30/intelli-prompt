@@ -18,7 +18,8 @@ export async function POST(req: NextRequest) {
 
     const folder = await Folder.create({
       title,
-      ownerId: userId
+      ownerId: userId,
+      isFavorite: false,
     })
 
     return NextResponse.json(

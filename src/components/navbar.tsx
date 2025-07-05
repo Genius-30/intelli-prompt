@@ -1,71 +1,63 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Menu } from "lucide-react";
-import { ModeToggle } from "./ModeToogle";
+import { Menu, X } from "lucide-react"
+// import { ModeToggle } from "./ModeToogle";
 import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 import { useTheme } from "next-themes";
 import { dark } from "@clerk/themes";
 import Logo from "./Logo";
 
 export function Navbar() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
   const { resolvedTheme } = useTheme();
 
   return (
-    <header className="fixed top-2 left-[50%] translate-x-[-50%] w-[90%] rounded-lg z-[30] bg-white/10 backdrop-blur-md border border-white/20 shadow-lg">
-      <div className="w-full flex h-14 items-center justify-between px-8">
-        {/* Logo */}
-        <Link href="/">
-          <Logo />
-        </Link>
+    <>
+      <header className="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl bg-black/20 border-b border-white/5">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            <Link href="/"><Logo /></Link>
 
-        {/* Desktop Nav */}
-        <nav className="hidden md:flex items-center gap-4">
-          <ModeToggle />
+            <nav className="hidden md:flex items-center space-x-8">
+              <a href="#features" className="text-gray-300 hover:text-white transition-colors"> Features </a>
+              <a href="#playground" className="text-gray-300 hover:text-white transition-colors"> Playground </a>
+              <a href="#pricing" className="text-gray-300 hover:text-white transition-colors"> Pricing </a>
+              {/* <ModeToggle /> */}
 
-          <SignedOut>
-            <Link href="/sign-in">
-              <Button variant="ghost" size="sm">
-                Login
-              </Button>
-            </Link>
-            <Link href="/sign-up">
-              <Button size="sm">Get Started</Button>
-            </Link>
-          </SignedOut>
+              <SignedOut>
+                <Link href="/sign-up">
+                  <Button size="sm">Get Started</Button>
+                </Link>
+              </SignedOut>
+              <SignedIn>
+                <UserButton
+                  appearance={{
+                    baseTheme: resolvedTheme === "dark" ? dark : undefined,
+                  }}
+                />
+              </SignedIn>
+            </nav>
 
-          <SignedIn>
-            <UserButton
-              appearance={{
-                baseTheme: resolvedTheme === "dark" ? dark : undefined,
-              }}
-            />
-          </SignedIn>
-        </nav>
+            <button className="md:hidden text-white" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+              {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
+          </div>
+        </div>
+      </header>
 
-        {/* Mobile Nav */}
-        <div className="md:hidden">
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button variant="ghost" size="icon">
-                <Menu className="h-10 w-10" />
-              </Button>
-            </SheetTrigger>
-            <SheetContent
-              side="right"
-              className="w-[240px] sm:w-[300px] px-4 py-2"
-            >
-              <div className="flex flex-col gap-4 mt-8">
-                <ModeToggle />
-
-                <SignedOut>
-                  <Link href="/sign-in">
-                    <Button variant="ghost" size="sm">
-                      Login
-                    </Button>
-                  </Link>
+      {isMenuOpen && (
+        <div className="fixed inset-0 z-40 md:hidden">
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setIsMenuOpen(false)}></div>
+          <div className="fixed top-16 left-0 right-0 bg-black/90 backdrop-blur-xl border-b border-white/10 p-4">
+            <nav className="flex flex-col space-y-4">
+              <a href="#features" className="text-gray-300 hover:text-white transition-colors"> Features </a>
+              <a href="#playground" className="text-gray-300 hover:text-white transition-colors"> Playground </a>
+              <a href="#pricing" className="text-gray-300 hover:text-white transition-colors"> Pricing </a>
+              {/* <ModeToggle /> */}
+              <SignedOut>
                   <Link href="/sign-up">
                     <Button size="sm">Get Started</Button>
                   </Link>
@@ -74,11 +66,10 @@ export function Navbar() {
                 <SignedIn>
                   <UserButton />
                 </SignedIn>
-              </div>
-            </SheetContent>
-          </Sheet>
+            </nav>
+          </div>
         </div>
-      </div>
-    </header>
+      )}
+    </>
   );
 }
