@@ -5,7 +5,6 @@ import { IFolder } from './folder.model';
 export interface IPrompt extends Document {
   ownerId: IUser['_id'];
   folderId: IFolder['_id'];
-  title: string;
   content: string;
   version: number;
   isCurrent: boolean;
@@ -16,7 +15,6 @@ const PromptSchema: Schema<IPrompt> = new Schema(
   {
     ownerId: { type: String, required: true },
     folderId: { type: Schema.Types.ObjectId, ref: 'Folder', default: null },
-    title: { type: String, required: true, trim: true},
     content: { type: String, required: true },
     version: { type: Number, required: true, default: 1 },
     isCurrent: { type: Boolean, default: true },

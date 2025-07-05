@@ -19,8 +19,8 @@ export async function PATCH(
       )
     }
 
-    const { title, content } = await req.json();
-    if (!title && !content){
+    const { content } = await req.json();
+    if (!content){
       return NextResponse.json(
         { error: "missing required feilds" }, 
         { status: 400 }
@@ -31,7 +31,6 @@ export async function PATCH(
       { _id: promptId, ownerId: userId },
       {
         $set: {
-          title,
           content,
           isCurrent: true
         }

@@ -10,8 +10,8 @@ import { Toaster } from "sonner";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "IntelliStack",
-  description: "The Intelligence Stack for AI Builders",
+  title: "IntelliStack - Enhance Prompts, Compare Outputs, Unlock Precision",
+  description: "A powerful prompt engineering workspace to enhance, version, and test prompts across leading AI models like GPT-4, Claude, Gemini, and Mistral.",
 };
 
 export default function RootLayout({
