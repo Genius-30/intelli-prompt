@@ -104,7 +104,7 @@ export function DashboardSidebar() {
               )}
             >
               <Link
-                href={`/prompts/${prompt.title}/versions`}
+                href={`/prompts/${prompt._id}/versions`}
                 className="flex-1 truncate text-sm font-medium"
               >
                 <span className="truncate">{prompt.title}</span>

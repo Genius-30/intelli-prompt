@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { PromptCard } from "@/components/prompt/prompt-card";
+import { PromptCard } from "@/components/prompt/PromptCard";
 import { useGetAllPrompts } from "@/lib/queries/prompt";
 import { PromptCardSkeleton } from "@/components/skeletons/PromptCardSkeleton";
 import { useState } from "react";
@@ -10,16 +10,24 @@ import { useState } from "react";
 export default function AllPromptsPage() {
   const [prompts, setPrompts] = useState([
     {
-      _id: "1",
-      title: "Sample Prompt 1",
-      prompt: "This is a sample prompt for testing.",
-      updatedAt: new Date().toISOString(),
+      _id: "678fg7d812356ef12345678",
+      title: "Cold Email",
+      isFavorite: true,
+      totalVersions: 3,
+      updatedAt: "2025-07-04T10:23:00Z",
+      activeVersion: {
+        _id: "v456",
+      },
     },
     {
-      _id: "2",
-      title: "Sample Prompt 2",
-      prompt: "This is another sample prompt for testing.",
-      updatedAt: new Date().toISOString(),
+      _id: "1234567890abcdef12345678",
+      title: "Robot Story",
+      isFavorite: true,
+      totalVersions: 5,
+      updatedAt: "2025-07-04T16:39:00Z",
+      activeVersion: {
+        _id: "v25",
+      },
     },
   ]);
   // const { data: prompts, isLoading, error } = useGetAllPrompts();
@@ -40,13 +48,6 @@ export default function AllPromptsPage() {
 
   return (
     <div className="p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Your Prompts</h1>
-        <Button asChild>
-          <Link href="/prompts/new">+ New Prompt</Link>
-        </Button>
-      </div>
-
       {prompts?.length === 0 && (
         <p className="text-start text-muted-foreground mt-10">
           {" "}

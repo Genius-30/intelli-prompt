@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useParams, usePathname } from "next/navigation";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -11,8 +11,9 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { useGetPromptMeta } from "@/lib/queries/prompt";
 
-// Optional: map fixed segments to custom names
+// Optional: map static segments to readable labels
 const segmentLabelMap: Record<string, string> = {
   prompts: "Your Prompts",
   versions: "Versions",
@@ -29,21 +30,32 @@ function formatLabel(segment: string) {
 
 export function BreadcrumbResponsive() {
   const pathname = usePathname();
+  const { promptId, versionId } = useParams();
+  const { data: prompt } = useGetPromptMeta(promptId);
 
-  const segments = pathname.split("/").filter(Boolean); // Filter out empty segments
+  const segments = pathname.split("/").filter(Boolean);
 
   const crumbs = segments.map((segment, index) => {
     const href = "/" + segments.slice(0, index + 1).join("/");
-    return {
-      label: formatLabel(segment),
-      href,
-    };
+
+    let label = formatLabel(segment);
+
+    // Replace promptId with actual prompt title
+    if (segment === promptId && prompt?.title) {
+      label = prompt.title;
+    }
+
+    // Replace versionId with actual version name
+    if (segment === versionId && prompt?.activeVersion?.name) {
+      label = prompt.activeVersion.name;
+    }
+
+    return { label, href };
   });
 
   return (
     <Breadcrumb>
       <BreadcrumbList>
-        {/* Dynamic crumbs */}
         {crumbs.map((crumb, index) => {
           const isLast = index === crumbs.length - 1;
           return (

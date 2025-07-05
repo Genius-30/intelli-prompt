@@ -11,6 +11,19 @@ export const useGetAllPrompts = () => {
   });
 };
 
+export const useGetPromptMeta = (promptId: string) => {
+  return useQuery({
+    queryKey: ["promptMeta", promptId],
+    queryFn: async () => {
+      if (!promptId) throw new Error("Prompt ID is required");
+
+      const res = await axiosInstance.get(`/api/prompts/${promptId}/meta`);
+      return res.data;
+    },
+    enabled: !!promptId,
+  });
+};
+
 export const useGetPrompt = (id: string | undefined) => {
   return useQuery({
     queryKey: ["prompt", id],
