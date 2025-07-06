@@ -1,11 +1,11 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Sparkles, Layers, ArrowRight, Code2, Brain, History, FolderOpen, Play, ChevronDown } from "lucide-react"
+import { Sparkles, Layers, ArrowRight, Code2, Brain, History, FolderOpen, Play } from "lucide-react"
 import up from '../../public/hero/up.png'
 import down from '../../public/hero/down.png'
 import favicon from '../../public/favicon.ico'
-import { motion } from "motion/react";
+import Stars from './stars.tsx'
 
 const steps = [
     {
@@ -80,40 +80,19 @@ export default function Hero() {
         <div className="absolute top-1/3 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
         <div className="absolute bottom-1/4 left-1/3 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse delay-2000"></div>
       </div>
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-          {[...Array(20)].map((_, i) => (
-            <motion.div
-              key={i}
-              className="absolute w-1 h-1 bg-blue-400 rounded-full opacity-30"
-              animate={{
-                x: [0, Math.random() * 100 - 50],
-                y: [0, Math.random() * 100 - 50],
-                opacity: [0.3, 0.8, 0.3],
-              }}
-              transition={{
-                duration: Math.random() * 10 + 2,
-                repeat: Number.POSITIVE_INFINITY,
-                ease: "easeInOut",
-              }}
-              style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-              }}
-            />
-          ))}
-      </div>
+      <Stars/>
 
       {/* Hero Section */}
       <section className="min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8 pt-16">
         <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
           <div className={`transition-all duration-1000`}>
-            <div className="mb-2">
+            <div className="mb-2 mt-12 sm:mt-0">
               <Badge className="bg-gradient-to-r from-cyan-500/20 to-purple-500/20 text-cyan-400 border-cyan-500/30 mb-4 p-1 px-2">
                 ⭐ AI-Powered Prompt Engineering
               </Badge>
             </div>
 
-            <h1 className="text-5xl sm:text-6xl font-bold mb-6 leading-tight">
+            <h1 className="text-4xl sm:text-6xl font-bold mb-6 leading-tight">
               <span className="bg-gradient-to-r from-white via-green-200 to-white bg-clip-text text-transparent">
                 Enhance Prompts.
               </span>
@@ -154,10 +133,10 @@ export default function Hero() {
           <div className={`relative transition-all duration-1000 delay-300`}>
             <div className="relative">
               {/* Main Dashboard Card */}
-              <div className="backdrop-blur-xl bg-gradient-to-br from-white/10 to-white/5 border border-white/20 rounded-3xl p-8 shadow-2xl shadow-purple-500/10">
+              <div className="backdrop-blur-xl bg-gradient-to-br from-white/10 to-white/5 border border-white/20 rounded-3xl p-6 sm:p-8 shadow-2xl shadow-purple-500/10">
                 <div className="flex items-center justify-between mb-6">
                   <h3 className="text-xl font-semibold">Prompt Workspace</h3>
-                  <div className="flex space-x-2 mr-12">
+                  <div className="hidden md:flex space-x-2 mr-12">
                     <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
                     <div className="w-3 h-3 bg-yellow-400 rounded-full"></div>
                     <div className="w-3 h-3 bg-red-400 rounded-full"></div>
@@ -180,7 +159,7 @@ export default function Hero() {
               </div>
 
               {/* Floating Model Cards */}
-              <div className="absolute -top-12 -right-16 backdrop-blur-xl bg-gradient-to-br from-purple-500/20 to-pink-500/20 border border-purple-500/30 rounded-2xl p-4 ">
+              <div className="absolute -top-12 -right-2 sm:-right-6 md:-right-16 backdrop-blur-xl bg-gradient-to-br from-purple-500/20 to-pink-500/20 border border-purple-500/30 rounded-2xl p-4 ">
                 <div className="text-sm font-semibold mb-2">Active Models</div>
                 <div className="space-y-2">
                   {['GPT-4','Claude'].map((item) => (
@@ -192,7 +171,7 @@ export default function Hero() {
                 </div>
               </div>
 
-              <div className="absolute -bottom-14 -right-16 backdrop-blur-xl bg-gradient-to-br from-cyan-500/20 to-blue-500/20 border border-cyan-500/30 rounded-2xl p-4">
+              <div className="absolute -bottom-16 sm:-bottom-14 -right-2 sm:-right-6 md:-right-16 backdrop-blur-xl bg-gradient-to-br from-cyan-500/20 to-blue-500/20 border border-cyan-500/30 rounded-2xl p-4">
                 <div className="text-sm font-semibold mb-2">Performance</div>
                 <div className="text-xs text-gray-200 space-y-2">
                   <div className="flex"><img className="w-3 mx-[2px]" src={up.src} alt="" /> Quality: 94%</div>
@@ -205,7 +184,7 @@ export default function Hero() {
       </section>
 
       {/* How It Works Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8">
+      <section className="py-20 px-4 sm:px-6 lg:px-8 mt-12 sm:mt-0">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl sm:text-5xl font-bold mb-4 text-white">
@@ -233,6 +212,11 @@ export default function Hero() {
                     <div className="absolute right-0 top-1/2 w-2 h-2 bg-purple-500 rounded-full transform translate-x-1 -translate-y-1/2"></div>
                   </div>
                 )}
+                {index < steps.length - 1 && (
+                  <div className="md:hidden block absolute -bottom-12 right-1/2  w-px h-8 bg-gradient-to-r from-cyan-500 to-purple-500 transform -translate-y-1/2">
+                    <div className="absolute right-0 -bottom-1 w-2 h-2 bg-purple-500 rounded-full transform translate-x-1 -translate-y-1/2"></div>
+                  </div>
+                )}
               </div>
             ))}
           </div>
@@ -240,7 +224,7 @@ export default function Hero() {
       </section>
 
       {/* Live Playground Preview */}
-      <section id="playground" className="py-20 px-4 sm:px-6 lg:px-8">
+      <section id="playground" className="sm:py-20 pt-0 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl sm:text-5xl font-bold mb-4 bg-gradient-to-r leading-relaxed from-cyan-400 to-purple-500 bg-clip-text text-transparent">
@@ -251,7 +235,7 @@ export default function Hero() {
             </p>
           </div>
 
-          <div className="backdrop-blur-xl bg-gradient-to-br from-white/5 to-white/2 border border-white/10 rounded-3xl p-8 shadow-2xl">
+          <div className="backdrop-blur-xl bg-gradient-to-br from-white/5 to-white/2 border border-white/10 rounded-3xl p-4 sm:p-8 shadow-2xl">
             <div className="grid lg:grid-cols-2 gap-8">
               {/* Left Panel - Prompt Comparison */}
               <div>
@@ -261,14 +245,14 @@ export default function Hero() {
                 </h3>
 
                 <div className="space-y-4">
-                  <div className="bg-red-400/10 border border-red-500/20 rounded-xl p-4">
+                  <div className="bg-red-400/10 border border-red-500/20 rounded-xl p-2 sm:p-4">
                     <div className="text-sm text-red-400 mb-2 font-semibold">- Original</div>
                     <div className="font-mono text-sm text-gray-300">
                       Write a marketing email for our new product launch
                     </div>
                   </div>
 
-                  <div className="bg-green-500/10 border border-green-500/20 rounded-xl p-4">
+                  <div className="bg-green-500/10 border border-green-500/20 rounded-xl p-2 sm:p-4">
                     <div className="text-sm text-green-400 mb-2 font-semibold">+ Enhanced</div>
                     <div className="font-mono text-sm text-gray-300">
                       Create a compelling marketing email for our new product launch that includes: a catchy subject
@@ -287,7 +271,7 @@ export default function Hero() {
                   Model Comparison
                 </h3>
 
-                <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4 min-h-[200px]">
+                <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-2 sm:p-4 min-h-[200px]">
                   <div className="flex items-center justify-between mb-3">
                     <div className="text-sm text-gray-400">Output Preview</div>
                   </div>
@@ -298,7 +282,7 @@ export default function Hero() {
                     Hi [Name],
                     <br />
                       We're thrilled to announce the launch of our revolutionary new product that will transform how you work and elevate your productivity to the next level. <br />
-                      This innovation isn’t just a tool—it’s a complete shift in how you approach daily tasks. With its intuitive interface, powerful features, and seamless integration into your workflow, you’ll be empowered to achieve more in less time.
+                      This innovation isn’t just a tool—it’s a complete shift in how you approach daily tasks. With its intuitive interface, powerful features, and seamless integration into your workflow, you’ll be empowered to achieve more in less time...
                   </div>
                 </div>
               </div>
@@ -336,7 +320,7 @@ export default function Hero() {
       {/* Final CTA Section */}
       <section className="py-20 px-4 sm:px-6 lg:px-8 relative">
         <div className="max-w-4xl mx-auto text-center">
-          <div className="backdrop-blur-xl bg-gradient-to-br from-gray-600/10 to-gray-100/5 border border-white/20 rounded-3xl p-12 shadow-2xl shadow-purple-500/10 relative overflow-hidden">
+          <div className="backdrop-blur-xl bg-gradient-to-br from-gray-600/10 to-gray-100/5 border border-white/20 rounded-3xl p-8 px-4 sm:p-12 shadow-2xl shadow-purple-500/10 relative overflow-hidden">
             {/* Glowing backdrop */}
             <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/5 via-purple-500/5 to-pink-500/5 animate-pulse"></div>
 
@@ -352,7 +336,7 @@ export default function Hero() {
                 className="bg-gradient-to-r from-cyan-900 via-purple-900 to-pink-900 hover:from-cyan-900 hover:via-purple-900 hover:to-pink-900 text-white px-12 py-4 text-xl font-semibold rounded-2xl shadow-2xl shadow-purple-500/25 transition-all duration-300 hover:scale-105 hover:shadow-purple-500/40"
               >
                 Start Managing Prompts
-                <ArrowRight className="w-6 h-6 ml-2" />
+                <ArrowRight className="hidden sm:block w-6 h-6 ml-2" />
               </Button>
             </div>
           </div>
