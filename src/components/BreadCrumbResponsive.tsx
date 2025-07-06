@@ -31,7 +31,7 @@ function formatLabel(segment: string) {
 export function BreadcrumbResponsive() {
   const pathname = usePathname();
   const { promptId, versionId } = useParams();
-  const { data: prompt } = useGetPromptMeta(promptId);
+  const { data: prompt } = useGetPromptMeta(promptId as string);
 
   const segments = pathname.split("/").filter(Boolean);
 

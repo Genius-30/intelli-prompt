@@ -47,7 +47,7 @@ export default function AllPromptsPage() {
   // }
 
   return (
-    <div className="p-6">
+    <div className="p-2 sm:p-6">
       {prompts?.length === 0 && (
         <p className="text-start text-muted-foreground mt-10">
           {" "}

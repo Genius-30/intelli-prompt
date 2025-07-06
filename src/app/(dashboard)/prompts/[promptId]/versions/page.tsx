@@ -10,6 +10,8 @@ import {
   GitBranchIcon,
   CopyIcon,
   CheckIcon,
+  TrashIcon,
+  PlusIcon,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -77,7 +79,11 @@ export default function PromptVersionsPage() {
             View and manage all versions of this prompt
           </p>
         </div>
-        <Button>+ New Version</Button>
+        {mockVersions.length === 0 && (
+          <Button className="mt-2 sm:mt-0">
+            <PlusIcon /> Add version
+          </Button>
+        )}
       </div>
 
       {/* Scrollable Timeline */}
@@ -133,9 +139,8 @@ export default function PromptVersionsPage() {
                     <DropdownMenuItem>
                       <CopyIcon className="w-4 h-4 mr-2" /> Duplicate
                     </DropdownMenuItem>
-                    <DropdownMenuItem>Rename</DropdownMenuItem>
                     <DropdownMenuItem className="text-red-600">
-                      Delete
+                      <TrashIcon className="text-red-600 w-4 h-4 mr-2" /> Delete
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>

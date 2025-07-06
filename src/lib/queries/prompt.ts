@@ -17,7 +17,9 @@ export const useGetPromptMeta = (promptId: string) => {
     queryFn: async () => {
       if (!promptId) throw new Error("Prompt ID is required");
 
-      const res = await axiosInstance.get(`/api/prompts/${promptId}/meta`);
+      const res = await axiosInstance.get(`/folder/${promptId}`);
+      console.log("Prompt Meta Data:", res);
+      
       return res.data;
     },
     enabled: !!promptId,
