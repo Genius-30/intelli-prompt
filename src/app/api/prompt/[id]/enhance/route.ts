@@ -13,20 +13,21 @@ export async function POST(
     const { userId, error } = await getAuthenticatedUser()
     if(error) return error
 
-    const promptId = (await params).id
-    if(!mongoose.Types.ObjectId.isValid(promptId)) {
-      return NextResponse.json({ message: 'invalid promptId' }, { status: 400 })
-    }
+    // const promptId = (await params).id
+    // if(!mongoose.Types.ObjectId.isValid(promptId)) {
+    //   return NextResponse.json({ message: 'invalid promptId' }, { status: 400 })
+    // }
+    const { content } = await req.json()
 
     const { tokenEstimated } = await req.json()
     if(!tokenEstimated){
       return NextResponse.json({message:'tokenEstimate not found'},{status:404})
     }
 
-    const prompt = await Prompt.findOne({ _id: promptId })
-    if(!prompt){
-      return NextResponse.json({ message: 'prompt not found' },{ status: 404 })
-    }
+    // const prompt = await Prompt.findOne({ _id: promptId })
+    // if(!prompt){
+    //   return NextResponse.json({ message: 'prompt not found' },{ status: 404 })
+    // }
 
     const subs = await checkSubscription({ userId })
     if(!subs.success){
@@ -38,7 +39,7 @@ export async function POST(
       return NextResponse.json({ message:'not enough token' }, { status: 400 });
     }
 
-    const enhanced = await enhancedPrompt(prompt.content)
+    const enhanced = await enhancedPrompt(content)
     if(!enhanced || !enhanced.response){
       return NextResponse.json({ message: "enhance not found"}, { status: 201 });
     }
