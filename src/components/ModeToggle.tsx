@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 type ModeToggleProps = {
-  showLabel?: boolean; // 🆕 Optional prop (default false)
+  readonly showLabel?: boolean; // 🆕 Optional prop (default false)
 };
 
 export function ModeToggle({ showLabel = false }: ModeToggleProps) {

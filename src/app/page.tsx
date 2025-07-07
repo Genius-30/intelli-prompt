@@ -1,7 +1,4 @@
-<<<<<<< HEAD
 import Hero from "@/components/hero";
-=======
-import { Hero } from "@/components/hero";
 import { SignedOut } from "@clerk/nextjs";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
@@ -13,7 +10,6 @@ export default async function HomePage() {
   if (userId) {
     redirect("/dashboard");
   }
->>>>>>> 2fafa30 (FInal routing done)
 
   return (
     <SignedOut>

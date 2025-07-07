@@ -8,6 +8,7 @@ import {
   FileTextIcon,
   Edit2Icon,
   TrashIcon,
+  Star,
 } from "lucide-react";
 import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
@@ -60,8 +61,11 @@ export function DashboardSidebar() {
   const isMobile = useIsMobile();
 
   const openCreateModal = () => setModalState({ type: "create" });
-  const openRenameModal = (prompt: { _id: string; title: string }) =>
-    setModalState({ type: "rename", prompt });
+  const openRenameModal = (prompt: {
+    _id: string;
+    title: string;
+    isFavorite: boolean;
+  }) => setModalState({ type: "rename", prompt });
 
   const closeModal = () => setModalState({ type: null });
 
@@ -83,66 +87,71 @@ export function DashboardSidebar() {
       <p className="text-sm text-muted-foreground ml-3 my-2">No Prompts yet!</p>
     );
   } else {
-    promptContent = prompts.map((prompt: { _id: string; title: string }) => {
-      const isActive = promptId === prompt._id;
-      const isHoveredOrOpen =
-        isMobile || hoveredId === prompt._id || openDropdownId === prompt._id;
+    promptContent = prompts.map(
+      (prompt: { _id: string; title: string; isFavorite: boolean }) => {
+        const isActive = promptId === prompt._id;
+        const isHoveredOrOpen =
+          isMobile || hoveredId === prompt._id || openDropdownId === prompt._id;
 
-      return (
-        <SidebarMenuItem
-          key={prompt._id}
-          onMouseEnter={() => setHoveredId(prompt._id)}
-          onMouseLeave={() => setHoveredId(null)}
-        >
-          <SidebarMenuButton asChild className="flex-1">
-            <div
-              className={cn(
-                "group flex items-center justify-between w-full",
-                isActive
-                  ? "bg-primary/10 text-primary"
-                  : "text-muted-foreground hover:bg-accent hover:text-foreground"
-              )}
-            >
-              <Link
-                href={`/prompts/${prompt._id}/versions`}
-                className="flex-1 truncate text-sm font-medium"
+        return (
+          <SidebarMenuItem
+            key={prompt._id}
+            onMouseEnter={() => setHoveredId(prompt._id)}
+            onMouseLeave={() => setHoveredId(null)}
+          >
+            <SidebarMenuButton asChild className="flex-1">
+              <div
+                className={cn(
+                  "group flex items-center justify-between w-full",
+                  isActive
+                    ? "bg-primary/10 text-primary"
+                    : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                )}
               >
-                <span className="truncate">{prompt.title}</span>
-              </Link>
-
-              {isHoveredOrOpen && (
-                <DropdownMenu
-                  onOpenChange={(open) => {
-                    setOpenDropdownId(open ? prompt._id : null);
-                  }}
+                <Link
+                  href={`/prompts/${prompt._id}/versions`}
+                  className="flex-1 truncate text-sm font-medium flex items-center justify-between gap-1 sm:pr-2"
                 >
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="w-6 h-6 ml-auto"
-                    >
-                      <MoreVertical className="w-4 h-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent>
-                    <DropdownMenuItem onClick={() => openRenameModal(prompt)}>
-                      <Edit2Icon /> Rename
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() => handleDeletePrompt(prompt._id)}
-                      disabled={isDeleting}
-                    >
-                      <TrashIcon /> Delete
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              )}
-            </div>
-          </SidebarMenuButton>
-        </SidebarMenuItem>
-      );
-    });
+                  <span className="truncate">{prompt.title}</span>
+                  {prompt.isFavorite && (
+                    <Star className="w-4 h-4 text-yellow-500 fill-yellow-400" />
+                  )}
+                </Link>
+
+                {isHoveredOrOpen && (
+                  <DropdownMenu
+                    onOpenChange={(open) => {
+                      setOpenDropdownId(open ? prompt._id : null);
+                    }}
+                  >
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="w-6 h-6 ml-auto"
+                      >
+                        <MoreVertical className="w-4 h-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                      <DropdownMenuItem onClick={() => openRenameModal(prompt)}>
+                        <Edit2Icon /> Rename
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => handleDeletePrompt(prompt._id)}
+                        disabled={isDeleting}
+                      >
+                        <TrashIcon /> Delete
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                )}
+              </div>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        );
+      }
+    );
   }
 
   return (

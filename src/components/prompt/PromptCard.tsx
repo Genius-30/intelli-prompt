@@ -13,9 +13,11 @@ import {
   Star,
   StarOff,
   GitBranchIcon,
+  PlusIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
+import { useToggleFavorite } from "@/lib/queries/prompt";
 
 type PromptCardProps = {
   prompt: {
@@ -24,17 +26,25 @@ type PromptCardProps = {
     isFavorite: boolean;
     totalVersions: number;
     updatedAt: string;
-    activeVersion: {
-      _id: string;
-    };
+    activeVersion: string;
   };
 };
 
-export function PromptCard({ prompt }: { prompt: PromptCardProps["prompt"] }) {
+export function PromptCard({
+  prompt,
+}: {
+  readonly prompt: Readonly<PromptCardProps["prompt"]>;
+}) {
   const router = useRouter();
+  const { mutate: toggleFavorite, isPending } = useToggleFavorite();
 
   const handleCardClick = () => {
     router.push(`/prompts/${prompt._id}/versions`);
+  };
+
+  const handleToggleFavorite = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    toggleFavorite(prompt._id);
   };
 
   return (
@@ -51,13 +61,11 @@ export function PromptCard({ prompt }: { prompt: PromptCardProps["prompt"] }) {
             "hover:text-yellow-500",
             prompt.isFavorite && "text-yellow-500"
           )}
-          onClick={(e) => {
-            e.stopPropagation(); // prevent card navigation
-            // toggle favorite logic here
-          }}
+          onClick={handleToggleFavorite}
+          disabled={isPending}
         >
           {prompt.isFavorite ? (
-            <Star className="w-4 h-4" />
+            <Star className="w-4 h-4 fill-yellow-400" />
           ) : (
             <StarOff className="w-4 h-4" />
           )}
@@ -78,34 +86,48 @@ export function PromptCard({ prompt }: { prompt: PromptCardProps["prompt"] }) {
           Updated {formatDistanceToNow(new Date(prompt.updatedAt))} ago
         </span>
 
-        <div className="flex items-center gap-2">
+        {prompt.activeVersion ? (
+          <div className="flex items-center gap-2">
+            <Button
+              asChild
+              size="sm"
+              variant="outline"
+              className="px-3"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <Link
+                href={`/prompts/${prompt._id}/versions/${prompt.activeVersion}`}
+              >
+                <SquarePenIcon className="w-4 h-4 mr-1" /> Edit
+              </Link>
+            </Button>
+            <Button
+              asChild
+              size="sm"
+              variant="default"
+              className="bg-green-500 hover:bg-green-600 px-3"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <Link
+                href={`/prompts/${prompt._id}/versions/${prompt.activeVersion}/test`}
+              >
+                <TestTube2Icon className="w-4 h-4 mr-1" /> Test
+              </Link>
+            </Button>
+          </div>
+        ) : (
           <Button
             asChild
             size="sm"
-            variant="outline"
-            className="px-3"
+            className="text-xs"
+            variant="secondary"
             onClick={(e) => e.stopPropagation()}
           >
-            <Link
-              href={`/prompts/${prompt._id}/versions/${prompt.activeVersion._id}`}
-            >
-              <SquarePenIcon className="w-4 h-4 mr-1" /> Edit
+            <Link href={`/prompts/${prompt._id}/versions/new`}>
+              <PlusIcon className="w-4 h-4" /> Create Version
             </Link>
           </Button>
-          <Button
-            asChild
-            size="sm"
-            variant="default"
-            className="bg-green-500 hover:bg-green-600 px-3"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <Link
-              href={`/prompts/${prompt._id}/versions/${prompt.activeVersion._id}/test`}
-            >
-              <TestTube2Icon className="w-4 h-4 mr-1" /> Test
-            </Link>
-          </Button>
-        </div>
+        )}
       </CardFooter>
     </Card>
   );

@@ -6,6 +6,7 @@ export const useGetAllPrompts = () => {
     queryKey: ["prompts"],
     queryFn: async () => {
       const res = await axiosInstance.get("/folder");
+
       return res.data.folders;
     },
   });
@@ -19,7 +20,7 @@ export const useGetPromptMeta = (promptId: string) => {
 
       const res = await axiosInstance.get(`/folder/${promptId}`);
       console.log("Prompt Meta Data:", res);
-      
+
       return res.data;
     },
     enabled: !!promptId,
@@ -79,6 +80,21 @@ export const useDeletePrompt = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["prompts"] });
+    },
+  });
+};
+
+export const useToggleFavorite = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const res = await axiosInstance.patch(`/folder/${id}/favorite`);
+      return res.data;
+    },
+    onSuccess: (_, id) => {
+      queryClient.invalidateQueries({ queryKey: ["prompts"] });
+      queryClient.invalidateQueries({ queryKey: ["promptMeta", id] });
     },
   });
 };

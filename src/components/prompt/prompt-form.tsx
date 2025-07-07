@@ -2,247 +2,333 @@
 
 import { useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Loader } from "../ui/loader";
-import { ArrowRightIcon, Redo2Icon, Undo2Icon } from "lucide-react";
+import {
+  ArrowRightIcon,
+  Plus,
+  Redo2Icon,
+  Star,
+  StarOff,
+  TestTube2Icon,
+  Undo2Icon,
+} from "lucide-react";
 import { AnimatedShinyText } from "../magicui/animated-shiny-text";
 import { toast } from "sonner";
 import { enhancedPrompt } from "@/utils/enhancePrompt";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
-import { useRouter } from "next/navigation";
-import { useCreatePrompt, useUpdatePrompt } from "@/lib/queries/prompt";
+import { useParams, useRouter } from "next/navigation";
+import {
+  useCreateVersion,
+  useUpdateVersion,
+  useAddVersion,
+  useToggleFavorite,
+  useEnhancePrompt,
+} from "@/lib/queries/version";
+import { Badge } from "../ui/badge";
+import { cn } from "@/lib/utils";
+import { PromptEnhancer } from "./prompt-enhancer";
 
 type PromptData = {
-  _id?: string;
-  title: string;
-  prompt: string;
+  _id: string;
+  content: string;
+  isCurrent: boolean;
+  isFavorite: boolean;
+  version: number;
+  folderId: string;
 };
 
 export function PromptForm({
   initialData,
 }: Readonly<{ initialData?: PromptData }>) {
-  const [title, setTitle] = useState(initialData?.title || "");
-  const [prompt, setPrompt] = useState(initialData?.prompt || "");
-  const [showEnhancer, setShowEnhancer] = useState(false);
-  const [enhancePrompt, setEnhancePrompt] = useState("");
-  const [loadingEnhance, setLoadingEnhance] = useState(false);
+  const [content, setContent] = useState(initialData?.content ?? "");
   const [history, setHistory] = useState<string[]>([]);
   const [redoStack, setRedoStack] = useState<string[]>([]);
+  const [showEnhancer, setShowEnhancer] = useState(false);
 
-  const isPromptValid = title.trim().length > 0 && prompt.trim().length > 0;
+  const { promptId, versionId } = useParams();
 
+  const isPromptValid = content.trim().length > 0;
   const isUnchanged =
-    initialData &&
-    title.trim() === initialData.title.trim() &&
-    prompt.trim() === initialData.prompt.trim();
-
+    initialData && content.trim() === initialData.content.trim();
   const disableSaveButton = !isPromptValid || (!!initialData && isUnchanged);
 
   const router = useRouter();
-  const createPrompt = useCreatePrompt();
-  const updatePrompt = useUpdatePrompt();
+  const { mutateAsync: createPrompt, isPending: isCreating } =
+    useCreateVersion();
+  const { mutateAsync: updatePrompt, isPending: isUpdating } =
+    useUpdateVersion();
+  const { mutateAsync: addPromptVersion, isPending: isAdding } =
+    useAddVersion();
+  const { mutate: toggleFavorite, isPending } = useToggleFavorite();
+  const {
+    mutate: enhancePrompt,
+    data: enhanced,
+    isPending: isEnhancing,
+  } = useEnhancePrompt();
 
-  const isMutating = createPrompt.isPending || updatePrompt.isPending;
+  const isMutating = isCreating || isUpdating || isAdding;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const payload = {
-      title,
-      rawPrompt: prompt,
-    };
+    if (!content.trim()) {
+      toast.error("Prompt cannot be empty.");
+      return;
+    }
 
     try {
       if (initialData?._id) {
-        await updatePrompt.mutateAsync({ id: initialData?._id, ...payload });
+        await updatePrompt({
+          versionId: initialData._id,
+          content,
+        });
         toast.success("Prompt updated successfully!");
       } else {
-        await createPrompt.mutateAsync(payload);
-        toast.success("Prompt saved successfully!");
-        router.push(`/dashboard/prompts`);
+        if (!promptId) {
+          toast.error("Missing promptId for new prompt.");
+          return;
+        }
+
+        await createPrompt({
+          content,
+          folderId: promptId as string,
+        });
+        toast.success("Prompt created successfully!");
+        router.push(`/prompts/${promptId}/versions`);
       }
     } catch (error) {
-      console.error("Error submitting prompt:", error);
+      console.error("Submit Error:", error);
       toast.error("Something went wrong.");
     }
   };
 
-  const handleEnhanceClick = async () => {
+  const handleAddVersion = async () => {
     try {
-      setLoadingEnhance(true);
-      setShowEnhancer(true);
-      setEnhancePrompt("");
-      setHistory((prev) => [...prev, prompt]); // track only enhanced prompt edits
-      setRedoStack([]);
-
-      const result = await enhancedPrompt(prompt);
-
-      if (!result || typeof result !== "string") {
-        toast.error("Failed to enhance the prompt.");
+      if (!initialData?._id) {
+        toast.error("Prompt ID is missing.");
         return;
       }
 
-      setEnhancePrompt(result);
+      await addPromptVersion({
+        promptId: initialData._id,
+        content,
+      });
+      toast.success("New version added!");
     } catch (error) {
-      toast.error("Error enhancing prompt.");
-      console.error("Enhance Error:", error);
-    } finally {
-      setLoadingEnhance(false);
+      console.error("Add Version Error:", error);
+      toast.error("Failed to add new version.");
     }
   };
 
-  const buttonLabel = initialData ? "Update Prompt" : "Save Prompt";
+  const handleEnhance = () => {
+    const tokenEstimated = Math.ceil(content.trim().length / 4);
+    if (!versionId) return;
+
+    enhancePrompt(
+      {
+        versionId: versionId as string,
+        tokenEstimated,
+      },
+      {
+        onSuccess: () => setShowEnhancer(true),
+        onError: (error) =>
+          toast.error(
+            error instanceof Error ? error.message : "Failed to enhance prompt."
+          ),
+      }
+    );
+  };
+
+  const handleToggleFavorite = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    toggleFavorite((versionId as string) ?? initialData?._id ?? "");
+  };
 
   return (
-    // <form onSubmit={handleSubmit} className="space-y-6">
-    //   {/* Title */}
-    //   <div>
-    //     <Label>Prompt Title</Label>
-    //     <Input
-    //       placeholder="e.g. Product Description Generator"
-    //       value={title}
-    //       onChange={(e) => setTitle(e.target.value)}
-    //       className="mt-2 h-10"
-    //     />
-    //   </div>
+    <form onSubmit={handleSubmit} className="space-y-8">
+      {/* VERSION DETAILS */}
+      {!!initialData && (
+        <div className="flex flex-col md:flex-row items-start justify-between gap-4">
+          <div className="space-y-1">
+            <p className="text-xl font-semibold">
+              Version {initialData.version}
+            </p>
+            {!initialData.isCurrent && (
+              <p className="text-sm text-muted-foreground">
+                This is not the active version.
+              </p>
+            )}
+          </div>
 
-    //   {/* Prompt & Enhancer */}
-    //   <div className="flex flex-col md:flex-row gap-6">
-    //     {/* Left: Prompt Template */}
-    //     <div className="flex-1">
-    //       <div className="flex items-center justify-between">
-    //         <Label>Prompt Template</Label>
+          <div className="flex items-center gap-3 flex-wrap">
+            {initialData.isCurrent ? (
+              <Badge variant="default" className="text-xs">
+                Active
+              </Badge>
+            ) : (
+              <Button
+                variant="default"
+                size="sm"
+                type="button"
+                onClick={() => {
+                  toast.info("Set Active feature coming soon.");
+                }}
+              >
+                Set as Active
+              </Button>
+            )}
 
-    //         <Button
-    //           type="button"
-    //           variant="secondary"
-    //           size="sm"
-    //           onClick={handleEnhanceClick}
-    //           className="group cursor-pointer select-none"
-    //           disabled={loadingEnhance || !prompt.trim()}
-    //         >
-    //           <AnimatedShinyText className="inline-flex items-center text-sm font-medium text-muted-foreground hover:text-foreground">
-    //             ✨ Enhance with AI
-    //             {loadingEnhance ? (
-    //               <Loader className="ml-2 w-4 h-4 animate-spin text-muted-foreground" />
-    //             ) : (
-    //               <ArrowRightIcon className="ml-1 size-3 transition-transform duration-300 ease-in-out group-hover:translate-x-0.5" />
-    //             )}
-    //           </AnimatedShinyText>
-    //         </Button>
-    //       </div>
+            <Button
+              size="icon"
+              variant="ghost"
+              type="button"
+              className={cn(
+                "hover:text-yellow-500",
+                initialData.isFavorite && "text-yellow-500"
+              )}
+              onClick={handleToggleFavorite}
+              disabled={isPending}
+            >
+              {initialData.isFavorite ? (
+                <Star className="w-4 h-4 fill-yellow-400" />
+              ) : (
+                <StarOff className="w-4 h-4" />
+              )}
+            </Button>
 
-    //       <Textarea
-    //         rows={6}
-    //         placeholder="e.g. Write a tweet about {{product}}"
-    //         value={prompt}
-    //         onChange={(e) => setPrompt(e.target.value)}
-    //         className="mt-2 h-auto min-h-32 md:min-h-48"
-    //       />
-    //     </div>
+            {/* Show "Test Prompt" only if editing */}
+            {versionId && (
+              <Button
+                variant="outline"
+                onClick={() =>
+                  router.push(`/prompts/${promptId}/versions/${versionId}`)
+                }
+              >
+                <TestTube2Icon className="mr-2 h-4 w-4" /> Test Prompt
+              </Button>
+            )}
+          </div>
+        </div>
+      )}
 
-    //     {/* Right: Enhanced Prompt */}
-    //     {showEnhancer && (
-    //       <div className="flex-1 bg-muted p-4 rounded-md space-y-2 min-h-[180px]">
-    //         <p className="text-sm text-muted-foreground font-medium">
-    //           ✨ Enhanced Prompt
-    //         </p>
-    //         <div className="bg-input dark:bg-input/30 border py-2 px-3 rounded-md text-sm min-h-[50px] flex items-center">
-    //           {enhancePrompt ? (
-    //             <span>{enhancePrompt}</span>
-    //           ) : (
-    //             <Loader className="w-6 h-6" />
-    //           )}
-    //         </div>
-    //         <div className="flex gap-2 pt-2">
-    //           <Button
-    //             size="sm"
-    //             onClick={() => {
-    //               setHistory((prev) => [...prev.slice(-49), prompt]);
-    //               setRedoStack([]);
-    //               setPrompt(enhancePrompt);
-    //             }}
-    //           >
-    //             Replace
-    //           </Button>
-    //           <Button
-    //             size="sm"
-    //             variant="ghost"
-    //             onClick={() => setShowEnhancer(false)}
-    //           >
-    //             Discard
-    //           </Button>
-    //         </div>
-    //       </div>
-    //     )}
-    //   </div>
+      {/* PROMPT + ENHANCER */}
+      <div
+        className={cn(
+          "grid gap-6 items-start",
+          showEnhancer ? "md:grid-cols-2" : "grid-cols-1"
+        )}
+      >
+        {/* Prompt Textarea Section */}
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center justify-between gap-2">
+            <Label htmlFor="prompt">Prompt</Label>
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              onClick={handleEnhance}
+              className="group"
+              disabled={!content.trim()}
+            >
+              <AnimatedShinyText className="inline-flex items-center text-sm font-medium text-muted-foreground hover:text-foreground">
+                ✨ Enhance with AI
+                <ArrowRightIcon className="ml-1 size-3 transition-transform duration-300 ease-in-out group-hover:translate-x-0.5" />
+              </AnimatedShinyText>
+            </Button>
+          </div>
+          <Textarea
+            id="prompt"
+            rows={8}
+            placeholder="Write your prompt here..."
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            className="min-h-[200px]"
+          />
+        </div>
 
-    //   {/* Submit */}
-    //   <div className="flex items-center gap-2 pt-4">
-    //     {disableSaveButton ? (
-    //       <Tooltip>
-    //         <TooltipTrigger asChild>
-    //           <Button type="button" variant={"outline"}>
-    //             {buttonLabel}
-    //           </Button>
-    //         </TooltipTrigger>
-    //         <TooltipContent>
-    //           {!isPromptValid
-    //             ? "Title and prompt are required."
-    //             : "No changes made to the prompt."}
-    //         </TooltipContent>
-    //       </Tooltip>
-    //     ) : (
-    //       <Button
-    //         type="submit"
-    //         disabled={isMutating}
-    //         className="cursor-pointer"
-    //       >
-    //         {isMutating ? <Loader className="mr-2" /> : null} {buttonLabel}
-    //       </Button>
-    //     )}
+        {/* Enhancer Panel */}
+        {showEnhancer && (
+          <PromptEnhancer
+            content={content}
+            enhanced={enhanced ?? ""}
+            isLoading={isEnhancing}
+            onReplace={(enhanced) => {
+              setHistory((prev) => [...prev.slice(-49), content]);
+              setRedoStack([]);
+              setContent(enhanced);
+              setShowEnhancer(false);
+            }}
+            onDiscard={() => setShowEnhancer(false)}
+          />
+        )}
+      </div>
 
-    //     {history.length > 0 && (
-    //       <Button
-    //         type="button"
-    //         variant="ghost"
-    //         className="text-muted-foreground hover:text-foreground"
-    //         onClick={() => {
-    //           const last = history[history.length - 1];
-    //           if (last !== undefined) {
-    //             setRedoStack((prev) => [...prev.slice(-49), prompt]);
-    //             setPrompt(last);
-    //             setHistory((prev) => prev.slice(0, -1));
-    //           }
-    //         }}
-    //       >
-    //         <Undo2Icon className="mr-1 h-4 w-4" />
-    //         Undo
-    //       </Button>
-    //     )}
+      {/* ACTIONS */}
+      <div className="flex flex-wrap items-center gap-2 pt-2">
+        {disableSaveButton ? (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button type="button" variant="outline">
+                Save
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              {!isPromptValid ? "Prompt cannot be empty." : "No changes made."}
+            </TooltipContent>
+          </Tooltip>
+        ) : (
+          <Button type="submit" disabled={isMutating}>
+            {isMutating && <Loader />} Save
+          </Button>
+        )}
 
-    //     {redoStack.length > 0 && (
-    //       <Button
-    //         type="button"
-    //         variant="ghost"
-    //         className="text-muted-foreground hover:text-foreground"
-    //         onClick={() => {
-    //           const redoLast = redoStack[redoStack.length - 1];
-    //           if (redoLast !== undefined) {
-    //             setHistory((prev) => [...prev.slice(-49), prompt]);
-    //             setPrompt(redoLast);
-    //             setRedoStack((prev) => prev.slice(0, -1));
-    //           }
-    //         }}
-    //       >
-    //         <Redo2Icon className="mr-1 h-4 w-4" />
-    //         Redo
-    //       </Button>
-    //     )}
-    //   </div>
-    // </form>
-    <> </>
+        {!!initialData?._id && (
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={handleAddVersion}
+            disabled={isMutating}
+          >
+            {isMutating && <Loader className="mr-2" />} <Plus /> Create Version
+          </Button>
+        )}
+
+        {history.length > 0 && (
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={() => {
+              const last = history.at(-1);
+              if (last !== undefined) {
+                setRedoStack((prev) => [...prev.slice(-49), content]);
+                setContent(last);
+                setHistory((prev) => prev.slice(0, -1));
+              }
+            }}
+          >
+            <Undo2Icon className="mr-1 h-4 w-4" /> Undo
+          </Button>
+        )}
+
+        {redoStack.length > 0 && (
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={() => {
+              const redoLast = redoStack.at(-1);
+              if (redoLast !== undefined) {
+                setHistory((prev) => [...prev.slice(-49), content]);
+                setContent(redoLast);
+                setRedoStack((prev) => prev.slice(0, -1));
+              }
+            }}
+          >
+            <Redo2Icon className="mr-1 h-4 w-4" /> Redo
+          </Button>
+        )}
+      </div>
+    </form>
   );
 }

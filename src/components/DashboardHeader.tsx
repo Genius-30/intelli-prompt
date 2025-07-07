@@ -1,12 +1,12 @@
 "use client";
 
 import { UserButton } from "@clerk/nextjs";
-import { ModeToggle } from "./ModeToogle";
 import { useTheme } from "next-themes";
 import { dark } from "@clerk/themes";
 import { SidebarTrigger } from "./ui/sidebar";
 import { Separator } from "./ui/separator";
 import { BreadcrumbResponsive } from "./BreadCrumbResponsive";
+import { ModeToggle } from "./ModeToggle";
 
 export function DashboardHeader() {
   const { resolvedTheme } = useTheme();
