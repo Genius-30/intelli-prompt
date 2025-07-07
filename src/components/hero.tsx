@@ -5,7 +5,7 @@ import { Sparkles, Layers, ArrowRight, Code2, Brain, History, FolderOpen, Play }
 import up from '../../public/hero/up.png'
 import down from '../../public/hero/down.png'
 import favicon from '../../public/favicon.ico'
-import Stars from './stars.tsx'
+import Stars from './stars'
 
 const steps = [
     {

@@ -83,6 +83,7 @@ export async function DELETE(
 
 // to fetch a specific folder
 export async function GET(
+  req: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
@@ -93,7 +94,6 @@ export async function GET(
     if(!mongoose.Types.ObjectId.isValid(folderId)) {
       return NextResponse.json({ message: 'invalid folderId' }, { status: 400 })
     }
-
     const folder = await Folder.findById({ _id: folderId })
     if(!folder) {
       return NextResponse.json({ message: 'folder not found!' }, { status: 404 })
