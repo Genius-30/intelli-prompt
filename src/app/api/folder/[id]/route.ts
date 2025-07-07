@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { Folder } from '@/models/folder.model'
 import mongoose from 'mongoose'
 import { getAuthenticatedUser } from '@/utils/getAuthenticatedUser'
+import { Prompt } from '@/models/prompt.model'
 
 // renames folder
 export async function PATCH(
@@ -69,6 +70,8 @@ export async function DELETE(
 
     await Folder.findByIdAndDelete({ _id: folderId })
 
+    await Prompt.deleteMany({ folderId })
+    
     return NextResponse.json(
       { message: 'folder deleted' },
       { status: 200 }
