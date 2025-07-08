@@ -1,21 +1,27 @@
 "use client";
 
 import { UserButton } from "@clerk/nextjs";
-import { ModeToggle } from "./ModeToogle";
 import { useTheme } from "next-themes";
 import { dark } from "@clerk/themes";
 import { SidebarTrigger } from "./ui/sidebar";
 import { Separator } from "./ui/separator";
+import { BreadcrumbResponsive } from "./BreadCrumbResponsive";
+import { ModeToggle } from "./ModeToggle";
 
 export function DashboardHeader() {
   const { resolvedTheme } = useTheme();
 
   return (
-    <header className="flex items-center justify-between pr-6 py-4 border-b bg-background">
-      <SidebarTrigger size={"lg"} className="mx-2" />
-      <Separator orientation="vertical" />
+    <header className="flex items-center justify-between pr-3 sm:pr-6 py-4 border-b bg-background gap-1">
+      <div className="h-full flex items-center gap-1 mx-2">
+        <SidebarTrigger size={"lg"} />
+        <Separator orientation="vertical" />
+      </div>
 
-      <h1 className="text-xl font-semibold mr-auto ml-6">Dashboard</h1>
+      <div className="sm:ml-6 mr-auto">
+        <BreadcrumbResponsive />
+      </div>
+
       <div className="flex items-center gap-4">
         <ModeToggle />
         <UserButton
