@@ -10,8 +10,8 @@ export async function POST(
   try {
     const { userId, error } = await getAuthenticatedUser();
     if (error) return error;
-  
-    const { content, tokenEstimated } = await req.json()
+
+    const { content, tokenEstimated } = await req.json();
     if (!tokenEstimated) {
       return NextResponse.json(
         { message: "tokenEstimate not found" },
@@ -35,9 +35,12 @@ export async function POST(
       );
     }
 
-    const enhanced = await enhancedPrompt(content)
-    if(!enhanced || !enhanced.response){
-      return NextResponse.json({ message: "enhance not found"}, { status: 201 });
+    const enhanced = await enhancedPrompt(content);
+    if (!enhanced || !enhanced.response) {
+      return NextResponse.json(
+        { message: "enhance not found" },
+        { status: 201 }
+      );
     }
 
     await deductTokens({ userId, tokensUsed: enhanced.tokensUsed });

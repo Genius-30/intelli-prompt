@@ -11,7 +11,7 @@ import {
   Star,
 } from "lucide-react";
 import Link from "next/link";
-import { useParams, usePathname } from "next/navigation";
+import { useParams, usePathname, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
   Sidebar,
@@ -59,6 +59,7 @@ export function DashboardSidebar() {
   const { mutate: deletePrompt, isPending: isDeleting } = useDeletePrompt();
 
   const isMobile = useIsMobile();
+  const router = useRouter();
 
   const openCreateModal = () => setModalState({ type: "create" });
   const openRenameModal = (prompt: {
@@ -71,7 +72,12 @@ export function DashboardSidebar() {
 
   const handleDeletePrompt = (id: string) => {
     deletePrompt(id, {
-      onSuccess: () => toast.success("Prompt deleted"),
+      onSuccess: () => {
+        toast.success("Prompt deleted");
+        if (promptId === id) {
+          router.push("/prompts");
+        }
+      },
       onError: () => toast.error("Failed to delete prompt"),
     });
   };
@@ -237,7 +243,15 @@ export function DashboardSidebar() {
                     }
                     onSubmit={(title) => {
                       if (modalState.type === "create") {
-                        createPrompt(title);
+                        createPrompt(title, {
+                          onSuccess: (data) => {
+                            const newId = data?._id;
+                            if (newId) {
+                              router.push(`/prompts/${newId}/versions`);
+                            }
+                          },
+                          onError: () => toast.error("Failed to create prompt"),
+                        });
                       } else if (
                         modalState.type === "rename" &&
                         modalState.prompt

@@ -71,6 +71,22 @@ export const useAddVersion = () => {
   });
 };
 
+export function useDeleteVersion(promptId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (versionId: string) => {
+      const res = await axiosInstance.delete(`/prompt/${versionId}`);
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["promptVersions", promptId],
+      });
+    },
+  });
+}
+
 export const useGetAllVersions = (promptId: string) => {
   return useQuery({
     queryKey: ["promptVersions", promptId],
@@ -114,14 +130,15 @@ export const useToggleFavorite = () => {
 };
 
 type EnhancePromptArgs = {
-  versionId: string;
+  content: string;
   tokenEstimated: number;
 };
 
 export function useEnhancePrompt() {
   return useMutation({
-    mutationFn: async ({ versionId, tokenEstimated }: EnhancePromptArgs) => {
-      const res = await axiosInstance.post(`/prompt/${versionId}/enhance`, {
+    mutationFn: async ({ content, tokenEstimated }: EnhancePromptArgs) => {
+      const res = await axiosInstance.post(`/prompt/enhance`, {
+        content,
         tokenEstimated,
       });
 
@@ -130,6 +147,22 @@ export function useEnhancePrompt() {
       }
 
       return res.data.response as string;
+    },
+  });
+}
+
+export function useSetActiveVersion(promptId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (versionId: string) => {
+      const res = await axiosInstance.patch(`/prompt/${versionId}/active`);
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["promptVersions", promptId],
+      });
     },
   });
 }

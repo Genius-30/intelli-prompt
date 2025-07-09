@@ -8,7 +8,6 @@ import {
   SquarePenIcon,
   TestTube2Icon,
   GitBranchIcon,
-  CopyIcon,
   CheckIcon,
   TrashIcon,
   PlusIcon,
@@ -25,13 +24,18 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useEffect, useRef } from "react";
 import { useGetPromptMeta } from "@/lib/queries/prompt";
 import { VersionsSkeleton } from "@/components/skeletons/VersionsSkeleton";
-import { useGetAllVersions } from "@/lib/queries/version";
+import {
+  useDeleteVersion,
+  useGetAllVersions,
+  useSetActiveVersion,
+} from "@/lib/queries/version";
+import { toast } from "sonner";
 
 interface Version {
   _id: string;
   version: string;
   updatedAt: string | Date;
-  isActive: boolean;
+  isCurrent: boolean;
 }
 
 export default function PromptVersionsPage() {
@@ -42,6 +46,11 @@ export default function PromptVersionsPage() {
   const { data: versions = [], isLoading: versionsLoading } = useGetAllVersions(
     promptId as string
   );
+  const { mutate: deleteVersion, isPending: isDeleting } = useDeleteVersion(
+    promptId as string
+  );
+  const { mutate: setActiveVersion, isPending: isActivating } =
+    useSetActiveVersion(promptId as string);
 
   useEffect(() => {
     if (activeVersionRef.current) {
@@ -104,19 +113,19 @@ export default function PromptVersionsPage() {
           timelineContent = versions.map((version: Version, index: number) => (
             <div
               key={version._id}
-              ref={version.isActive ? activeVersionRef : null}
+              ref={version.isCurrent ? activeVersionRef : null}
               className="relative pb-10 group"
             >
               {index < versions.length - 1 && (
                 <span className="absolute left-[-1px] top-6 h-full w-px bg-muted z-0" />
               )}
               <span className="absolute -left-[8px] top-[8px] z-10">
-                {version.isActive && (
+                {version.isCurrent && (
                   <span className="absolute inset-0 rounded-full bg-primary opacity-75 animate-ping" />
                 )}
                 <span
                   className={`relative block w-4 h-4 ${
-                    version.isActive ? "bg-primary" : "bg-background"
+                    version.isCurrent ? "bg-primary" : "bg-background"
                   } border-2 border-primary rounded-full`}
                 />
               </span>
@@ -125,7 +134,7 @@ export default function PromptVersionsPage() {
                 <div className="flex justify-between items-center">
                   <div className="flex items-center gap-2 text-base font-medium">
                     <GitBranchIcon className="w-4 h-4" />v{version.version}
-                    {version.isActive && (
+                    {version.isCurrent && (
                       <Badge variant="default" className="text-xs">
                         Active
                       </Badge>
@@ -139,16 +148,32 @@ export default function PromptVersionsPage() {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
-                      {!version.isActive && (
-                        <DropdownMenuItem>
+                      {!version.isCurrent && (
+                        <DropdownMenuItem
+                          onClick={() =>
+                            setActiveVersion(version._id, {
+                              onSuccess: () => toast.success("Set as active."),
+                              onError: () =>
+                                toast.error("Failed to set active."),
+                            })
+                          }
+                          disabled={isActivating}
+                        >
                           <CheckIcon className="w-4 h-4 mr-2" /> Set as Active
                         </DropdownMenuItem>
                       )}
-                      <DropdownMenuItem>
-                        <CopyIcon className="w-4 h-4 mr-2" /> Duplicate
-                      </DropdownMenuItem>
-                      <DropdownMenuItem className="text-red-600">
-                        <TrashIcon className="text-red-600 w-4 h-4 mr-2" />{" "}
+                      <DropdownMenuItem
+                        onClick={() =>
+                          deleteVersion(version._id, {
+                            onSuccess: () => toast.success("Version deleted."),
+                            onError: () =>
+                              toast.error("Failed to delete version."),
+                          })
+                        }
+                        disabled={isDeleting}
+                        className="text-red-600"
+                      >
+                        <TrashIcon className="text-red-600 w-4 h-4 mr-2" />
                         Delete
                       </DropdownMenuItem>
                     </DropdownMenuContent>

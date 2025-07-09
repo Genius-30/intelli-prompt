@@ -6,7 +6,6 @@ export const useGetAllPrompts = () => {
     queryKey: ["prompts"],
     queryFn: async () => {
       const res = await axiosInstance.get("/folder");
-
       return res.data.folders;
     },
   });
@@ -19,9 +18,7 @@ export const useGetPromptMeta = (promptId: string) => {
       if (!promptId) throw new Error("Prompt ID is required");
 
       const res = await axiosInstance.get(`/folder/${promptId}`);
-      console.log("Prompt Meta Data:", res);
-
-      return res.data;
+      return res.data.folder;
     },
     enabled: !!promptId,
   });
@@ -45,7 +42,7 @@ export const useCreatePrompt = () => {
   return useMutation({
     mutationFn: async (title: string) => {
       const response = await axiosInstance.post("/folder", { title });
-      return response.data;
+      return response.data.folder;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["prompts"] });
