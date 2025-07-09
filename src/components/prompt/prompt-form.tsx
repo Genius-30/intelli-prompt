@@ -68,8 +68,6 @@ export function PromptForm({
     isPending: isEnhancing,
   } = useEnhancePrompt();
 
-  const isMutating = isCreating || isUpdating || isAdding;
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -116,6 +114,7 @@ export function PromptForm({
         content,
       });
       toast.success("New version added!");
+      router.push(`/prompts/${promptId}/versions`);
     } catch (error) {
       console.error("Add Version Error:", error);
       toast.error("Failed to add new version.");
@@ -124,11 +123,11 @@ export function PromptForm({
 
   const handleEnhance = () => {
     const tokenEstimated = Math.ceil(content.trim().length / 4);
-    if (!versionId) return;
+    if (!content.trim()) return;
 
     enhancePrompt(
       {
-        versionId: versionId as string,
+        content,
         tokenEstimated,
       },
       {
@@ -175,6 +174,7 @@ export function PromptForm({
                 onClick={() => {
                   toast.info("Set Active feature coming soon.");
                 }}
+                className="cursor-pointer"
               >
                 Set as Active
               </Button>
@@ -185,7 +185,7 @@ export function PromptForm({
               variant="ghost"
               type="button"
               className={cn(
-                "hover:text-yellow-500",
+                "hover:text-yellow-500 cursor-pointer",
                 initialData.isFavorite && "text-yellow-500"
               )}
               onClick={handleToggleFavorite}
@@ -202,9 +202,12 @@ export function PromptForm({
             {versionId && (
               <Button
                 variant="outline"
+                disabled={isEnhancing}
+                type="button"
                 onClick={() =>
-                  router.push(`/prompts/${promptId}/versions/${versionId}`)
+                  router.push(`/prompts/${promptId}/versions/${versionId}/test`)
                 }
+                className="cursor-pointer"
               >
                 <TestTube2Icon className="mr-2 h-4 w-4" /> Test Prompt
               </Button>
@@ -229,7 +232,7 @@ export function PromptForm({
               variant="secondary"
               size="sm"
               onClick={handleEnhance}
-              className="group"
+              className="group cursor-pointer"
               disabled={!content.trim()}
             >
               <AnimatedShinyText className="inline-flex items-center text-sm font-medium text-muted-foreground hover:text-foreground">
@@ -279,8 +282,9 @@ export function PromptForm({
             </TooltipContent>
           </Tooltip>
         ) : (
-          <Button type="submit" disabled={isMutating}>
-            {isMutating && <Loader />} Save
+          <Button type="submit" disabled={isCreating || isUpdating}>
+            {(isCreating || isUpdating) && <Loader className="mr-2" />}
+            Save
           </Button>
         )}
 
@@ -289,9 +293,9 @@ export function PromptForm({
             type="button"
             variant="secondary"
             onClick={handleAddVersion}
-            disabled={isMutating}
+            disabled={isAdding}
           >
-            {isMutating && <Loader className="mr-2" />} <Plus /> Create Version
+            {isAdding ? <Loader className="mr-2" /> : <Plus />} Create Version
           </Button>
         )}
 

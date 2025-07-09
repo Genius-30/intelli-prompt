@@ -12,8 +12,8 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { useGetPromptMeta } from "@/lib/queries/prompt";
+import { useGetVersion } from "@/lib/queries/version";
 
-// Optional: map static segments to readable labels
 const segmentLabelMap: Record<string, string> = {
   prompts: "Your Prompts",
   versions: "Versions",
@@ -32,6 +32,7 @@ export function BreadcrumbResponsive() {
   const pathname = usePathname();
   const { promptId, versionId } = useParams();
   const { data: prompt } = useGetPromptMeta(promptId as string);
+  const { data: version } = useGetVersion(versionId as string);
 
   const segments = pathname.split("/").filter(Boolean);
 
@@ -40,14 +41,12 @@ export function BreadcrumbResponsive() {
 
     let label = formatLabel(segment);
 
-    // Replace promptId with actual prompt title
-    if (segment === promptId && prompt?.title) {
-      label = prompt.title;
+    if (segment === promptId) {
+      label = prompt?.title ?? "...";
     }
 
-    // Replace versionId with actual version name
-    if (segment === versionId && prompt?.activeVersion?.name) {
-      label = prompt.activeVersion.name;
+    if (segment === versionId) {
+      label = version?.version ?? "...";
     }
 
     return { label, href };

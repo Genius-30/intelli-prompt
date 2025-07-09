@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { Prompt } from "@/models/prompt.model";
 import { getAuthenticatedUser } from "@/utils/getAuthenticatedUser";
-import mongoose from "mongoose";
 import { enhancedPrompt } from "@/utils/enhancePrompt";
 import {
   checkSubscription,
@@ -17,24 +15,13 @@ export async function POST(
     const { userId, error } = await getAuthenticatedUser();
     if (error) return error;
 
-    // const promptId = (await params).id
-    // if(!mongoose.Types.ObjectId.isValid(promptId)) {
-    //   return NextResponse.json({ message: 'invalid promptId' }, { status: 400 })
-    // }
-    const { content } = await req.json()
-
-    const { tokenEstimated } = await req.json();
+    const { content, tokenEstimated } = await req.json();
     if (!tokenEstimated) {
       return NextResponse.json(
         { message: "tokenEstimate not found" },
         { status: 404 }
       );
     }
-
-    // const prompt = await Prompt.findOne({ _id: promptId })
-    // if(!prompt){
-    //   return NextResponse.json({ message: 'prompt not found' },{ status: 404 })
-    // }
 
     const subs = await checkSubscription({ userId });
     if (!subs.success) {
@@ -52,9 +39,12 @@ export async function POST(
       );
     }
 
-    const enhanced = await enhancedPrompt(content)
-    if(!enhanced || !enhanced.response){
-      return NextResponse.json({ message: "enhance not found"}, { status: 201 });
+    const enhanced = await enhancedPrompt(content);
+    if (!enhanced || !enhanced.response) {
+      return NextResponse.json(
+        { message: "enhance not found" },
+        { status: 201 }
+      );
     }
 
     await deductTokens({ userId, tokensUsed: enhanced.tokensUsed });
