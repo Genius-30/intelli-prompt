@@ -1,11 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthenticatedUser } from "@/utils/getAuthenticatedUser";
 import { enhancedPrompt } from "@/utils/enhancePrompt";
-import {
-  checkSubscription,
-  deductTokens,
-  estimateTokens,
-} from "@/utils/manageTokens";
+import { checkSubscription, deductTokens, estimateTokens } from "@/utils/manageTokens";
 
 export async function POST(
   req: NextRequest,
