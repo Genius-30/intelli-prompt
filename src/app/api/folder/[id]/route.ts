@@ -29,23 +29,18 @@ export async function PATCH(
       )
     }
 
-    const renamedFolder = await Folder.findOneAndUpdate(
-      { _id: folderId },
-      {
-        $set: {
-          'title': newTitle
-        }
-      },
-      { new: true }
+    await Folder.updateOne(
+      { _id: folderId, ownerId: userId },
+      { title: newTitle }
     )
 
     return NextResponse.json(
-      { message: 'folder deleted', renamedFolder },
+      { message: 'folder renamed' },
       { status: 200 }
     ) 
   } catch (err) {
     return NextResponse.json(
-      { message: 'error deleting folder' },
+      { message: 'error renaming folder' },
       { status: 500 }
     )
   }

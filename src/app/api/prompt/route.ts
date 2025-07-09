@@ -26,13 +26,12 @@ export async function POST(req: NextRequest) {
       isFavorite: false
     })
 
-    await Folder.findOneAndUpdate(
+    await Folder.updateOne(
       { _id: folderId, ownerId: userId },
       {
         $inc: { totalVersions: 1 },
         $set: { activeVersion: newPrompt._id }
-      },
-      { new: false }
+      }
     )
 
     return NextResponse.json(

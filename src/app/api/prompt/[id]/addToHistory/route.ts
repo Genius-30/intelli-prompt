@@ -42,13 +42,12 @@ export async function PATCH(
       isFavorite: false
     })
 
-    await Folder.findOneAndUpdate(
+    await Folder.updateOne(
       { _id: existingPrompt.folderId, ownerId: userId },
       {
         $inc: { totalVersions: 1 },
         $set: { activeVersion: newPrompt._id }
-      },
-      { new: false }
+      }
     )
 
     return NextResponse.json({ message: "New version created", newPrompt }, { status: 201 });
