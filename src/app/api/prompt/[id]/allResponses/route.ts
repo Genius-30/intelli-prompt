@@ -5,7 +5,7 @@ import mongoose from "mongoose"
 
 export async function GET(
   req: NextRequest, 
-  { params }: { params: { id: string } }
+  { params }: { params: any }
 ) {
   try {
     const { userId, error } = await getAuthenticatedUser()

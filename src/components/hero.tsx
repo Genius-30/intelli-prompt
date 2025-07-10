@@ -6,6 +6,7 @@ import up from '../../public/hero/up.png'
 import down from '../../public/hero/down.png'
 import favicon from '../../public/favicon.ico'
 import Stars from './stars'
+import Image from "next/image"
 
 const steps = [
     {
@@ -174,8 +175,9 @@ export default function Hero() {
               <div className="absolute -bottom-16 sm:-bottom-14 -right-2 sm:-right-6 md:-right-16 backdrop-blur-xl bg-gradient-to-br from-cyan-500/20 to-blue-500/20 border border-cyan-500/30 rounded-2xl p-4">
                 <div className="text-sm font-semibold mb-2">Performance</div>
                 <div className="text-xs text-gray-200 space-y-2">
-                  <div className="flex"><img className="w-3 mx-[2px]" src={up.src} alt="" /> Quality: 94%</div>
-                  <div className="flex"><img className="w-4" src={down.src} alt="" /> Response: 1.2s</div>
+                  
+                  <div className="flex"><Image src={up} alt="up" className="w-3 mx-[2px]" /> Quality: 94%</div>
+                  <div className="flex"><Image src={down} alt="down" className="w-4" /> Response: 1.2s</div>
                 </div>
               </div>
             </div>
@@ -348,7 +350,7 @@ export default function Hero() {
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row items-center justify-between">
             <div className="flex items-center space-x-2 mb-4 md:mb-0">
-              <img className="w-8 mr-2" src={favicon.src} alt="" />
+              <Image className="w-8 mr-2" src={favicon} alt="logo" />
               <span className="text-xl font-bold">IntelliStack</span>
             </div>
             <div className="text-gray-400 text-center md:text-right">

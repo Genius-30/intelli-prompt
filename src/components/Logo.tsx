@@ -3,7 +3,7 @@ import React from "react";
 
 function Logo() {
   return (
-    <div className="text-md md:text-lg font-bold flex items-center gap-2">
+    <div className="text-md md:text-lg font-bold flex items-center gap-2 text-white">
       <div className="h-full w-auto bg-primary/20 flex items-center justify-center py-[3px] px-1 rounded-md">
         <Image
           src="/favicon.ico"

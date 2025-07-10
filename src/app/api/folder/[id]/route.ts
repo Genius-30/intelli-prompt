@@ -7,7 +7,7 @@ import { Prompt } from '@/models/prompt.model'
 // renames folder
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: any }
 ) {
   try {
     const { userId, error } = await getAuthenticatedUser()
@@ -49,7 +49,8 @@ export async function PATCH(
 // delete folder along with prompts
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: any }
+
 ) {
   try {
     const { userId, error } = await getAuthenticatedUser()
@@ -82,7 +83,8 @@ export async function DELETE(
 // to fetch a specific folder
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: any }
+
 ) {
   try {
     const { userId, error } = await getAuthenticatedUser()

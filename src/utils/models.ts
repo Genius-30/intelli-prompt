@@ -52,7 +52,7 @@ export async function callAnthropic({
       })), temperature, max_tokens },
       {
         headers: {
-          'x-api-key': process.env.ANTHROPIC_API_KEY!,
+          'x-api-key': process.env.ANTHROPIC_API_KEY,
           'anthropic-version': '2023-06-01',
           'Content-Type': 'application/json',
         },
@@ -62,7 +62,7 @@ export async function callAnthropic({
     return { tokensUsed: (response.data.usage?.input_tokens + response.data.usage?.output_tokens) || 200,
               response: response.data.content?.[0]?.text || 'no response'}
   } catch (error) {
-    return { tokensUsed: 0, response: 'Error calling OpenAI' }
+    return { tokensUsed: 0, response: 'Error calling Anthropic' }
   }
 }
 
@@ -93,7 +93,7 @@ export async function callGemini({
     return { tokensUsed: response.data.usageMetadata?.totalTokenCount || 200,
               response: response.data.candidates?.[0]?.content?.parts?.[0]?.text || 'no response'}
   } catch (err) {
-    return { tokensUsed: 0, response: 'Error calling OpenAI' }
+    return { tokensUsed: 0, response: 'Error calling Gemini' }
   }
 }
 
@@ -118,6 +118,6 @@ export async function callMistral({
     return { tokensUsed: 200,
               response: response.data.choices?.[0]?.message?.content || 'no response'}
   } catch (err) {
-    return { tokensUsed: 0, response: 'Error calling OpenAI' }
+    return { tokensUsed: 0, response: 'Error calling Mistral' }
   }
 }
