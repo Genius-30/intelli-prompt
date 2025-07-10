@@ -29,6 +29,9 @@ export default function RootLayout({
       signUpForceRedirectUrl="/dashboard"
     >
       <html lang="en">
+        <head>
+          <script src="https://checkout.razorpay.com/v1/checkout.js" async></script>
+        </head>
         <body className={`scrollbar-thin  ${inter.className}`}>
           <ThemeProvider
             attribute="class"
