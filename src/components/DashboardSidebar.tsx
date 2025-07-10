@@ -23,6 +23,18 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
 } from "@/components/ui/sidebar";
+import {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from "@/components/ui/alert-dialog";
+
 import { cn } from "@/lib/utils";
 import Logo from "./Logo";
 import {
@@ -50,6 +62,7 @@ export function DashboardSidebar() {
     type: "create" | "rename" | null;
     prompt?: { _id: string; title: string };
   }>({ type: null });
+  const [promptToDelete, setPromptToDelete] = useState<string | null>(null);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
 
@@ -144,10 +157,13 @@ export function DashboardSidebar() {
                         <Edit2Icon /> Rename
                       </DropdownMenuItem>
                       <DropdownMenuItem
-                        onClick={() => handleDeletePrompt(prompt._id)}
-                        disabled={isDeleting}
+                        onClick={() => {
+                          setPromptToDelete(prompt._id);
+                          setOpenDropdownId(null); // close dropdown manually
+                        }}
+                        className="text-red-600"
                       >
-                        <TrashIcon /> Delete
+                        <TrashIcon className="text-red-600" /> Delete
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -213,6 +229,39 @@ export function DashboardSidebar() {
 
               <SidebarMenu>
                 {promptContent}
+
+                {/* Delete Prompt Confirmation Dialog */}
+                {promptToDelete && (
+                  <AlertDialog
+                    open={!!promptToDelete}
+                    onOpenChange={(open) => {
+                      if (!open) setPromptToDelete(null);
+                    }}
+                  >
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Delete this prompt?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          This will permanently delete the prompt and{" "}
+                          <strong>all its versions</strong>. This action cannot
+                          be undone.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                          disabled={isDeleting}
+                          onClick={() => {
+                            handleDeletePrompt(promptToDelete);
+                            setPromptToDelete(null);
+                          }}
+                        >
+                          {isDeleting ? "Deleting..." : "Delete"}
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                )}
 
                 <SidebarMenuItem className="mt-2">
                   <Button

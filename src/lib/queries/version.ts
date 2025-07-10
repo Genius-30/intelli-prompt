@@ -151,17 +151,29 @@ export function useEnhancePrompt() {
   });
 }
 
-export function useSetActiveVersion(promptId: string) {
+export function useSetActiveVersion(promptFolderId: string, versionId: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (versionId: string) => {
-      const res = await axiosInstance.patch(`/prompt/${versionId}/active`);
+    mutationFn: async ({
+      versionId,
+      folderId,
+    }: {
+      versionId: string;
+      folderId: string;
+    }) => {
+      const res = await axiosInstance.patch(`/prompt/${versionId}`, {
+        folderId,
+      });
+
       return res.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["promptVersions", promptId],
+        queryKey: ["promptVersions", promptFolderId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["version", versionId],
       });
     },
   });

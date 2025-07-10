@@ -16,7 +16,6 @@ import {
 } from "lucide-react";
 import { AnimatedShinyText } from "../magicui/animated-shiny-text";
 import { toast } from "sonner";
-import { enhancedPrompt } from "@/utils/enhancePrompt";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import { useParams, useRouter } from "next/navigation";
 import {
@@ -25,6 +24,7 @@ import {
   useAddVersion,
   useToggleFavorite,
   useEnhancePrompt,
+  useSetActiveVersion,
 } from "@/lib/queries/version";
 import { Badge } from "../ui/badge";
 import { cn } from "@/lib/utils";
@@ -67,6 +67,10 @@ export function PromptForm({
     data: enhanced,
     isPending: isEnhancing,
   } = useEnhancePrompt();
+  const { mutate: setActiveVersion } = useSetActiveVersion(
+    promptId as string,
+    versionId as string
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -171,9 +175,18 @@ export function PromptForm({
                 variant="default"
                 size="sm"
                 type="button"
-                onClick={() => {
-                  toast.info("Set Active feature coming soon.");
-                }}
+                onClick={() =>
+                  setActiveVersion(
+                    {
+                      versionId: versionId as string,
+                      folderId: promptId as string,
+                    },
+                    {
+                      onSuccess: () => toast.success("Set as active."),
+                      onError: () => toast.error("Failed to set active."),
+                    }
+                  )
+                }
                 className="cursor-pointer"
               >
                 Set as Active
@@ -237,7 +250,11 @@ export function PromptForm({
             >
               <AnimatedShinyText className="inline-flex items-center text-sm font-medium text-muted-foreground hover:text-foreground">
                 ✨ Enhance with AI
-                <ArrowRightIcon className="ml-1 size-3 transition-transform duration-300 ease-in-out group-hover:translate-x-0.5" />
+                {isEnhancing ? (
+                  <Loader className="ml-2 size-4" />
+                ) : (
+                  <ArrowRightIcon className="ml-1 size-3 transition-transform duration-300 ease-in-out group-hover:translate-x-0.5" />
+                )}
               </AnimatedShinyText>
             </Button>
           </div>
@@ -282,7 +299,10 @@ export function PromptForm({
             </TooltipContent>
           </Tooltip>
         ) : (
-          <Button type="submit" disabled={isCreating || isUpdating}>
+          <Button
+            type="submit"
+            disabled={isCreating || isUpdating || isAdding || isEnhancing}
+          >
             {(isCreating || isUpdating) && <Loader className="mr-2" />}
             Save
           </Button>
@@ -293,7 +313,7 @@ export function PromptForm({
             type="button"
             variant="secondary"
             onClick={handleAddVersion}
-            disabled={isAdding}
+            disabled={isAdding || isEnhancing}
           >
             {isAdding ? <Loader className="mr-2" /> : <Plus />} Create Version
           </Button>
