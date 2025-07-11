@@ -9,11 +9,11 @@ import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
 import {
   SquarePenIcon,
-  TestTube2Icon,
   Star,
   StarOff,
   GitBranchIcon,
   PlusIcon,
+  Zap,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
@@ -105,13 +105,13 @@ export function PromptCard({
               asChild
               size="sm"
               variant="default"
-              className="bg-green-500 hover:bg-green-600 px-3"
+              className="px-3"
               onClick={(e) => e.stopPropagation()}
             >
               <Link
                 href={`/prompts/${prompt._id}/versions/${prompt.activeVersion}/test`}
               >
-                <TestTube2Icon className="w-4 h-4 mr-1" /> Test
+                <Zap className="w-4 h-4" /> Test Prompt
               </Link>
             </Button>
           </div>

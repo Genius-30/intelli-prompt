@@ -6,12 +6,12 @@ import { formatDistanceToNow } from "date-fns";
 import {
   MoreVertical,
   SquarePenIcon,
-  TestTube2Icon,
   GitBranchIcon,
   CheckIcon,
   TrashIcon,
   PlusIcon,
   Star,
+  Zap,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -202,7 +202,7 @@ export default function PromptVersionsPage() {
                 </p>
 
                 {/* Footer: Updated at + actions */}
-                <div className="flex justify-between items-center mt-5">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mt-3  gap-2">
                   <p className="text-xs text-muted-foreground">
                     Updated {formatDistanceToNow(new Date(version.updatedAt))}{" "}
                     ago
@@ -224,12 +224,12 @@ export default function PromptVersionsPage() {
                       asChild
                       size="sm"
                       variant="default"
-                      className="bg-green-500 hover:bg-green-600 px-3"
+                      className="px-3"
                     >
                       <Link
                         href={`/prompts/${promptId}/versions/${version._id}/test`}
                       >
-                        <TestTube2Icon className="w-4 h-4 mr-1" /> Test
+                        <Zap className="w-4 h-4" /> Test
                       </Link>
                     </Button>
                   </div>
@@ -239,7 +239,7 @@ export default function PromptVersionsPage() {
           ));
         }
         return (
-          <div className="relative border-l border-muted pl-6 max-h-[calc(100vh-150px)] overflow-y-auto sm:pr-4">
+          <div className="relative border-l border-muted pl-6 max-h-[calc(100vh-150px)] sm:pr-4">
             {timelineContent}
           </div>
         );

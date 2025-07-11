@@ -17,12 +17,9 @@ export default function EditPromptPage() {
       <div className="p-6 max-w-6xl mx-auto space-y-8 animate-pulse">
         {/* Header Skeleton */}
         <div className="flex flex-col md:flex-row items-start justify-between gap-4">
-          <div className="space-y-2 w-full">
-            <Skeleton className="h-6 w-1/3" />
-            <Skeleton className="h-4 w-1/2" />
-          </div>
+          <Skeleton className="h-6 w-1/3" />
           <div className="flex items-center gap-3 w-full md:justify-end">
-            <Skeleton className="h-8 w-24 rounded-md" />
+            <Skeleton className="h-8 w-8 rounded-full" />
             <Skeleton className="h-8 w-8 rounded-full" />
             <Skeleton className="h-8 w-28 rounded-md" />
           </div>
@@ -45,9 +42,9 @@ export default function EditPromptPage() {
 
   if (isError || !data) {
     return (
-      <div className="p-6 max-w-5xl mx-auto text-center text-red-500">
-        <div className="flex flex-col items-center gap-2">
-          <AlertTriangle className="w-8 h-8" />
+      <div className="p-0 sm:p-6 max-w-5xl mx-auto text-center text-red-500">
+        <div className="flex flex-row items-center gap-2">
+          <AlertTriangle className="w-5 h-5" />
           <p>Failed to load prompt. Please try again.</p>
         </div>
       </div>
@@ -55,7 +52,7 @@ export default function EditPromptPage() {
   }
 
   return (
-    <div className="p-6 max-w-6xl mx-auto">
+    <div className="p-0 sm:p-6 max-w-6xl mx-auto">
       <PromptForm initialData={data} />
     </div>
   );
