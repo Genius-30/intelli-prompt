@@ -6,7 +6,7 @@ import mongoose from "mongoose"
 // deletes modelResponse
 export async function DELETE(
   req: NextRequest, 
-  { params }: { params: { id: string } }
+  { params }: { params: any }
 ) {
   try {
     const { userId, error } = await getAuthenticatedUser()

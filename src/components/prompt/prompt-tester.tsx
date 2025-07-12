@@ -24,14 +24,14 @@ export function PromptTester() {
     setValues((prev) => ({ ...prev, [key]: value }));
   };
 
-  const handleTest = () => {
-    let rendered = prompt;
-    for (const key of variables) {
-      const placeholder = `{{${key}}}`;
-      rendered = rendered.replaceAll(placeholder, values[key] || "");
-    }
-    setRenderedOutput(`🤖 (${model}): ${rendered}`);
-  };
+  // const handleTest = () => {
+  //   let rendered = prompt;
+  //   for (const key of variables) {
+  //     const placeholder = `{{${key}}}`;
+  //     rendered = rendered.replaceAll(placeholder, values[key] || "");
+  //   }
+  //   setRenderedOutput(`🤖 (${model}): ${rendered}`);
+  // };
 
   return (
     <div className="flex-1 space-y-6 p-4 border rounded-md">
@@ -80,9 +80,9 @@ export function PromptTester() {
         ))
       )} */}
 
-      <Button type="button" onClick={handleTest} className="mt-2">
+      {/* <Button type="button" onClick={handleTest} className="mt-2">
         Run Test
-      </Button>
+      </Button> */}
 
       {/* Rendered Prompt Output */}
       {renderedOutput && (

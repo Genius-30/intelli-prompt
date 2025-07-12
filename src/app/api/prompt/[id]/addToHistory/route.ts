@@ -6,7 +6,7 @@ import { Folder } from "@/models/folder.model";
 
 export async function PATCH(
   req: NextRequest, 
-  { params }: { params: { id: string } }
+  { params }: { params: any }
 ) {
   try {
     const { userId, error } = await getAuthenticatedUser()

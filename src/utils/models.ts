@@ -23,8 +23,9 @@ export async function callOpenAI({
       { model, messages, temperature, max_tokens },
       {
         headers: {
-          Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-          "Content-Type": "application/json",
+          'x-api-key': process.env.ANTHROPIC_API_KEY,
+          'anthropic-version': '2023-06-01',
+          'Content-Type': 'application/json',
         },
       }
     );
@@ -72,7 +73,7 @@ export async function callAnthropic({
       response: response.data.content?.[0]?.text || "no response",
     };
   } catch (error) {
-    return { tokensUsed: 0, response: "Error calling Anthropic" };
+    return { tokensUsed: 0, response: 'Error calling Anthropic' }
   }
 }
 
@@ -110,16 +111,7 @@ export async function callGemini({
         "no response",
     };
   } catch (err) {
-    console.log("Error calling Gemini:", err);
-    const errorMessage =
-      err && typeof err === "object" && "message" in err
-        ? (err as Error).message
-        : "Rate limit or unknown error";
-    return {
-      response: "Error calling Gemini",
-      tokensUsed: 0,
-      error: errorMessage,
-    };
+    return { tokensUsed: 0, response: 'Error calling Gemini' }
   }
 }
 
@@ -146,6 +138,6 @@ export async function callMistral({
       response: response.data.choices?.[0]?.message?.content || "no response",
     };
   } catch (err) {
-    return { tokensUsed: 0, response: "Error calling Mistral" };
+    return { tokensUsed: 0, response: 'Error calling Mistral' }
   }
 }

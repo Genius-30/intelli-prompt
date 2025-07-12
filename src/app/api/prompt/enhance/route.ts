@@ -5,7 +5,7 @@ import { checkSubscription, deductTokens, estimateTokens } from "@/utils/manageT
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: any }
 ) {
   try {
     const { userId, error } = await getAuthenticatedUser();
