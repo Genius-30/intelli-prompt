@@ -1,8 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { Folder } from '@/models/folder.model'
-import mongoose from 'mongoose'
-import { getAuthenticatedUser } from '@/utils/getAuthenticatedUser'
-import { Prompt } from '@/models/prompt.model'
+import { NextRequest, NextResponse } from "next/server";
+import { Folder } from "@/models/folder.model";
+import mongoose from "mongoose";
+import { getAuthenticatedUser } from "@/utils/getAuthenticatedUser";
+import { Prompt } from "@/models/prompt.model";
+import { ModelResponse } from "@/models/modelResponse.model";
 
 // renames folder
 export async function PATCH(
@@ -10,39 +11,33 @@ export async function PATCH(
   { params }: { params: { id: string } }
 ) {
   try {
-    const { userId, error } = await getAuthenticatedUser()
-    if(error) return error
+    const { userId, error } = await getAuthenticatedUser();
+    if (error) return error;
 
-    const folderId = (await params).id
-    if(!mongoose.Types.ObjectId.isValid(folderId)) {
+    const folderId = (await params).id;
+    if (!mongoose.Types.ObjectId.isValid(folderId)) {
       return NextResponse.json(
-        { message: 'invalid folderId' },
+        { message: "invalid folderId" },
         { status: 400 }
-      )
+      );
     }
-    
-    const { newTitle } = await req.json()
-    if(!newTitle) {
-      return NextResponse.json(
-        { message: 'invalid title' },
-        { status: 400 }
-      )
+
+    const { newTitle } = await req.json();
+    if (!newTitle) {
+      return NextResponse.json({ message: "invalid title" }, { status: 400 });
     }
 
     await Folder.updateOne(
       { _id: folderId, ownerId: userId },
       { title: newTitle }
-    )
+    );
 
-    return NextResponse.json(
-      { message: 'folder renamed' },
-      { status: 200 }
-    ) 
+    return NextResponse.json({ message: "folder renamed" }, { status: 200 });
   } catch (err) {
     return NextResponse.json(
-      { message: 'error renaming folder' },
+      { message: "error renaming folder" },
       { status: 500 }
-    )
+    );
   }
 }
 
@@ -52,30 +47,30 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    const { userId, error } = await getAuthenticatedUser()
-    if(error) return error
+    const { userId, error } = await getAuthenticatedUser();
+    if (error) return error;
 
-    const folderId = (await params).id
-    if(!mongoose.Types.ObjectId.isValid(folderId)) {
+    const folderId = (await params).id;
+    if (!mongoose.Types.ObjectId.isValid(folderId)) {
       return NextResponse.json(
-        { message: 'invalid folderId' },
+        { message: "invalid folderId" },
         { status: 400 }
-      )
+      );
     }
 
-    await Folder.findByIdAndDelete({ _id: folderId })
+    const prompts = await Prompt.find({ folderId }, "_id");
+    const promptIds = prompts.map((prompt) => prompt._id);
 
-    await Prompt.deleteMany({ folderId })
-    
-    return NextResponse.json(
-      { message: 'folder deleted' },
-      { status: 200 }
-    ) 
+    await ModelResponse.deleteMany({ promptId: { $in: promptIds } });
+    await Prompt.deleteMany({ folderId });
+    await Folder.findByIdAndDelete({ _id: folderId });
+
+    return NextResponse.json({ message: "folder deleted" }, { status: 200 });
   } catch (err) {
     return NextResponse.json(
-      { message: 'error deleting folder' },
+      { message: "error deleting folder" },
       { status: 500 }
-    )
+    );
   }
 }
 
@@ -85,20 +80,32 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const { userId, error } = await getAuthenticatedUser()
-    if(error) return error
+    const { userId, error } = await getAuthenticatedUser();
+    if (error) return error;
 
-    const folderId = (await params).id
-    if(!mongoose.Types.ObjectId.isValid(folderId)) {
-      return NextResponse.json({ message: 'invalid folderId' }, { status: 400 })
+    const folderId = (await params).id;
+    if (!mongoose.Types.ObjectId.isValid(folderId)) {
+      return NextResponse.json(
+        { message: "invalid folderId" },
+        { status: 400 }
+      );
     }
-    const folder = await Folder.findById({ _id: folderId })
-    if(!folder) {
-      return NextResponse.json({ message: 'folder not found!' }, { status: 404 })
+    const folder = await Folder.findById({ _id: folderId });
+    if (!folder) {
+      return NextResponse.json(
+        { message: "folder not found!" },
+        { status: 404 }
+      );
     }
 
-    return NextResponse.json({ message: 'folder found', folder }, { status: 200 }) 
+    return NextResponse.json(
+      { message: "folder found", folder },
+      { status: 200 }
+    );
   } catch (err) {
-    return NextResponse.json({ message: 'err fetching folder' }, { status: 500 })
+    return NextResponse.json(
+      { message: "err fetching folder" },
+      { status: 500 }
+    );
   }
 }
