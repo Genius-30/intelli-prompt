@@ -10,7 +10,7 @@ export default function PromptFormClient() {
   const { data: versions = [] } = useGetAllVersions(promptId as string);
 
   useEffect(() => {
-    if (versions.length === 0) {
+    if (versions.length > 0) {
       redirect(`/prompts/${promptId}/versions`);
     }
   }, [versions, promptId]);

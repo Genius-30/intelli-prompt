@@ -6,12 +6,12 @@ import { formatDistanceToNow } from "date-fns";
 import {
   MoreVertical,
   SquarePenIcon,
-  TestTube2Icon,
   GitBranchIcon,
   CheckIcon,
   TrashIcon,
   PlusIcon,
   Star,
+  Zap,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -223,12 +223,12 @@ export function PromptVersionsClient() {
                         asChild
                         size="sm"
                         variant="default"
-                        className="bg-green-500 hover:bg-green-600 px-3"
+                        className="px-3"
                       >
                         <Link
                           href={`/prompts/${promptId}/versions/${version._id}/test`}
                         >
-                          <TestTube2Icon className="w-4 h-4 mr-1" /> Test
+                          <Zap className="w-4 h-4" /> Test
                         </Link>
                       </Button>
                     </div>
