@@ -63,6 +63,7 @@ export function DashboardSidebar() {
     prompt?: { _id: string; title: string };
   }>({ type: null });
   const [promptToDelete, setPromptToDelete] = useState<string | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
 
@@ -87,11 +88,15 @@ export function DashboardSidebar() {
     deletePrompt(id, {
       onSuccess: () => {
         toast.success("Prompt deleted");
-        if (promptId === id) {
-          router.push("/prompts");
-        }
+        if (promptId === id) router.push("/prompts");
+        setDialogOpen(false);
+        setPromptToDelete(null);
       },
-      onError: () => toast.error("Failed to delete prompt"),
+      onError: () => {
+        toast.error("Failed to delete prompt");
+        setDialogOpen(false); // or keep open for retry
+        setPromptToDelete(null);
+      },
     });
   };
 
@@ -159,7 +164,8 @@ export function DashboardSidebar() {
                       <DropdownMenuItem
                         onClick={() => {
                           setPromptToDelete(prompt._id);
-                          setOpenDropdownId(null); // close dropdown manually
+                          setDialogOpen(true);
+                          setOpenDropdownId(null);
                         }}
                         className="text-red-600"
                       >
@@ -224,7 +230,8 @@ export function DashboardSidebar() {
 
               {/* Folder Section Title */}
               <p className="text-xs uppercase text-muted-foreground mt-6 px-2 mb-3 flex items-center gap-2">
-                <FileTextIcon size={20} /> YOUR PROMPTS
+                {/* <FileTextIcon size={18} /> */}
+                YOUR PROMPTS
               </p>
 
               <SidebarMenu>
@@ -233,12 +240,14 @@ export function DashboardSidebar() {
                 {/* Delete Prompt Confirmation Dialog */}
                 {promptToDelete && (
                   <AlertDialog
-                    open={!!promptToDelete}
+                    open={dialogOpen}
                     onOpenChange={(open) => {
                       if (!open) setPromptToDelete(null);
                     }}
                   >
-                    <AlertDialogContent>
+                    <AlertDialogContent
+                      onEscapeKeyDown={(e) => isDeleting && e.preventDefault()}
+                    >
                       <AlertDialogHeader>
                         <AlertDialogTitle>Delete this prompt?</AlertDialogTitle>
                         <AlertDialogDescription>
@@ -248,12 +257,22 @@ export function DashboardSidebar() {
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogCancel
+                          disabled={isDeleting}
+                          onClick={() => {
+                            if (!isDeleting) {
+                              setDialogOpen(false);
+                              setPromptToDelete(null);
+                            }
+                          }}
+                        >
+                          Cancel
+                        </AlertDialogCancel>
                         <AlertDialogAction
                           disabled={isDeleting}
                           onClick={() => {
+                            if (!promptToDelete) return;
                             handleDeletePrompt(promptToDelete);
-                            setPromptToDelete(null);
                           }}
                         >
                           {isDeleting ? "Deleting..." : "Delete"}

@@ -1,10 +1,8 @@
 "use client";
 
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { ChevronDown, ChevronUp, Star, Trash } from "lucide-react";
 import { useGetResponse } from "@/lib/queries/response";
 import { AI_MODELS } from "@/lib/constants";
 import Image from "next/image";
@@ -16,13 +14,19 @@ import {
   SelectItem,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader } from "@/components/ui/loader";
 import { PromptVersionViewer } from "@/components/version/prompt-version-viewer";
-import ReactMarkdown from "react-markdown";
+import { ModelResponseCard } from "@/components/version/model-response-card";
+import { Slider } from "@/components/ui/slider";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Loader2 } from "lucide-react";
+import { ModelResponseSkeleton } from "@/components/skeletons/ModelResponseSkeleton";
 
 export default function TestPromptPage() {
-  const router = useRouter();
-  const { promptId, versionId } = useParams();
+  const { versionId } = useParams();
   const [tokenEstimated, setTokenEstimated] = useState(0);
 
   const { mutate: testPrompt, isPending: isTesting } = useGetResponse();
@@ -37,16 +41,11 @@ export default function TestPromptPage() {
       model: string;
       temperature: number;
       response: string;
+      _id: string | null;
+      isFavorite?: boolean;
+      error?: string;
     }[]
   >([]);
-
-  const [expandedCards, setExpandedCards] = useState<string[]>([]);
-
-  const toggleCard = (id: string) => {
-    setExpandedCards((prev) =>
-      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
-    );
-  };
 
   const handleTestPrompt = () => {
     if (!versionId || selectedModels.length === 0) {
@@ -62,11 +61,7 @@ export default function TestPromptPage() {
       },
       {
         onSuccess: (data) => {
-          setResponses(data); // assumed: data[i].response is string
-          const expandedIds = data.map(
-            (res: any, idx: number) => `${res.provider}-${res.model}-${idx}`
-          );
-          setExpandedCards(expandedIds);
+          setResponses(data);
         },
       }
     );
@@ -93,6 +88,10 @@ export default function TestPromptPage() {
     setSelectedModels((prev) => prev.filter((m) => m.provider !== provider));
   };
 
+  const handleDeleteLocalResponse = (id: string) => {
+    setResponses((prev) => prev.filter((res) => res._id !== id));
+  };
+
   return (
     <div className="p-0 sm:p-6 space-y-6">
       {/* Prompt Viewer */}
@@ -110,7 +109,7 @@ export default function TestPromptPage() {
           return (
             <div
               key={provider}
-              className="p-4 border rounded-md bg-muted/30 space-y-3"
+              className={`p-4 border rounded-md bg-muted/30 space-y-3`}
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -121,9 +120,19 @@ export default function TestPromptPage() {
                     height={24}
                     className="rounded"
                   />
-                  <span className="text-sm font-semibold">
-                    {provider.toUpperCase()}
-                  </span>
+                  <div>
+                    <span className="text-sm font-semibold flex items-center gap-2">
+                      {provider.toUpperCase()}
+                      <span
+                        className="inline-block w-2 h-2 rounded-full"
+                        style={{ backgroundColor: data.color }}
+                        title={data.description}
+                      ></span>
+                    </span>
+                    <p className="text-xs text-muted-foreground">
+                      {data.description}
+                    </p>
+                  </div>
                 </div>
 
                 {selected && (
@@ -166,17 +175,13 @@ export default function TestPromptPage() {
                     <label className="text-xs text-muted-foreground block mb-1">
                       Temperature: {selected.temperature.toFixed(1)}
                     </label>
-                    <input
-                      type="range"
-                      min="0"
-                      max="1"
-                      step="0.1"
-                      value={selected.temperature}
-                      onChange={(e) =>
-                        handleTemperatureChange(
-                          provider,
-                          parseFloat(e.target.value)
-                        )
+                    <Slider
+                      min={0}
+                      max={1}
+                      step={0.1}
+                      value={[selected.temperature]}
+                      onValueChange={([value]) =>
+                        handleTemperatureChange(provider, value)
                       }
                       className="w-full"
                     />
@@ -189,60 +194,59 @@ export default function TestPromptPage() {
       </section>
 
       {/* Test + View All Button */}
-      <div className="flex items-center gap-4">
-        <Button onClick={handleTestPrompt} disabled={isTesting}>
-          {isTesting ? (
-            <>
-              <Loader /> Testing...
-            </>
-          ) : (
-            "Run Test"
-          )}
-        </Button>
-      </div>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button onClick={handleTestPrompt} disabled={isTesting}>
+            {isTesting ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              "Run Test"
+            )}
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>
+          {isTesting ? "Testing in progress..." : "Run your selected models"}
+        </TooltipContent>
+      </Tooltip>
 
       {/* AI Responses (as plain text) */}
       <section className="space-y-4">
-        {responses.map((res, idx) => {
-          const id = `${res.provider}-${res.model}-${idx}`;
-          const isOpen = expandedCards.includes(id);
+        {isTesting
+          ? selectedModels.map((m, i) => (
+              <ModelResponseSkeleton
+                key={i}
+                provider={m.provider as keyof typeof AI_MODELS}
+                model={m.model}
+              />
+            ))
+          : responses.map((res) => {
+              const hasError =
+                !!res.error || res.response?.toLowerCase().includes("error");
 
-          return (
-            <Card key={id} className="overflow-hidden">
-              <CardHeader className="flex justify-between items-center bg-muted px-4 py-2">
-                <div>
-                  <h4 className="font-semibold text-sm capitalize">
-                    {res.provider} - {res.model}
-                  </h4>
-                  <p className="text-xs text-muted-foreground">
-                    Temperature: {res.temperature}
-                  </p>
+              return (
+                <div key={`${res.model}-${res.provider}`} className="relative">
+                  {hasError ? (
+                    <div className="border border-red-500 p-4 rounded-md bg-muted text-sm text-red-600">
+                      <strong>
+                        {res.provider.toUpperCase()} - {res.model}
+                      </strong>
+                      <br />
+                      {res.error || res.response || "Unknown error!"}
+                    </div>
+                  ) : (
+                    <ModelResponseCard
+                      provider={res.provider as keyof typeof AI_MODELS}
+                      model={res.model}
+                      temperature={res.temperature}
+                      response={res.response}
+                      modelId={res._id || ""}
+                      isFavorite={res.isFavorite}
+                      onDeleteLocally={handleDeleteLocalResponse}
+                    />
+                  )}
                 </div>
-                <div className="flex items-center gap-2">
-                  <Button variant="ghost" size="icon">
-                    <Star className="w-4 h-4 text-yellow-400" />
-                  </Button>
-                  <Button variant="ghost" size="icon">
-                    <Trash className="w-4 h-4 text-red-500" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => toggleCard(id)}
-                  >
-                    {isOpen ? <ChevronUp /> : <ChevronDown />}
-                  </Button>
-                </div>
-              </CardHeader>
-
-              {isOpen && (
-                <CardContent className="prose max-w-none text-sm dark:prose-invert ">
-                  <ReactMarkdown>{res.response}</ReactMarkdown>
-                </CardContent>
-              )}
-            </Card>
-          );
-        })}
+              );
+            })}
       </section>
     </div>
   );

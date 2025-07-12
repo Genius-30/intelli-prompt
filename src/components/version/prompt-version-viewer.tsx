@@ -76,7 +76,7 @@ export function PromptVersionViewer({
   const isInResponsePage = pathname.includes("/responses");
 
   return (
-    <div className="border border-sidebar-primary rounded-md p-4 bg-primary/10 relative space-y-3">
+    <div className="border border-sidebar-primary/60 rounded-md p-4 bg-primary/10 relative space-y-3">
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold mb-2">Prompt</h2>
         <div className="flex gap-2 items-center">

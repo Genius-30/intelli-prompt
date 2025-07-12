@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axiosInstance from "@/lib/axios";
 import { toast } from "sonner";
 
@@ -41,6 +41,7 @@ export function useGetResponse() {
 
 // Response shape (raw text response)
 export type ModelResponse = {
+  isFavorite: boolean | undefined;
   _id: string;
   provider: string;
   model: string;
@@ -58,10 +59,51 @@ export function useGetAllResponsesForVersion(versionId: string) {
       const { data } = await axiosInstance.get(
         `/prompt/${versionId}/allResponses`
       );
-      console.log("Fetched responses:", data);
 
       return data.responses as ModelResponse[];
     },
     enabled: !!versionId,
+  });
+}
+
+// Mutation to delete a specific response
+export function useDeleteResponse(versionId?: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (modelResponseId: string) => {
+      const res = await axiosInstance.delete(
+        `/prompt/testModel/${modelResponseId}`
+      );
+      return res.data;
+    },
+    onSuccess: () => {
+      if (versionId) {
+        queryClient.invalidateQueries({
+          queryKey: ["all-responses", versionId],
+        });
+      }
+    },
+  });
+}
+
+// Mutation to set a response as favorite
+export function useSetFavoriteResponse(versionId?: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (modelResponseId: string) => {
+      const res = await axiosInstance.patch(
+        `/prompt/testModel/${modelResponseId}/favorite`
+      );
+      return res.data;
+    },
+    onSuccess: () => {
+      if (versionId) {
+        queryClient.invalidateQueries({
+          queryKey: ["all-responses", versionId],
+        });
+      }
+    },
   });
 }

@@ -58,7 +58,17 @@ export async function POST(req: NextRequest, { params }: { params: any }) {
           prompt,
         })) as IResponse;
 
-        await ModelResponse.create({
+        if ("err" in result || result.response?.startsWith("Error")) {
+          return {
+            ...modelOption,
+            response: result.response || "No response generated",
+            _id: null,
+            isFavorite: false,
+            error: "Error occurred while generating response!",
+          };
+        }
+
+        const createdResponse = await ModelResponse.create({
           promptId,
           ownerId: userId,
           model: modelOption.model,
@@ -72,6 +82,8 @@ export async function POST(req: NextRequest, { params }: { params: any }) {
         return {
           ...modelOption,
           response: result.response,
+          _id: createdResponse._id,
+          isFavorite: createdResponse.isFavorite,
         };
       })
     );

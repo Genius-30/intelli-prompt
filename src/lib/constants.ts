@@ -1,6 +1,8 @@
 export const AI_MODELS = {
   openai: {
     logo: "/logos/openai.jpg",
+    description: "Best for general tasks and reliable performance",
+    color: "#10A37F", // OpenAI teal-green
     models: [
       { id: "gpt-3.5-turbo", name: "GPT‑3.5 Turbo" },
       { id: "gpt-3.5-turbo-16k", name: "GPT‑3.5 Turbo 16K" },
@@ -13,6 +15,8 @@ export const AI_MODELS = {
   },
   google: {
     logo: "/logos/gemini.png",
+    description: "Great for logical reasoning and fast responses",
+    color: "#4285F4", // Google Blue
     models: [
       { id: "gemini-ultra", name: "Gemini Ultra" },
       { id: "gemini-pro", name: "Gemini Pro" },
@@ -24,6 +28,8 @@ export const AI_MODELS = {
   },
   mistral: {
     logo: "/logos/mistral.png",
+    description: "Best for open-source LLM usage and flexibility",
+    color: "#FF6B00", // Neutral dark gray (Mistral has no strong brand color)
     models: [
       { id: "mistral-small", name: "Mistral Small" },
       { id: "mistral-medium", name: "Mistral Medium" },
@@ -34,6 +40,8 @@ export const AI_MODELS = {
   },
   anthropic: {
     logo: "/logos/claude.png",
+    description: "Great for creativity, long context, and safety",
+    color: "#7E22CE", // Purple shade (Claude brand hint)
     models: [
       { id: "claude-2", name: "Claude 2" },
       { id: "claude-3-light", name: "Claude 3 Light" },
@@ -44,6 +52,8 @@ export const AI_MODELS = {
   },
   xai: {
     logo: "/logos/grok.png",
+    description: "Best for real-time web knowledge & Twitter-style tone",
+    color: "#000000", // X (Twitter/Grok) black
     models: [
       { id: "grok-1", name: "Grok 1" },
       { id: "grok-1.5", name: "Grok 1.5" },
@@ -52,6 +62,8 @@ export const AI_MODELS = {
   },
   perplexity: {
     logo: "/logos/perplexity.png",
+    description: "Great for fast factual search and real-time answers",
+    color: "#6366F1", // Indigo (Perplexity brand hint)
     models: [
       { id: "pplx-7b-chat", name: "Perplexity 7B Chat" },
       { id: "pplx-70b-chat", name: "Perplexity 70B Chat" },

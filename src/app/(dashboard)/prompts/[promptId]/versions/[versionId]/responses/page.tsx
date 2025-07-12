@@ -3,9 +3,11 @@
 import { useParams } from "next/navigation";
 import { useGetAllResponsesForVersion } from "@/lib/queries/response";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import ReactMarkdown from "react-markdown";
 import { PromptVersionViewer } from "@/components/version/prompt-version-viewer";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ModelResponseCard } from "@/components/version/model-response-card";
+import { AI_MODELS } from "@/lib/constants";
+import { getProviderByModelId } from "@/utils/ai-model-utils";
 
 export default function AllResponsesPage() {
   const { versionId } = useParams();
@@ -13,12 +15,17 @@ export default function AllResponsesPage() {
     useGetAllResponsesForVersion(versionId as string);
 
   return (
-    <div className="p-0 sm:p-6 space-y-6">
+    <div className="p-0 sm:p-6">
       {/* Prompt Viewer */}
       <PromptVersionViewer
         versionId={versionId as string}
         showTokenEstimate={false}
       />
+
+      {/* Responses Section */}
+      <h2 className="mt-6 sm:mt-8 mb-3 font-semibold text-shadow-foreground text-lg">
+        All Responses
+      </h2>
 
       {isLoadingResponses ? (
         <div className="space-y-4">
@@ -35,25 +42,34 @@ export default function AllResponsesPage() {
             </Card>
           ))}
         </div>
-      ) : (
-        <div className="flex flex-col gap-4">
-          {responses.map((res, idx) => (
-            <Card key={idx}>
-              <CardHeader>
-                <h3 className="text-sm font-semibold">
-                  {res.provider} - {res.model} (Temp: {res.temperature})
-                </h3>
-                <p className="text-xs">
-                  {new Date(res.createdAt).toLocaleString()}
-                </p>
-              </CardHeader>
-              <CardContent className="prose max-w-none text-sm dark:prose-invert ">
-                <ReactMarkdown>{res.response}</ReactMarkdown>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      )}
+      ) : null}
+
+      {/* Refactored responses rendering */}
+      {!isLoadingResponses &&
+        (responses.length === 0 ? (
+          <div className="text-muted-foreground text-sm italic">
+            No responses generated yet.
+          </div>
+        ) : (
+          <div className="flex flex-col gap-4">
+            {responses.map((res) => {
+              const provider = getProviderByModelId(res.model);
+              if (!provider) return null;
+
+              return (
+                <ModelResponseCard
+                  key={`${res._id}-${res.model}`}
+                  provider={provider as keyof typeof AI_MODELS}
+                  model={res.model}
+                  temperature={res.temperature}
+                  response={res.response}
+                  modelId={res._id}
+                  isFavorite={res.isFavorite}
+                />
+              );
+            })}
+          </div>
+        ))}
     </div>
   );
 }

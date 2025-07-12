@@ -203,7 +203,7 @@ export default function PromptVersionsPage() {
 
                 {/* Footer: Updated at + actions */}
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mt-3  gap-2">
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-xs text-muted-foreground/70">
                     Updated {formatDistanceToNow(new Date(version.updatedAt))}{" "}
                     ago
                   </p>
