@@ -7,16 +7,16 @@ import { Label } from "@/components/ui/label";
 import { Loader } from "../ui/loader";
 import {
   ArrowRightIcon,
+  CheckCircle,
   Plus,
   Redo2Icon,
   Star,
   StarOff,
-  TestTube2Icon,
   Undo2Icon,
+  Zap,
 } from "lucide-react";
 import { AnimatedShinyText } from "../magicui/animated-shiny-text";
 import { toast } from "sonner";
-import { enhancedPrompt } from "@/utils/enhancePrompt";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import { useParams, useRouter } from "next/navigation";
 import {
@@ -25,6 +25,7 @@ import {
   useAddVersion,
   useToggleFavorite,
   useEnhancePrompt,
+  useSetActiveVersion,
 } from "@/lib/queries/version";
 import { Badge } from "../ui/badge";
 import { cn } from "@/lib/utils";
@@ -67,6 +68,10 @@ export function PromptForm({
     data: enhanced,
     isPending: isEnhancing,
   } = useEnhancePrompt();
+  const { mutate: setActiveVersion } = useSetActiveVersion(
+    promptId as string,
+    versionId as string
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -140,6 +145,24 @@ export function PromptForm({
     );
   };
 
+  const handleSetActive = () => {
+    if (initialData?.isCurrent) {
+      toast.info("This prompt version is already active");
+      return;
+    }
+
+    setActiveVersion(
+      {
+        versionId: initialData?._id as string,
+        folderId: initialData?.folderId as string,
+      },
+      {
+        onSuccess: () => toast.success("Set as active"),
+        onError: () => toast.error("Failed to set active"),
+      }
+    );
+  };
+
   const handleToggleFavorite = (e: React.MouseEvent) => {
     e.stopPropagation();
     toggleFavorite((versionId as string) ?? initialData?._id ?? "");
@@ -162,30 +185,30 @@ export function PromptForm({
           </div>
 
           <div className="flex items-center gap-3 flex-wrap">
-            {initialData.isCurrent ? (
-              <Badge variant="default" className="text-xs">
-                Active
-              </Badge>
-            ) : (
-              <Button
-                variant="default"
-                size="sm"
-                type="button"
-                onClick={() => {
-                  toast.info("Set Active feature coming soon.");
-                }}
-                className="cursor-pointer"
-              >
-                Set as Active
-              </Button>
-            )}
+            <Button
+              variant="ghost"
+              size="icon"
+              type="button"
+              onClick={handleSetActive}
+              title={
+                initialData?.isCurrent ? "Active Version" : "Set as Active"
+              }
+            >
+              <CheckCircle
+                className={`w-5 h-5 ${
+                  initialData?.isCurrent
+                    ? "text-green-500"
+                    : "text-muted-foreground"
+                }`}
+              />
+            </Button>
 
             <Button
               size="icon"
               variant="ghost"
               type="button"
               className={cn(
-                "hover:text-yellow-500 cursor-pointer",
+                "hover:text-yellow-500 cursor-pointer mr-2",
                 initialData.isFavorite && "text-yellow-500"
               )}
               onClick={handleToggleFavorite}
@@ -201,7 +224,7 @@ export function PromptForm({
             {/* Show "Test Prompt" only if editing */}
             {versionId && (
               <Button
-                variant="outline"
+                variant="default"
                 disabled={isEnhancing}
                 type="button"
                 onClick={() =>
@@ -209,7 +232,7 @@ export function PromptForm({
                 }
                 className="cursor-pointer"
               >
-                <TestTube2Icon className="mr-2 h-4 w-4" /> Test Prompt
+                <Zap className="w-4 h-4" /> Test Prompt
               </Button>
             )}
           </div>
@@ -235,9 +258,13 @@ export function PromptForm({
               className="group cursor-pointer"
               disabled={!content.trim()}
             >
-              <AnimatedShinyText className="inline-flex items-center text-sm font-medium text-muted-foreground hover:text-foreground">
+              <AnimatedShinyText className="inline-flex items-center text-sm font-medium">
                 ✨ Enhance with AI
-                <ArrowRightIcon className="ml-1 size-3 transition-transform duration-300 ease-in-out group-hover:translate-x-0.5" />
+                {isEnhancing ? (
+                  <Loader className="ml-2 size-4" />
+                ) : (
+                  <ArrowRightIcon className="ml-1 size-3 transition-transform duration-300 ease-in-out group-hover:translate-x-0.5" />
+                )}
               </AnimatedShinyText>
             </Button>
           </div>
@@ -282,7 +309,10 @@ export function PromptForm({
             </TooltipContent>
           </Tooltip>
         ) : (
-          <Button type="submit" disabled={isCreating || isUpdating}>
+          <Button
+            type="submit"
+            disabled={isCreating || isUpdating || isAdding || isEnhancing}
+          >
             {(isCreating || isUpdating) && <Loader className="mr-2" />}
             Save
           </Button>
@@ -293,7 +323,7 @@ export function PromptForm({
             type="button"
             variant="secondary"
             onClick={handleAddVersion}
-            disabled={isAdding}
+            disabled={isAdding || isEnhancing}
           >
             {isAdding ? <Loader className="mr-2" /> : <Plus />} Create Version
           </Button>

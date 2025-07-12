@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { Prompt } from "@/models/prompt.model";
 import { getAuthenticatedUser } from "@/utils/getAuthenticatedUser";
 import mongoose from "mongoose";
-import { Folder } from '@/models/folder.model'
+import { Folder } from "@/models/folder.model";
+import { ModelResponse } from "@/models/modelResponse.model";
 
 export async function DELETE(
   req: NextRequest,
@@ -20,20 +21,25 @@ export async function DELETE(
       );
     }
 
-    const prompt = await Prompt.findOneAndDelete({ _id: promptId, ownerId: userId });
-    if(!prompt){
+    const prompt = await Prompt.findOneAndDelete({
+      _id: promptId,
+      ownerId: userId,
+    });
+    if (!prompt) {
       return NextResponse.json(
-        { message: "couldn't delete" },
+        { message: "couldn't delete prompt" },
         { status: 400 }
       );
     }
+
+    await ModelResponse.deleteMany({ promptId: promptId, ownerId: userId });
 
     await Folder.updateOne(
       { _id: prompt.folderId, ownerId: userId },
       {
         $inc: { totalVersions: -1 },
       }
-    )
+    );
 
     return NextResponse.json({ message: "prompt deleted" }, { status: 201 });
   } catch (err) {
@@ -77,12 +83,12 @@ export async function PATCH(
     const { userId, error } = await getAuthenticatedUser();
     if (error) return error;
 
-    const { folderId } = await req.json()
-    if(!folderId){
+    const { folderId } = await req.json();
+    if (!folderId) {
       return NextResponse.json(
         { message: "require folderId" },
         { status: 400 }
-      )
+      );
     }
 
     const promptId = (await params).id;
@@ -90,21 +96,21 @@ export async function PATCH(
       return NextResponse.json(
         { message: "invalid promptId" },
         { status: 400 }
-      )
+      );
     }
 
     await Prompt.updateMany(
       { ownerId: userId, folderId: folderId },
       {
-        $set: { isCurrent: false }
+        $set: { isCurrent: false },
       }
-    )
+    );
     await Prompt.updateOne(
       { _id: promptId, ownerId: userId },
       {
-        $set: { isCurrent: true }
+        $set: { isCurrent: true },
       }
-    )
+    );
 
     return NextResponse.json(
       { message: "prompt isCurrent changed" },
