@@ -46,7 +46,7 @@ export function BreadcrumbResponsive() {
     }
 
     if (segment === versionId) {
-      label = version?.version ?? "...";
+      label = version?.version ? `v${version.version}` : "...";
     }
 
     return { label, href };

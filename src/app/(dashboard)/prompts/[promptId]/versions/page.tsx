@@ -11,6 +11,7 @@ import {
   CheckIcon,
   TrashIcon,
   PlusIcon,
+  Star,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -36,6 +37,8 @@ interface Version {
   version: string;
   updatedAt: string | Date;
   isCurrent: boolean;
+  isFavorite: boolean;
+  content: string;
 }
 
 export default function PromptVersionsPage() {
@@ -130,7 +133,9 @@ export default function PromptVersionsPage() {
                 />
               </span>
 
+              {/* 💡 Card */}
               <div className="pl-6 pr-4 pt-2 pb-3 bg-background rounded-lg shadow-sm border border-muted relative z-10 ml-4 sm:ml-8">
+                {/* Header Row */}
                 <div className="flex justify-between items-center">
                   <div className="flex items-center gap-2 text-base font-medium">
                     <GitBranchIcon className="w-4 h-4" />v{version.version}
@@ -139,8 +144,12 @@ export default function PromptVersionsPage() {
                         Active
                       </Badge>
                     )}
+                    {version.isFavorite && (
+                      <Star className="w-4 h-4 text-yellow-500 fill-yellow-400" />
+                    )}
                   </div>
 
+                  {/* Dropdown Menu */}
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" size="icon">
@@ -151,15 +160,22 @@ export default function PromptVersionsPage() {
                       {!version.isCurrent && (
                         <DropdownMenuItem
                           onClick={() =>
-                            setActiveVersion(version._id, {
-                              onSuccess: () => toast.success("Set as active."),
-                              onError: () =>
-                                toast.error("Failed to set active."),
-                            })
+                            setActiveVersion(
+                              {
+                                versionId: version._id,
+                                folderId: promptId as string,
+                              },
+                              {
+                                onSuccess: () =>
+                                  toast.success("Set as active."),
+                                onError: () =>
+                                  toast.error("Failed to set active."),
+                              }
+                            )
                           }
                           disabled={isActivating}
                         >
-                          <CheckIcon className="w-4 h-4 mr-2" /> Set as Active
+                          <CheckIcon className="w-4 h-4 mr-1" /> Set as Active
                         </DropdownMenuItem>
                       )}
                       <DropdownMenuItem
@@ -173,35 +189,50 @@ export default function PromptVersionsPage() {
                         disabled={isDeleting}
                         className="text-red-600"
                       >
-                        <TrashIcon className="text-red-600 w-4 h-4 mr-2" />
+                        <TrashIcon className="text-red-600 w-4 h-4 mr-1" />
                         Delete
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>
 
-                <p className="text-sm text-muted-foreground mt-1">
-                  Updated {formatDistanceToNow(new Date(version.updatedAt))} ago
+                {/* Prompt content preview */}
+                <p className="text-sm text-muted-foreground mt-2 line-clamp-2">
+                  {version.content}
                 </p>
 
-                <div className="mt-3 flex gap-2">
-                  <Button asChild size="sm" variant="outline" className="px-3">
-                    <Link href={`/prompts/${promptId}/versions/${version._id}`}>
-                      <SquarePenIcon className="w-4 h-4 mr-1" /> Edit
-                    </Link>
-                  </Button>
-                  <Button
-                    asChild
-                    size="sm"
-                    variant="default"
-                    className="bg-green-500 hover:bg-green-600 px-3"
-                  >
-                    <Link
-                      href={`/prompts/${promptId}/versions/${version._id}/test`}
+                {/* Footer: Updated at + actions */}
+                <div className="flex justify-between items-center mt-5">
+                  <p className="text-xs text-muted-foreground">
+                    Updated {formatDistanceToNow(new Date(version.updatedAt))}{" "}
+                    ago
+                  </p>
+                  <div className="flex gap-2">
+                    <Button
+                      asChild
+                      size="sm"
+                      variant="outline"
+                      className="px-3"
                     >
-                      <TestTube2Icon className="w-4 h-4 mr-1" /> Test
-                    </Link>
-                  </Button>
+                      <Link
+                        href={`/prompts/${promptId}/versions/${version._id}`}
+                      >
+                        <SquarePenIcon className="w-4 h-4 mr-1" /> Edit
+                      </Link>
+                    </Button>
+                    <Button
+                      asChild
+                      size="sm"
+                      variant="default"
+                      className="bg-green-500 hover:bg-green-600 px-3"
+                    >
+                      <Link
+                        href={`/prompts/${promptId}/versions/${version._id}/test`}
+                      >
+                        <TestTube2Icon className="w-4 h-4 mr-1" /> Test
+                      </Link>
+                    </Button>
+                  </div>
                 </div>
               </div>
             </div>
