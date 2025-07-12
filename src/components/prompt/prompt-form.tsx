@@ -7,12 +7,13 @@ import { Label } from "@/components/ui/label";
 import { Loader } from "../ui/loader";
 import {
   ArrowRightIcon,
+  CheckCircle,
   Plus,
   Redo2Icon,
   Star,
   StarOff,
-  TestTube2Icon,
   Undo2Icon,
+  Zap,
 } from "lucide-react";
 import { AnimatedShinyText } from "../magicui/animated-shiny-text";
 import { toast } from "sonner";
@@ -144,6 +145,24 @@ export function PromptForm({
     );
   };
 
+  const handleSetActive = () => {
+    if (initialData?.isCurrent) {
+      toast.info("This prompt version is already active");
+      return;
+    }
+
+    setActiveVersion(
+      {
+        versionId: initialData?._id as string,
+        folderId: initialData?.folderId as string,
+      },
+      {
+        onSuccess: () => toast.success("Set as active"),
+        onError: () => toast.error("Failed to set active"),
+      }
+    );
+  };
+
   const handleToggleFavorite = (e: React.MouseEvent) => {
     e.stopPropagation();
     toggleFavorite((versionId as string) ?? initialData?._id ?? "");
@@ -166,39 +185,30 @@ export function PromptForm({
           </div>
 
           <div className="flex items-center gap-3 flex-wrap">
-            {initialData.isCurrent ? (
-              <Badge variant="default" className="text-xs">
-                Active
-              </Badge>
-            ) : (
-              <Button
-                variant="default"
-                size="sm"
-                type="button"
-                onClick={() =>
-                  setActiveVersion(
-                    {
-                      versionId: versionId as string,
-                      folderId: promptId as string,
-                    },
-                    {
-                      onSuccess: () => toast.success("Set as active."),
-                      onError: () => toast.error("Failed to set active."),
-                    }
-                  )
-                }
-                className="cursor-pointer"
-              >
-                Set as Active
-              </Button>
-            )}
+            <Button
+              variant="ghost"
+              size="icon"
+              type="button"
+              onClick={handleSetActive}
+              title={
+                initialData?.isCurrent ? "Active Version" : "Set as Active"
+              }
+            >
+              <CheckCircle
+                className={`w-5 h-5 ${
+                  initialData?.isCurrent
+                    ? "text-green-500"
+                    : "text-muted-foreground"
+                }`}
+              />
+            </Button>
 
             <Button
               size="icon"
               variant="ghost"
               type="button"
               className={cn(
-                "hover:text-yellow-500 cursor-pointer",
+                "hover:text-yellow-500 cursor-pointer mr-2",
                 initialData.isFavorite && "text-yellow-500"
               )}
               onClick={handleToggleFavorite}
@@ -214,7 +224,7 @@ export function PromptForm({
             {/* Show "Test Prompt" only if editing */}
             {versionId && (
               <Button
-                variant="outline"
+                variant="default"
                 disabled={isEnhancing}
                 type="button"
                 onClick={() =>
@@ -222,7 +232,7 @@ export function PromptForm({
                 }
                 className="cursor-pointer"
               >
-                <TestTube2Icon className="mr-2 h-4 w-4" /> Test Prompt
+                <Zap className="w-4 h-4" /> Test Prompt
               </Button>
             )}
           </div>
@@ -248,7 +258,7 @@ export function PromptForm({
               className="group cursor-pointer"
               disabled={!content.trim()}
             >
-              <AnimatedShinyText className="inline-flex items-center text-sm font-medium text-muted-foreground hover:text-foreground">
+              <AnimatedShinyText className="inline-flex items-center text-sm font-medium">
                 ✨ Enhance with AI
                 {isEnhancing ? (
                   <Loader className="ml-2 size-4" />
