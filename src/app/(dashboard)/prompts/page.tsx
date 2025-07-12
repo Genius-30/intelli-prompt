@@ -1,39 +1,24 @@
-"use client";
+import { Metadata } from "next";
+import PromptList from "./PromptList";
 
-import { PromptCard } from "@/components/prompt/PromptCard";
-import { useGetAllPrompts } from "@/lib/queries/prompt";
-import { PromptCardSkeleton } from "@/components/skeletons/PromptCardSkeleton";
+export const metadata: Metadata = {
+  title: "Your Prompts | IntelliStack",
+  description: "View and manage all your saved AI prompts in one place.",
+  openGraph: {
+    title: "Your Prompts | IntelliStack",
+    description: "Manage your AI prompts efficiently.",
+    url: "https://your-domain.com/prompts",
+    siteName: "IntelliStack",
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Your Prompts | IntelliStack",
+    description: "Manage your AI prompts efficiently.",
+  },
+};
 
-export default function AllPromptsPage() {
-  const { data: prompts, isLoading, error } = useGetAllPrompts();
-
-  if (isLoading) {
-    return (
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {[...Array(6)].map((_, i) => (
-          <PromptCardSkeleton key={i} />
-        ))}
-      </div>
-    );
-  }
-
-  if (error) {
-    return <p className="text-red-500">Failed to load prompts</p>;
-  }
-
-  return (
-    <div className="p-2 sm:p-6">
-      {prompts?.length === 0 && (
-        <p className="text-start text-muted-foreground mt-10">
-          {" "}
-          You haven't created any prompts yet.
-        </p>
-      )}
-      <div className="w-full grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {prompts.map((prompt: any) => (
-          <PromptCard key={prompt._id} prompt={prompt} />
-        ))}
-      </div>
-    </div>
-  );
+export default function PromptsPage() {
+  return <PromptList />;
 }

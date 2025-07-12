@@ -1,9 +1,16 @@
-"use client";
+import { redirect } from "next/navigation";
 
-import { redirect, useParams } from "next/navigation";
+interface PromptPageProps {
+  params: { promptId: string };
+}
 
-export default function PromptPage() {
-  const { promptId } = useParams();
+export const metadata = {
+  robots: {
+    index: false,
+    follow: true,
+  },
+};
 
-  return redirect(`/prompts/${promptId}/versions`);
+export default function PromptPage({ params }: PromptPageProps) {
+  return redirect(`/prompts/${params.promptId}/versions`);
 }
