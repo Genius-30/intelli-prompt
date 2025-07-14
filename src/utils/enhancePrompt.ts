@@ -1,4 +1,4 @@
-import { callGemini } from "./models";
+import { callOpenRouter } from '@/utils/models'
 
 export interface IResponse {
   tokensUsed: number;
@@ -17,12 +17,12 @@ export async function enhancedPrompt(content: string) {
                           `;
     const userPrompt = `Original Prompt: ${content}`;
 
-    const response = (await callGemini({
+    const response = (await callOpenRouter({
       messages: [
         { role: "system", content: systemPrompt },
         { role: "user", content: userPrompt },
       ],
-      model: "gemini-2.0-flash",
+      model: "openai/gpt-4o",
       temperature: 0.7,
     })) as IResponse;
 

@@ -13,7 +13,7 @@ export interface IModelCallProps {
 }
 
 export async function callOpenRouter({
-  model = "meta-llama/llama-3-8b-instruct",
+  model = "openai/gpt-4o",
   messages,
   temperature = 0.7,
   max_tokens = 300,
