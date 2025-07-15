@@ -1,22 +1,20 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { cn } from "@/lib/utils";
+import { useUser } from "@clerk/nextjs";
 import { Navbar } from "./navbar";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
-  const hideNavRoutes = ["/dashboard", "/prompts", "/sign-in", "/sign-up"];
-
   const pathname = usePathname();
+  const { isSignedIn, isLoaded } = useUser();
 
-  const isDashboardRoute = hideNavRoutes.some((route) =>
-    pathname.startsWith(route)
-  );
+  // Show navbar only on root page when user is not logged in
+  const shouldShowNavbar = pathname === "/" && !isSignedIn && isLoaded;
 
   return (
-    <div className={cn("min-h-screen", isDashboardRoute && "bg-background")}>
-      {/* ✅ Show Navbar only on public pages */}
-      {!isDashboardRoute && <Navbar />}
+    <div className="min-h-screen">
+      {/* ✅ Show Navbar only on root page when user is not logged in */}
+      {shouldShowNavbar && <Navbar />}
       {children}
     </div>
   );

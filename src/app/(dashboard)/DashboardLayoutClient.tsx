@@ -12,7 +12,7 @@ import {
   BookmarkIcon,
   UsersIcon,
   UserIcon,
-  FolderIcon,
+  Bell,
 } from "lucide-react";
 import Link from "next/link";
 import { useParams, usePathname, useRouter } from "next/navigation";
@@ -26,6 +26,12 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
+  SidebarHeader,
+  SidebarFooter,
+  SidebarTrigger,
+  SidebarInset,
+  SidebarProvider,
+  SidebarRail,
 } from "@/components/ui/sidebar";
 import {
   AlertDialog,
@@ -39,7 +45,7 @@ import {
 } from "@/components/ui/alert-dialog";
 
 import { cn } from "@/lib/utils";
-import Logo from "./Logo";
+import Logo from "../../components/Logo";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -47,7 +53,7 @@ import {
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 import { useState } from "react";
-import { PromptModal } from "./prompt/PromptModal";
+import { PromptModal } from "../../components/prompt/PromptModal";
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
   useCreatePrompt,
@@ -56,9 +62,19 @@ import {
   useDeletePrompt,
 } from "@/lib/queries/prompt";
 import { toast } from "sonner";
-import { SidebarSkeletonItem } from "./skeletons/SidebarSkeleton";
+import { SidebarSkeletonItem } from "../../components/skeletons/SidebarSkeleton";
+import { BreadcrumbResponsive } from "../../components/BreadCrumbResponsive";
+import { ModeToggle } from "../../components/ModeToggle";
+import { UserButton } from "@clerk/nextjs";
+import { useTheme } from "next-themes";
+import { dark } from "@clerk/themes";
+import { Badge } from "@/components/ui/badge";
 
-export function DashboardSidebar() {
+export default function DashboardLayoutClient({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
   const pathname = usePathname();
   const { promptId } = useParams();
   const [modalState, setModalState] = useState<{
@@ -75,6 +91,7 @@ export function DashboardSidebar() {
   const { mutate: renamePrompt, isPending: isRenaming } = useRenamePrompt();
   const { mutate: deletePrompt, isPending: isDeleting } = useDeletePrompt();
 
+  const { resolvedTheme } = useTheme();
   const isMobile = useIsMobile();
   const router = useRouter();
 
@@ -187,17 +204,18 @@ export function DashboardSidebar() {
   }
 
   return (
-    <Sidebar className="hidden md:flex border-r bg-muted/40 min-w-[240px]">
-      <SidebarContent className="flex flex-col h-full p-4 justify-between">
-        <div>
-          <SidebarGroup>
-            {/* Logo */}
-            <SidebarGroupLabel className="text-xl font-bold text-primary">
-              <Logo />
-            </SidebarGroupLabel>
+    <SidebarProvider>
+      <Sidebar variant="inset">
+        <SidebarHeader>
+          <div className="px-2 py-2">
+            <Logo />
+          </div>
+        </SidebarHeader>
 
-            <SidebarGroupContent className="mt-8">
-              {/* Dashboard & Plans */}
+        <SidebarContent>
+          <SidebarGroup key="main">
+            <SidebarGroupLabel>Main</SidebarGroupLabel>
+            <SidebarGroupContent>
               <SidebarMenu>
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild>
@@ -282,122 +300,122 @@ export function DashboardSidebar() {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               </SidebarMenu>
-
-              {/* Folder Section Title */}
-              <Link
-                href="/prompts"
-                className="text-xs uppercase text-muted-foreground mt-6 px-2 mb-3 flex items-center gap-2 cursor-pointer"
-              >
-                <FolderIcon size={14} />
-                Your Prompts
-              </Link>
-
-              <SidebarMenu>
-                <div className="max-h-[200px] space-y-0.5 pr-1 overflow-y-auto custom-scroll">
-                  {promptContent}
-                </div>
-
-                <SidebarMenuItem className="mt-2">
-                  <Button
-                    variant="ghost"
-                    className="w-full justify-start cursor-pointer text-sm"
-                    onClick={openCreateModal}
-                  >
-                    <Plus className="w-4 h-4 mr-2" />
-                    New Prompt
-                  </Button>
-                </SidebarMenuItem>
-              </SidebarMenu>
-
-              {/* Delete Prompt Confirmation Dialog */}
-              {promptToDelete && (
-                <AlertDialog
-                  open={dialogOpen}
-                  onOpenChange={(open) => {
-                    if (!open) setPromptToDelete(null);
-                  }}
-                >
-                  <AlertDialogContent
-                    onEscapeKeyDown={(e) => isDeleting && e.preventDefault()}
-                  >
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Delete this prompt?</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        This will permanently delete the prompt and{" "}
-                        <strong>all its versions</strong>. This action cannot be
-                        undone.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel
-                        disabled={isDeleting}
-                        onClick={() => {
-                          if (!isDeleting) {
-                            setDialogOpen(false);
-                            setPromptToDelete(null);
-                          }
-                        }}
-                      >
-                        Cancel
-                      </AlertDialogCancel>
-                      <AlertDialogAction
-                        disabled={isDeleting}
-                        onClick={() => {
-                          if (!promptToDelete) return;
-                          handleDeletePrompt(promptToDelete);
-                        }}
-                      >
-                        {isDeleting ? "Deleting..." : "Delete"}
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              )}
-
-              {/* Prompt Modal */}
-              {modalState.type && (
-                <PromptModal
-                  open={true}
-                  onClose={closeModal}
-                  defaultTitle={
-                    modalState.type === "rename" ? modalState.prompt?.title : ""
-                  }
-                  submitText={
-                    modalState.type === "rename" ? "Rename" : "Create"
-                  }
-                  isPending={
-                    modalState.type === "rename" ? isRenaming : isCreating
-                  }
-                  onSubmit={(title) => {
-                    if (modalState.type === "create") {
-                      createPrompt(title, {
-                        onSuccess: (data) => {
-                          const newId = data?._id;
-                          if (newId) {
-                            router.push(`/prompts/${newId}/versions`);
-                          }
-                        },
-                        onError: () => toast.error("Failed to create prompt"),
-                      });
-                    } else if (
-                      modalState.type === "rename" &&
-                      modalState.prompt
-                    ) {
-                      renamePrompt({
-                        _id: modalState.prompt._id,
-                        title,
-                      });
-                    }
-                    closeModal();
-                  }}
-                />
-              )}
             </SidebarGroupContent>
           </SidebarGroup>
-        </div>
 
-        {/* User Profile at Bottom */}
-        <div className="mt-4 border-t pt-4">
+          <SidebarGroup key="prompts">
+            <SidebarGroupLabel>
+              <Link
+                href="/prompts"
+                className=" flex items-center gap-2 cursor-pointer"
+              >
+                Folders
+              </Link>
+            </SidebarGroupLabel>
+
+            <SidebarMenu>
+              <div className="max-h-[200px] space-y-0.5 pr-1 overflow-y-auto custom-scroll">
+                {promptContent}
+              </div>
+
+              <SidebarMenuItem className="mt-2">
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start cursor-pointer text-sm"
+                  onClick={openCreateModal}
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  New Prompt
+                </Button>
+              </SidebarMenuItem>
+            </SidebarMenu>
+
+            {/* Delete Prompt Confirmation Dialog */}
+            {promptToDelete && (
+              <AlertDialog
+                open={dialogOpen}
+                onOpenChange={(open) => {
+                  if (!open) setPromptToDelete(null);
+                }}
+              >
+                <AlertDialogContent
+                  onEscapeKeyDown={(e) => isDeleting && e.preventDefault()}
+                >
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Delete this prompt?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This will permanently delete the prompt and{" "}
+                      <strong>all its versions</strong>. This action cannot be
+                      undone.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel
+                      disabled={isDeleting}
+                      onClick={() => {
+                        if (!isDeleting) {
+                          setDialogOpen(false);
+                          setPromptToDelete(null);
+                        }
+                      }}
+                    >
+                      Cancel
+                    </AlertDialogCancel>
+                    <AlertDialogAction
+                      disabled={isDeleting}
+                      onClick={() => {
+                        if (!promptToDelete) return;
+                        handleDeletePrompt(promptToDelete);
+                      }}
+                    >
+                      {isDeleting ? "Deleting..." : "Delete"}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            )}
+
+            {/* Prompt Modal */}
+            {modalState.type && (
+              <PromptModal
+                open={true}
+                onClose={closeModal}
+                defaultTitle={
+                  modalState.type === "rename" ? modalState.prompt?.title : ""
+                }
+                submitText={modalState.type === "rename" ? "Rename" : "Create"}
+                isPending={
+                  modalState.type === "rename" ? isRenaming : isCreating
+                }
+                onSubmit={(title) => {
+                  if (modalState.type === "create") {
+                    createPrompt(title, {
+                      onSuccess: (data) => {
+                        const newId = data?._id;
+                        if (newId) {
+                          router.push(`/prompts/${newId}/versions`);
+                        }
+                      },
+                      onError: () => toast.error("Failed to create prompt"),
+                    });
+                  } else if (
+                    modalState.type === "rename" &&
+                    modalState.prompt
+                  ) {
+                    renamePrompt({
+                      _id: modalState.prompt._id,
+                      title,
+                    });
+                  }
+                  closeModal();
+                }}
+              />
+            )}
+          </SidebarGroup>
+        </SidebarContent>
+
+        {/* User Public Profile */}
+        <SidebarFooter>
           <SidebarMenu>
             <SidebarMenuItem>
               <SidebarMenuButton asChild>
@@ -415,8 +433,33 @@ export function DashboardSidebar() {
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>
-        </div>
-      </SidebarContent>
-    </Sidebar>
+        </SidebarFooter>
+        <SidebarRail />
+      </Sidebar>
+
+      <SidebarInset>
+        <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
+          <SidebarTrigger className="-ml-1" />
+
+          <div className="flex flex-1 items-center justify-between gap-2">
+            <BreadcrumbResponsive />
+
+            <div className="flex items-center space-x-2">
+              <Button variant="ghost" size="sm">
+                <Bell className="h-4 w-4" />
+              </Button>
+              <ModeToggle />
+              <Badge className="text-xs mr-3">Pro</Badge>
+              <UserButton
+                appearance={{
+                  baseTheme: resolvedTheme === "dark" ? dark : undefined,
+                }}
+              />
+            </div>
+          </div>
+        </header>
+        <main className="flex-1 p-6">{children}</main>
+      </SidebarInset>
+    </SidebarProvider>
   );
 }

@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import DashboardClient from "./DashboardClient";
 
 export const metadata: Metadata = {
   title: "Dashboard | IntelliStack",
@@ -29,10 +30,5 @@ export const metadata: Metadata = {
 };
 
 export default function DashboardPage() {
-  return (
-    <div className="p-6 max-w-7xl mx-auto">
-      <h1 className="text-2xl font-semibold mb-4">Dashboard</h1>
-      <p className="text-muted-foreground">Welcome to your control panel.</p>
-    </div>
-  );
+  return <DashboardClient />;
 }
