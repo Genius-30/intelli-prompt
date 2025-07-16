@@ -1,8 +1,7 @@
 "use client";
 
 import * as React from "react";
-import Link from "next/link";
-import { useParams, usePathname } from "next/navigation";
+
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -11,7 +10,10 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { useGetPromptMeta } from "@/lib/queries/prompt";
+import { useParams, usePathname } from "next/navigation";
+
+import Link from "next/link";
+import { useGetPromptMeta } from "@/lib/queries/folder";
 import { useGetVersion } from "@/lib/queries/version";
 
 const segmentLabelMap: Record<string, string> = {

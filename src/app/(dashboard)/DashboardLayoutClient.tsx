@@ -1,207 +1,56 @@
 "use client";
 
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
-  Plus,
-  MoreVertical,
-  LayoutDashboardIcon,
-  CreditCardIcon,
-  Edit2Icon,
-  TrashIcon,
-  Star,
-  TrophyIcon,
-  BookmarkIcon,
-  UsersIcon,
-  UserIcon,
   Bell,
+  ChevronsUpDown,
+  LogOut,
+  Receipt,
+  Settings,
+  User,
 } from "lucide-react";
-import Link from "next/link";
-import { useParams, usePathname, useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
-  SidebarMenu,
-  SidebarMenuItem,
-  SidebarMenuButton,
   SidebarHeader,
-  SidebarFooter,
-  SidebarTrigger,
   SidebarInset,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
   SidebarProvider,
-  SidebarRail,
+  SidebarTrigger,
 } from "@/components/ui/sidebar";
-import {
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogCancel,
-  AlertDialogAction,
-} from "@/components/ui/alert-dialog";
+import { SignOutButton, useClerk, useUser } from "@clerk/nextjs";
 
-import { cn } from "@/lib/utils";
-import Logo from "../../components/Logo";
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-} from "@/components/ui/dropdown-menu";
-import { useState } from "react";
-import { PromptModal } from "../../components/prompt/PromptModal";
-import { useIsMobile } from "@/hooks/use-mobile";
-import {
-  useCreatePrompt,
-  useGetAllPrompts,
-  useRenamePrompt,
-  useDeletePrompt,
-} from "@/lib/queries/prompt";
-import { toast } from "sonner";
-import { SidebarSkeletonItem } from "../../components/skeletons/SidebarSkeleton";
-import { BreadcrumbResponsive } from "../../components/BreadCrumbResponsive";
-import { ModeToggle } from "../../components/ModeToggle";
-import { UserButton } from "@clerk/nextjs";
-import { useTheme } from "next-themes";
-import { dark } from "@clerk/themes";
 import { Badge } from "@/components/ui/badge";
+import { BreadcrumbResponsive } from "../../components/BreadCrumbResponsive";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import Logo from "../../components/Logo";
+import { ModeToggle } from "../../components/ModeToggle";
+import { SidebarFolderSection } from "@/components/dashboard/SidebarFolderSection";
+import { SidebarMainLinks } from "@/components/dashboard/SidebarMainLinks";
 
 export default function DashboardLayoutClient({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const pathname = usePathname();
-  const { promptId } = useParams();
-  const [modalState, setModalState] = useState<{
-    type: "create" | "rename" | null;
-    prompt?: { _id: string; title: string };
-  }>({ type: null });
-  const [promptToDelete, setPromptToDelete] = useState<string | null>(null);
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [hoveredId, setHoveredId] = useState<string | null>(null);
-  const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
-
-  const { data: prompts = [], isLoading } = useGetAllPrompts();
-  const { mutate: createPrompt, isPending: isCreating } = useCreatePrompt();
-  const { mutate: renamePrompt, isPending: isRenaming } = useRenamePrompt();
-  const { mutate: deletePrompt, isPending: isDeleting } = useDeletePrompt();
-
-  const { resolvedTheme } = useTheme();
-  const isMobile = useIsMobile();
-  const router = useRouter();
-
-  const openCreateModal = () => setModalState({ type: "create" });
-  const openRenameModal = (prompt: {
-    _id: string;
-    title: string;
-    isFavorite: boolean;
-  }) => setModalState({ type: "rename", prompt });
-
-  const closeModal = () => setModalState({ type: null });
-
-  const handleDeletePrompt = (id: string) => {
-    deletePrompt(id, {
-      onSuccess: () => {
-        toast.success("Prompt deleted");
-        if (promptId === id) router.push("/prompts");
-        setDialogOpen(false);
-        setPromptToDelete(null);
-      },
-      onError: () => {
-        toast.error("Failed to delete prompt");
-        setDialogOpen(false); // or keep open for retry
-        setPromptToDelete(null);
-      },
-    });
-  };
-
-  let promptContent: React.ReactNode;
-
-  if (isLoading) {
-    promptContent = Array.from({ length: 3 }).map((_, i) => (
-      <SidebarSkeletonItem key={i} />
-    ));
-  } else if (prompts.length === 0) {
-    promptContent = (
-      <p className="text-sm text-muted-foreground ml-3 my-2">No Prompts yet!</p>
-    );
-  } else {
-    promptContent = prompts.map(
-      (prompt: { _id: string; title: string; isFavorite: boolean }) => {
-        const isActive = promptId === prompt._id;
-        const isHoveredOrOpen =
-          isMobile || hoveredId === prompt._id || openDropdownId === prompt._id;
-
-        return (
-          <SidebarMenuItem
-            key={prompt._id}
-            onMouseEnter={() => setHoveredId(prompt._id)}
-            onMouseLeave={() => setHoveredId(null)}
-            className={cn(
-              "rounded-md overflow-hidden",
-              isActive && "bg-primary/10"
-            )}
-          >
-            <SidebarMenuButton asChild className="w-full px-2 py-1">
-              <div
-                className={cn(
-                  "flex items-center justify-between w-full text-sm font-medium rounded-md px-2 py-1 transition-colors",
-                  isActive
-                    ? "text-primary bg-primary/10"
-                    : "text-muted-foreground hover:bg-accent hover:text-foreground"
-                )}
-              >
-                <Link
-                  href={`/prompts/${prompt._id}/versions`}
-                  className="flex-1 truncate flex items-center gap-2"
-                >
-                  <span className="truncate max-w-[85%]">{prompt.title}</span>
-                  {prompt.isFavorite && (
-                    <Star className="w-4 h-4 text-yellow-500 fill-yellow-400" />
-                  )}
-                </Link>
-
-                {isHoveredOrOpen && (
-                  <DropdownMenu
-                    onOpenChange={(open) => {
-                      setOpenDropdownId(open ? prompt._id : null);
-                    }}
-                  >
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="w-6 h-6">
-                        <MoreVertical className="w-4 h-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent>
-                      <DropdownMenuItem onClick={() => openRenameModal(prompt)}>
-                        <Edit2Icon className="mr-2 h-4 w-4" /> Rename
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => {
-                          setPromptToDelete(prompt._id);
-                          setDialogOpen(true);
-                          setOpenDropdownId(null);
-                        }}
-                        className="text-red-600"
-                      >
-                        <TrashIcon className="text-red-600 mr-2 h-4 w-4" />{" "}
-                        Delete
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                )}
-              </div>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        );
-      }
-    );
-  }
+  const { user } = useUser();
+  const { openUserProfile } = useClerk();
+  if (!user) return null;
 
   return (
     <SidebarProvider>
@@ -213,228 +62,69 @@ export default function DashboardLayoutClient({
         </SidebarHeader>
 
         <SidebarContent>
-          <SidebarGroup key="main">
-            <SidebarGroupLabel>Main</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild>
-                    <Link
-                      href="/dashboard"
-                      className={cn(
-                        "text-sm font-medium w-full text-left",
-                        pathname === "/dashboard"
-                          ? "text-primary"
-                          : "text-muted-foreground hover:text-foreground"
-                      )}
-                    >
-                      <LayoutDashboardIcon size={20} /> Dashboard
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-
-                {/* Explore */}
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild>
-                    <Link
-                      href="/explore"
-                      className={cn(
-                        "text-sm font-medium w-full text-left",
-                        pathname === "/explore"
-                          ? "text-primary"
-                          : "text-muted-foreground hover:text-foreground"
-                      )}
-                    >
-                      <UsersIcon size={20} /> Explore
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-
-                {/* Leaderboard */}
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild>
-                    <Link
-                      href="/leaderboard"
-                      className={cn(
-                        "text-sm font-medium w-full text-left",
-                        pathname === "/leaderboard"
-                          ? "text-primary"
-                          : "text-muted-foreground hover:text-foreground"
-                      )}
-                    >
-                      <TrophyIcon size={20} /> Leaderboard
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-
-                {/* Saved */}
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild>
-                    <Link
-                      href="/saved"
-                      className={cn(
-                        "text-sm font-medium w-full text-left",
-                        pathname === "/saved"
-                          ? "text-primary"
-                          : "text-muted-foreground hover:text-foreground"
-                      )}
-                    >
-                      <BookmarkIcon size={20} /> Saved
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild>
-                    <Link
-                      href="/plans"
-                      className={cn(
-                        "text-sm font-medium w-full text-left",
-                        pathname === "/plans"
-                          ? "text-primary"
-                          : "text-muted-foreground hover:text-foreground"
-                      )}
-                    >
-                      <CreditCardIcon size={20} /> Plans
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-
-          <SidebarGroup key="prompts">
-            <SidebarGroupLabel>
-              <Link
-                href="/prompts"
-                className=" flex items-center gap-2 cursor-pointer"
-              >
-                Folders
-              </Link>
-            </SidebarGroupLabel>
-
-            <SidebarMenu>
-              <div className="max-h-[200px] space-y-0.5 pr-1 overflow-y-auto custom-scroll">
-                {promptContent}
-              </div>
-
-              <SidebarMenuItem className="mt-2">
-                <Button
-                  variant="ghost"
-                  className="w-full justify-start cursor-pointer text-sm"
-                  onClick={openCreateModal}
-                >
-                  <Plus className="w-4 h-4 mr-2" />
-                  New Prompt
-                </Button>
-              </SidebarMenuItem>
-            </SidebarMenu>
-
-            {/* Delete Prompt Confirmation Dialog */}
-            {promptToDelete && (
-              <AlertDialog
-                open={dialogOpen}
-                onOpenChange={(open) => {
-                  if (!open) setPromptToDelete(null);
-                }}
-              >
-                <AlertDialogContent
-                  onEscapeKeyDown={(e) => isDeleting && e.preventDefault()}
-                >
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Delete this prompt?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      This will permanently delete the prompt and{" "}
-                      <strong>all its versions</strong>. This action cannot be
-                      undone.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel
-                      disabled={isDeleting}
-                      onClick={() => {
-                        if (!isDeleting) {
-                          setDialogOpen(false);
-                          setPromptToDelete(null);
-                        }
-                      }}
-                    >
-                      Cancel
-                    </AlertDialogCancel>
-                    <AlertDialogAction
-                      disabled={isDeleting}
-                      onClick={() => {
-                        if (!promptToDelete) return;
-                        handleDeletePrompt(promptToDelete);
-                      }}
-                    >
-                      {isDeleting ? "Deleting..." : "Delete"}
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            )}
-
-            {/* Prompt Modal */}
-            {modalState.type && (
-              <PromptModal
-                open={true}
-                onClose={closeModal}
-                defaultTitle={
-                  modalState.type === "rename" ? modalState.prompt?.title : ""
-                }
-                submitText={modalState.type === "rename" ? "Rename" : "Create"}
-                isPending={
-                  modalState.type === "rename" ? isRenaming : isCreating
-                }
-                onSubmit={(title) => {
-                  if (modalState.type === "create") {
-                    createPrompt(title, {
-                      onSuccess: (data) => {
-                        const newId = data?._id;
-                        if (newId) {
-                          router.push(`/prompts/${newId}/versions`);
-                        }
-                      },
-                      onError: () => toast.error("Failed to create prompt"),
-                    });
-                  } else if (
-                    modalState.type === "rename" &&
-                    modalState.prompt
-                  ) {
-                    renamePrompt({
-                      _id: modalState.prompt._id,
-                      title,
-                    });
-                  }
-                  closeModal();
-                }}
-              />
-            )}
-          </SidebarGroup>
+          <SidebarMainLinks />
+          <SidebarFolderSection />
         </SidebarContent>
 
-        {/* User Public Profile */}
+        {/* Sidebar Footer */}
         <SidebarFooter>
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton asChild>
-                <Link
-                  href="/profile"
-                  className={cn(
-                    "text-sm font-medium w-full text-left",
-                    pathname === "/profile"
-                      ? "text-primary"
-                      : "text-muted-foreground hover:text-foreground"
-                  )}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <SidebarMenuButton className="h-10 gap-2">
+                    <Avatar className="h-6 w-6">
+                      <AvatarImage src={user.imageUrl} />
+                      <AvatarFallback>
+                        {user.firstName?.[0]}
+                        {user.lastName?.[0]}
+                      </AvatarFallback>
+                    </Avatar>
+                    <span className="truncate max-w-[100px]">
+                      {user.fullName || user.username}
+                    </span>
+                    <ChevronsUpDown className="ml-auto mr-1" />
+                  </SidebarMenuButton>
+                </DropdownMenuTrigger>
+
+                <DropdownMenuContent
+                  side="top"
+                  className="w-[--radix-popper-anchor-width]"
                 >
-                  <UserIcon size={20} /> Profile
-                </Link>
-              </SidebarMenuButton>
+                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+
+                  <DropdownMenuItem asChild>
+                    <Link href="/profile">
+                      <User className="mr-2 h-4 w-4" />
+                      Profile
+                    </Link>
+                  </DropdownMenuItem>
+
+                  <DropdownMenuItem asChild>
+                    <Link href="/billing">
+                      <Receipt className="mr-2 h-4 w-4" />
+                      Billing
+                    </Link>
+                  </DropdownMenuItem>
+
+                  <DropdownMenuItem onClick={() => openUserProfile()}>
+                    <Settings className="mr-2 h-4 w-4" />
+                    Manage Account
+                  </DropdownMenuItem>
+
+                  <DropdownMenuSeparator />
+                  <SignOutButton>
+                    <DropdownMenuItem className="text-red-600">
+                      <LogOut className="mr-2 h-4 w-4 text-red-600" />
+                      Log out
+                    </DropdownMenuItem>
+                  </SignOutButton>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </SidebarMenuItem>
           </SidebarMenu>
         </SidebarFooter>
-        <SidebarRail />
       </Sidebar>
 
       <SidebarInset>
@@ -445,19 +135,26 @@ export default function DashboardLayoutClient({
             <BreadcrumbResponsive />
 
             <div className="flex items-center space-x-2">
+              <Button asChild variant="outline" size="sm" className="text-xs">
+                <Link href="/pricing">Upgrade</Link>
+              </Button>
+
               <Button variant="ghost" size="sm">
                 <Bell className="h-4 w-4" />
               </Button>
+
               <ModeToggle />
-              <Badge className="text-xs mr-3">Pro</Badge>
-              <UserButton
-                appearance={{
-                  baseTheme: resolvedTheme === "dark" ? dark : undefined,
-                }}
-              />
+
+              <Badge
+                variant="outline"
+                className="text-xs border-primary text-primary border-2 mr-3"
+              >
+                Pro
+              </Badge>
             </div>
           </div>
         </header>
+
         <main className="flex-1 p-6">{children}</main>
       </SidebarInset>
     </SidebarProvider>

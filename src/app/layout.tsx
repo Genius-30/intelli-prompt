@@ -1,10 +1,11 @@
-import type { Metadata } from "next";
+import "./globals.css";
+
+import { AppShell } from "@/components/AppShell";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Inter } from "next/font/google";
-import "./globals.css";
-import { ThemeProvider } from "@/components/theme-provider";
-import { AppShell } from "@/components/AppShell";
+import type { Metadata } from "next";
 import Providers from "./providers";
+import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "sonner";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -25,12 +26,13 @@ export default function RootLayout({
       publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
       signInUrl="/sign-in"
       signUpUrl="/sign-up"
-      signInForceRedirectUrl="/dashboard"
-      signUpForceRedirectUrl="/dashboard"
     >
       <html lang="en">
         <head>
-          <script src="https://checkout.razorpay.com/v1/checkout.js" async></script>
+          <script
+            src="https://checkout.razorpay.com/v1/checkout.js"
+            async
+          ></script>
         </head>
         <body className={`scrollbar-thin  ${inter.className}`}>
           <ThemeProvider

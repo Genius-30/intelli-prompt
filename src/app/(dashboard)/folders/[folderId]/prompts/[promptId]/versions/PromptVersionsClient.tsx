@@ -1,36 +1,37 @@
 "use client";
 
-import { useParams } from "next/navigation";
-import Link from "next/link";
-import { formatDistanceToNow } from "date-fns";
 import {
-  MoreVertical,
-  SquarePenIcon,
-  GitBranchIcon,
   CheckIcon,
-  TrashIcon,
+  GitBranchIcon,
+  MoreVertical,
   PlusIcon,
+  SquarePenIcon,
   Star,
+  TrashIcon,
   Zap,
 } from "lucide-react";
 import {
   DropdownMenu,
-  DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
-import { useEffect, useRef } from "react";
-import { useGetPromptMeta } from "@/lib/queries/prompt";
-import { VersionsSkeleton } from "@/components/skeletons/VersionsSkeleton";
 import {
   useDeleteVersion,
   useGetAllVersions,
   useSetActiveVersion,
 } from "@/lib/queries/version";
+import { useEffect, useRef } from "react";
+
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { Skeleton } from "@/components/ui/skeleton";
+import { VersionsSkeleton } from "@/components/skeletons/VersionsSkeleton";
+import { formatDistanceToNow } from "date-fns";
 import { toast } from "sonner";
+import { useGetPromptMeta } from "@/lib/queries/folder";
+import { useParams } from "next/navigation";
 
 interface Version {
   _id: string;
