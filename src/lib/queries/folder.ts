@@ -12,7 +12,7 @@ export const useGetAllFolders = () => {
   });
 };
 
-export const useGetPromptMeta = (folderId: string) => {
+export const useGetFolderMeta = (folderId: string) => {
   return useQuery({
     queryKey: ["folderMeta", folderId],
     queryFn: async () => {

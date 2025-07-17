@@ -13,15 +13,28 @@ import {
 import { useParams, usePathname } from "next/navigation";
 
 import Link from "next/link";
-import { useGetPromptMeta } from "@/lib/queries/folder";
+import { useGetFolderMeta } from "@/lib/queries/folder";
 import { useGetVersion } from "@/lib/queries/version";
 
 const segmentLabelMap: Record<string, string> = {
-  prompts: "Your Prompts",
+  dashboard: "Dashboard",
+  prompts: "Prompts",
   versions: "Versions",
   test: "Test",
-  dashboard: "Dashboard",
+  explore: "Explore",
+  saved: "Saved",
+  leaderboard: "Leaderboard",
+  folders: "Folders",
 };
+
+const suppressPaths = [
+  "/dashboard",
+  "/explore",
+  "/leaderboard",
+  "/saved",
+  "/billing",
+  "/profile",
+];
 
 function formatLabel(segment: string) {
   return (
@@ -32,9 +45,14 @@ function formatLabel(segment: string) {
 
 export function BreadcrumbResponsive() {
   const pathname = usePathname();
-  const { promptId, versionId } = useParams();
-  const { data: prompt } = useGetPromptMeta(promptId as string);
+  const { folderId, promptId, versionId } = useParams();
+  const { data: folder } = useGetFolderMeta(folderId as string);
   const { data: version } = useGetVersion(versionId as string);
+
+  // Show fallback "Main" for suppressed routes
+  if (suppressPaths.includes(pathname)) {
+    return <BreadcrumbPage className="capitalize">Main</BreadcrumbPage>;
+  }
 
   const segments = pathname.split("/").filter(Boolean);
 
@@ -42,14 +60,9 @@ export function BreadcrumbResponsive() {
     const href = "/" + segments.slice(0, index + 1).join("/");
 
     let label = formatLabel(segment);
-
-    if (segment === promptId) {
-      label = prompt?.title ?? "...";
-    }
-
-    if (segment === versionId) {
+    if (segment === folderId) label = folder?.title ?? "...";
+    if (segment === versionId)
       label = version?.version ? `v${version.version}` : "...";
-    }
 
     return { label, href };
   });

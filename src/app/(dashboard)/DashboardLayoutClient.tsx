@@ -21,9 +21,6 @@ import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarHeader,
   SidebarInset,
   SidebarMenu,
@@ -40,8 +37,8 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import Logo from "../../components/Logo";
 import { ModeToggle } from "../../components/ModeToggle";
-import { SidebarFolderSection } from "@/components/dashboard/SidebarFolderSection";
-import { SidebarMainLinks } from "@/components/dashboard/SidebarMainLinks";
+import { SidebarFolderSection } from "@/components/dashboardLayout/SidebarFolderSection";
+import { SidebarMainLinks } from "@/components/dashboardLayout/SidebarMainLinks";
 
 export default function DashboardLayoutClient({
   children,
@@ -134,7 +131,7 @@ export default function DashboardLayoutClient({
           <div className="flex flex-1 items-center justify-between gap-2">
             <BreadcrumbResponsive />
 
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-2 ml-auto">
               <Button asChild variant="outline" size="sm" className="text-xs">
                 <Link href="/pricing">Upgrade</Link>
               </Button>

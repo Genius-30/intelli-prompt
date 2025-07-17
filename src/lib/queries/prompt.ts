@@ -14,3 +14,19 @@ export function useGetPromptsByFolder(folderId: string) {
     enabled: !!folderId,
   });
 }
+
+export function useGetPromptMeta(promptId: string) {
+  return useQuery({
+    queryKey: ["promptMeta", promptId],
+    queryFn: async () => {
+      if (!promptId) throw new Error("Prompt ID is required");
+
+      const response = await fetch(`/api/prompts/${promptId}`);
+      if (!response.ok) {
+        throw new Error("Failed to fetch prompt metadata");
+      }
+      return response.json();
+    },
+    enabled: !!promptId,
+  });
+}
