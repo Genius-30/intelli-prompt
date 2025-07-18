@@ -5,20 +5,20 @@ import { IFolder } from './folder.model';
 export interface IPrompt extends Document {
   ownerId: IUser['_id'];
   folderId: IFolder['_id'];
-  content: string;
-  version: number;
-  isCurrent: boolean;
+  title: string;
+  totalVersions: number;
   isFavorite: boolean;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 const PromptSchema: Schema<IPrompt> = new Schema(
   {
     ownerId: { type: String, required: true },
     folderId: { type: Schema.Types.ObjectId, ref: 'Folder', default: null },
-    content: { type: String, required: true },
-    version: { type: Number, required: true, default: 1 },
-    isCurrent: { type: Boolean, default: true },
-    isFavorite: { type: Boolean, default: false}
+    title: { type: String, required: true },
+    totalVersions: { type: Number, required: true, default: 1 },
+    isFavorite: { type: Boolean, default: false }
   },
   { timestamps: true }
 );

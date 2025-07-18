@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { Folder } from "@/models/folder.model";
 import mongoose from "mongoose";
 import { getAuthenticatedUser } from "@/utils/getAuthenticatedUser";
@@ -7,7 +7,7 @@ import { ModelResponse } from "@/models/modelResponse.model";
 
 // renames folder
 export async function PATCH(
-  req: NextRequest,
+  req: Request,
   { params }: { params: any }
 ) {
   try {
@@ -16,10 +16,7 @@ export async function PATCH(
 
     const folderId = (await params).id;
     if (!mongoose.Types.ObjectId.isValid(folderId)) {
-      return NextResponse.json(
-        { message: "invalid folderId" },
-        { status: 400 }
-      );
+      return NextResponse.json({ message: "invalid folderId" }, { status: 400 });
     }
 
     const { newTitle } = await req.json();
@@ -34,18 +31,14 @@ export async function PATCH(
 
     return NextResponse.json({ message: "folder renamed" }, { status: 200 });
   } catch (err) {
-    return NextResponse.json(
-      { message: "error renaming folder" },
-      { status: 500 }
-    );
+    return NextResponse.json({ message: "error renaming folder" }, { status: 500 });
   }
 }
 
 // delete folder along with prompts
 export async function DELETE(
-  req: NextRequest,
+  req: Request,
   { params }: { params: any }
-
 ) {
   try {
     const { userId, error } = await getAuthenticatedUser();
@@ -53,10 +46,7 @@ export async function DELETE(
 
     const folderId = (await params).id;
     if (!mongoose.Types.ObjectId.isValid(folderId)) {
-      return NextResponse.json(
-        { message: "invalid folderId" },
-        { status: 400 }
-      );
+      return NextResponse.json({ message: "invalid folderId" }, { status: 400 });
     }
 
     const prompts = await Prompt.find({ folderId }, "_id");
@@ -68,18 +58,14 @@ export async function DELETE(
 
     return NextResponse.json({ message: "folder deleted" }, { status: 200 });
   } catch (err) {
-    return NextResponse.json(
-      { message: "error deleting folder" },
-      { status: 500 }
-    );
+    return NextResponse.json({ message: "error deleting folder" }, { status: 500 });
   }
 }
 
 // to fetch a specific folder
 export async function GET(
-  req: NextRequest,
+  req: Request,
   { params }: { params: any }
-
 ) {
   try {
     const { userId, error } = await getAuthenticatedUser();
@@ -87,27 +73,15 @@ export async function GET(
 
     const folderId = (await params).id;
     if (!mongoose.Types.ObjectId.isValid(folderId)) {
-      return NextResponse.json(
-        { message: "invalid folderId" },
-        { status: 400 }
-      );
+      return NextResponse.json({ message: "invalid folderId" }, { status: 400 });
     }
-    const folder = await Folder.findById({ _id: folderId });
+    const folder = await Folder.findById({ _id: folderId }).lean();
     if (!folder) {
-      return NextResponse.json(
-        { message: "folder not found!" },
-        { status: 404 }
-      );
+      return NextResponse.json({ message: "folder not found!" }, { status: 404 });
     }
 
-    return NextResponse.json(
-      { message: "folder found", folder },
-      { status: 200 }
-    );
+    return NextResponse.json({ message: "folder found", folder }, { status: 200 });
   } catch (err) {
-    return NextResponse.json(
-      { message: "err fetching folder" },
-      { status: 500 }
-    );
+    return NextResponse.json({ message: "err fetching folder" }, { status: 500 });
   }
 }

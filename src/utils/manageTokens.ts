@@ -1,6 +1,6 @@
 import { User } from "@/models/user.model";
 
-export async function estimateTokens({
+export async function isEnoughToken({
   userId,
   tokenEstimated,
 }: {

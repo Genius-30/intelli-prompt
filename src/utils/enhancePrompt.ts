@@ -2,6 +2,7 @@ import { callOpenRouter } from '@/utils/models'
 
 export interface IResponse {
   tokensUsed: number;
+  temperature?: number;
   response: string;
 }
 
@@ -22,7 +23,7 @@ export async function enhancedPrompt(content: string) {
         { role: "system", content: systemPrompt },
         { role: "user", content: userPrompt },
       ],
-      model: "openai/gpt-4o",
+      model: "google/gemini-2.0-flash-exp:free",
       temperature: 0.7,
     })) as IResponse;
 

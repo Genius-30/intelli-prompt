@@ -1,10 +1,10 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { Prompt } from "@/models/prompt.model"
 import { getAuthenticatedUser } from '@/utils/getAuthenticatedUser'
 import mongoose from "mongoose"
 
 export async function PATCH(
-  req: NextRequest, 
+  req: Request, 
   { params }: { params: any }
 ) {
   try {

@@ -13,7 +13,7 @@ export interface IModelCallProps {
 }
 
 export async function callOpenRouter({
-  model = "openai/gpt-4o",
+  model = "google/gemini-2.0-flash-exp:free",
   messages,
   temperature = 0.7,
   max_tokens = 300,
@@ -31,11 +31,12 @@ export async function callOpenRouter({
     )
 
     return {
+      temperature: temperature || 0,
       tokensUsed: res.data.usage?.total_tokens || 0,
       response: res.data.choices?.[0]?.message.content || 'No response',
     }
   } catch (err) {
-      console.log('err calling openRouter',err)
-      return { tokensUsed: 0, response: "Error calling OpenRouter" };
+      console.log('err calling openRouter', err)
+      return { temperature: 0, tokensUsed: 0, response: "Error calling OpenRouter" };
   }
 }
