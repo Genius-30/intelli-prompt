@@ -1,22 +1,37 @@
 "use client";
 
-import { usePathname } from "next/navigation";
-import { cn } from "@/lib/utils";
+import { useEffect, useState } from "react";
+
+import { Loader } from "./ui/loader";
 import { Navbar } from "./navbar";
+import { usePathname } from "next/navigation";
+import { useUser } from "@clerk/nextjs";
 
-export function AppShell({ children }: { children: React.ReactNode }) {
-  const hideNavRoutes = ["/dashboard", "/prompts", "/sign-in", "/sign-up"];
-
+export function AppShell({ children }: { readonly children: React.ReactNode }) {
   const pathname = usePathname();
+  const { isSignedIn, isLoaded } = useUser();
 
-  const isDashboardRoute = hideNavRoutes.some((route) =>
-    pathname.startsWith(route)
-  );
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted || !isLoaded) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <Loader className="h-12 w-12" />
+      </div>
+    );
+  }
+
+  // Show navbar only on root page when user is not logged in
+  const shouldShowNavbar = pathname === "/" && !isSignedIn && isLoaded;
 
   return (
-    <div className={cn("min-h-screen", isDashboardRoute && "bg-background")}>
-      {/* ✅ Show Navbar only on public pages */}
-      {!isDashboardRoute && <Navbar />}
+    <div className="min-h-screen">
+      {/* ✅ Show Navbar only on root page when user is not logged in */}
+      {shouldShowNavbar && <Navbar />}
       {children}
     </div>
   );

@@ -159,3 +159,15 @@
   border-radius: 9999px;
   border: 1px solid transparent;
 }
+
+/* Optional scrollbar styling */
+.custom-scroll::-webkit-scrollbar {
+  width: 5px;
+}
+.custom-scroll::-webkit-scrollbar-thumb {
+  background-color: rgba(100, 100, 100, 0.4);
+  border-radius: 4px;
+}
+.custom-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}

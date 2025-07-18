@@ -4,20 +4,21 @@ import {
   CardFooter,
   CardHeader,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
-import { formatDistanceToNow } from "date-fns";
 import {
+  GitBranchIcon,
+  PlusIcon,
   SquarePenIcon,
   Star,
   StarOff,
-  GitBranchIcon,
-  PlusIcon,
   Zap,
 } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { formatDistanceToNow } from "date-fns";
 import { useRouter } from "next/navigation";
-import { useToggleFavorite } from "@/lib/queries/prompt";
+import { useToggleFavorite } from "@/lib/queries/folder";
 
 type PromptCardProps = {
   prompt: {

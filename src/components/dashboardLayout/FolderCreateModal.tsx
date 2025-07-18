@@ -1,36 +1,36 @@
 "use client";
 
-import { useEffect } from "react";
-import { z } from "zod";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-
 import {
   Dialog,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
 } from "@/components/ui/dialog";
 import {
   Form,
+  FormControl,
   FormField,
   FormItem,
   FormLabel,
-  FormControl,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Loader } from "../ui/loader";
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 interface Props {
-  open: boolean;
-  onClose: () => void;
-  onSubmit: (title: string) => void;
-  defaultTitle?: string;
-  isPending?: boolean;
-  submitText?: string;
+  readonly open: boolean;
+  readonly onClose: () => void;
+  readonly onSubmit: (title: string) => void;
+  readonly defaultTitle?: string;
+  readonly isPending?: boolean;
+  readonly submitText?: string;
 }
 
 // Zod schema
@@ -40,7 +40,7 @@ const formSchema = z.object({
 
 type FormSchemaType = z.infer<typeof formSchema>;
 
-export function PromptModal({
+export function FolderCreateModal({
   open,
   onClose,
   onSubmit,
