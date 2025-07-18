@@ -1,27 +1,29 @@
 "use client";
 
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-  Search,
+  Bookmark,
+  Clock,
+  Filter,
   Heart,
   MessageCircle,
-  Bookmark,
-  TrendingUp,
-  Clock,
-  Star,
-  Filter,
+  Search,
   Share,
+  Star,
+  TrendingUp,
 } from "lucide-react";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import Link from "next/link";
+import { useState } from "react";
 
 export default function ExploreClient() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [selected, setSelected] = useState("All");
 
   const trendingPrompts = [
     {
@@ -38,7 +40,7 @@ export default function ExploreClient() {
       likes: 234,
       comments: 45,
       saves: 89,
-      timeAgo: "2 hours ago",
+      timeAgo: "2h ago",
       category: "Development",
     },
     {
@@ -55,7 +57,7 @@ export default function ExploreClient() {
       likes: 189,
       comments: 32,
       saves: 67,
-      timeAgo: "4 hours ago",
+      timeAgo: "4h ago",
       category: "Marketing",
     },
     {
@@ -72,7 +74,7 @@ export default function ExploreClient() {
       likes: 156,
       comments: 28,
       saves: 94,
-      timeAgo: "6 hours ago",
+      timeAgo: "6h ago",
       category: "Research",
     },
     {
@@ -89,7 +91,7 @@ export default function ExploreClient() {
       likes: 298,
       comments: 67,
       saves: 123,
-      timeAgo: "8 hours ago",
+      timeAgo: "8h ago",
       category: "Creative",
     },
   ];
@@ -104,198 +106,204 @@ export default function ExploreClient() {
   ];
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
+    <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Explore Community</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-2xl font-semibold tracking-tight">
+            Explore Community
+          </h1>
+          <p className="text-sm text-muted-foreground">
             Discover and share amazing AI prompts
           </p>
         </div>
-        <Button>
-          <Share className="mr-2 h-4 w-4" />
+        <Button className="cursor-pointer">
+          <Share className="h-4 w-4" />
           Share Prompt
         </Button>
       </div>
 
       {/* Search and Filters */}
-      <Card>
-        <CardContent className="p-6">
-          <div className="flex flex-col md:flex-row gap-4">
+      <Card className="border-0 shadow-sm py-0">
+        <CardContent className="p-4">
+          <div className="flex flex-col gap-4">
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Search prompts, tags, or authors..."
-                className="pl-10"
+                className="pl-9 h-9"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
-            <Button variant="outline">
-              <Filter className="mr-2 h-4 w-4" />
-              Filters
-            </Button>
+            {/* Categories Filter */}
+            <div className="flex items-center flex-wrap gap-2">
+              {categories.map((category) => (
+                <Button
+                  key={category.name}
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setSelected(category.name)}
+                  className={`py-0 px-2 text-xs whitespace-nowrap border sm:border-2 text-muted-foreground cursor-pointer transition-all ${
+                    selected === category.name
+                      ? "!border-primary text-primary bg-primary/10 hover:bg-primary/20"
+                      : ""
+                  }`}
+                >
+                  {category.name}
+                </Button>
+              ))}
+            </div>
           </div>
         </CardContent>
       </Card>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        {/* Categories Sidebar */}
-        <div className="lg:col-span-1">
-          <Card>
-            <CardHeader>
-              <CardTitle>Categories</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                {categories.map((category) => (
-                  <div
-                    key={category.name}
-                    className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/50 cursor-pointer transition-colors"
-                  >
-                    <span className="font-medium">{category.name}</span>
-                    <Badge variant="secondary">{category.count}</Badge>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+      {/* Main Content */}
+      <div>
+        <Tabs defaultValue="trending" className="space-y-4 gap-0">
+          <TabsList className="grid grid-cols-3 self-end mb-2 data-[state=active]:border-primary">
+            <TabsTrigger
+              value="trending"
+              className="flex items-center gap-1.5 text-sm"
+            >
+              <TrendingUp className="h-4 w-4" />
+              Trending
+            </TabsTrigger>
+            <TabsTrigger
+              value="recent"
+              className="flex items-center gap-1.5 text-sm"
+            >
+              <Clock className="h-4 w-4" />
+              Recent
+            </TabsTrigger>
+            <TabsTrigger
+              value="top"
+              className="flex items-center gap-1.5 text-sm"
+            >
+              <Star className="h-4 w-4" />
+              Top Rated
+            </TabsTrigger>
+          </TabsList>
 
-        {/* Main Content */}
-        <div className="lg:col-span-3">
-          <Tabs defaultValue="trending" className="space-y-6">
-            <TabsList>
-              <TabsTrigger value="trending" className="flex items-center gap-2">
-                <TrendingUp className="h-4 w-4" />
-                Trending
-              </TabsTrigger>
-              <TabsTrigger value="recent" className="flex items-center gap-2">
-                <Clock className="h-4 w-4" />
-                Recent
-              </TabsTrigger>
-              <TabsTrigger value="top" className="flex items-center gap-2">
-                <Star className="h-4 w-4" />
-                Top Rated
-              </TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="trending" className="space-y-4">
-              {trendingPrompts.map((prompt) => (
-                <Card
-                  key={prompt.id}
-                  className="hover:shadow-md transition-shadow"
-                >
-                  <CardContent className="p-6">
-                    <div className="space-y-4">
-                      {/* Header */}
-                      <div className="flex items-start justify-between">
-                        <div className="flex items-center space-x-3">
-                          <Avatar className="h-10 w-10">
-                            <AvatarImage src="/placeholder.svg?height=32&width=32" />
-                            <AvatarFallback>
-                              {prompt.author.name
-                                .split(" ")
-                                .map((n) => n[0])
-                                .join("")}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div>
-                            <div className="flex items-center space-x-2">
-                              <span className="font-medium">
-                                {prompt.author.name}
-                              </span>
-                              <span className="text-muted-foreground">
-                                @{prompt.author.username}
-                              </span>
-                            </div>
-                            <span className="text-sm text-muted-foreground">
-                              {prompt.timeAgo}
-                            </span>
-                          </div>
-                        </div>
-                        <Badge variant="outline">{prompt.category}</Badge>
-                      </div>
-
-                      {/* Content */}
-                      <div>
-                        <Link href={`/prompts/${prompt.id}`}>
-                          <h3 className="text-lg font-semibold hover:text-primary cursor-pointer">
-                            {prompt.title}
-                          </h3>
-                        </Link>
-                        <p className="text-muted-foreground mt-1">
-                          {prompt.description}
-                        </p>
-                      </div>
-
-                      {/* Tags */}
-                      <div className="flex flex-wrap gap-2">
-                        {prompt.tags.map((tag) => (
-                          <Badge
-                            key={tag}
-                            variant="secondary"
-                            className="text-xs"
-                          >
-                            #{tag}
-                          </Badge>
-                        ))}
-                      </div>
-
-                      {/* Actions */}
-                      <div className="flex items-center justify-between pt-2 border-t border-border">
-                        <div className="flex items-center space-x-4">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="flex items-center space-x-1"
-                          >
-                            <Heart className="h-4 w-4" />
-                            <span>{prompt.likes}</span>
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="flex items-center space-x-1"
-                          >
-                            <MessageCircle className="h-4 w-4" />
-                            <span>{prompt.comments}</span>
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="flex items-center space-x-1"
-                          >
-                            <Bookmark className="h-4 w-4" />
-                            <span>{prompt.saves}</span>
-                          </Button>
-                        </div>
-                        <Link href={`/prompts/${prompt.id}`}>
-                          <Button variant="outline" size="sm">
-                            View Details
-                          </Button>
-                        </Link>
+          <TabsContent value="trending" className="space-y-3">
+            {trendingPrompts.map((prompt) => (
+              <Card key={prompt.id} className="p-4">
+                <CardHeader className="flex items-center justify-between p-0">
+                  <div className="flex items-center space-x-3">
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage
+                        src={prompt.author.avatar || "/placeholder.svg"}
+                      />
+                      <AvatarFallback className="text-xs">
+                        {prompt.author.name
+                          .split(" ")
+                          .map((n) => n[0])
+                          .join("")}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <div className="flex items-center space-x-1.5">
+                        <span className="text-sm font-medium">
+                          {prompt.author.name}
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                          @{prompt.author.username}
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                          • {prompt.timeAgo}
+                        </span>
                       </div>
                     </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </TabsContent>
+                  </div>
+                  <Badge variant="outline" className="text-xs px-2 py-0.5">
+                    {prompt.category}
+                  </Badge>
+                </CardHeader>
+                <CardContent className="space-y-3 p-0">
+                  {/* Content */}
+                  <div className="space-y-1">
+                    <Link href={`/prompts/${prompt.id}`}>
+                      <h3 className="text-base font-semibold hover:text-primary cursor-pointer line-clamp-1">
+                        {prompt.title}
+                      </h3>
+                    </Link>
+                    <p className="text-sm text-muted-foreground line-clamp-2">
+                      {prompt.description}
+                    </p>
+                  </div>
 
-            <TabsContent value="recent" className="space-y-4">
-              <div className="text-center py-12 text-muted-foreground">
-                Recent prompts will be displayed here
-              </div>
-            </TabsContent>
+                  {/* Tags */}
+                  <div className="flex flex-wrap gap-1.5">
+                    {prompt.tags.map((tag) => (
+                      <Badge
+                        key={tag}
+                        variant="secondary"
+                        className="text-xs px-2 py-0.5 hover:bg-secondary/80 cursor-pointer"
+                      >
+                        #{tag}
+                      </Badge>
+                    ))}
+                  </div>
 
-            <TabsContent value="top" className="space-y-4">
-              <div className="text-center py-12 text-muted-foreground">
+                  {/* Actions */}
+                  <div className="flex items-center justify-between pt-2 border-t border-border/50">
+                    <div className="flex items-center space-x-1">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 px-2 text-xs hover:bg-red-50 hover:text-red-600"
+                      >
+                        <Heart className="h-4 w-4 mr-1" />
+                        {prompt.likes}
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 px-2 text-xs hover:bg-blue-50 hover:text-blue-600"
+                      >
+                        <MessageCircle className="h-4 w-4 mr-1" />
+                        {prompt.comments}
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 px-2 text-xs hover:bg-yellow-50 hover:text-yellow-600"
+                      >
+                        <Bookmark className="h-4 w-4 mr-1" />
+                        {prompt.saves}
+                      </Button>
+                    </div>
+                    <Link href={`/prompts/${prompt.id}`}>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-8 text-xs bg-transparent"
+                      >
+                        View Details
+                      </Button>
+                    </Link>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </TabsContent>
+
+          <TabsContent value="recent" className="space-y-4">
+            <div className="text-center py-8 text-muted-foreground">
+              <Clock className="h-8 w-8 mx-auto mb-2 opacity-50" />
+              <p className="text-sm">Recent prompts will be displayed here</p>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="top" className="space-y-4">
+            <div className="text-center py-8 text-muted-foreground">
+              <Star className="h-8 w-8 mx-auto mb-2 opacity-50" />
+              <p className="text-sm">
                 Top rated prompts will be displayed here
-              </div>
-            </TabsContent>
-          </Tabs>
-        </div>
+              </p>
+            </div>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );

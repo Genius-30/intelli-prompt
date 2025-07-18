@@ -1,3 +1,16 @@
+"use client";
+
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  Award,
+  Crown,
+  Flame,
+  Medal,
+  Share2,
+  Star,
+  TrendingUp,
+  Trophy,
+} from "lucide-react";
 import {
   Card,
   CardContent,
@@ -5,20 +18,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Trophy,
-  Medal,
-  Award,
-  TrendingUp,
-  Star,
-  Flame,
-  Crown,
-  Calendar,
-} from "lucide-react";
 import Link from "next/link";
 
 export default function LeaderboardClient() {
@@ -146,37 +149,63 @@ export default function LeaderboardClient() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
+    <div className="max-w-6xl mx-auto space-y-6 px-4">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between w-full">
         <div>
-          <h1 className="text-2xl font-bold">Leaderboard</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-2xl font-semibold tracking-tight">Leaderboard</h1>
+          <p className="text-sm text-muted-foreground">
             Top contributors in the IntelliStack community
           </p>
         </div>
-        <Button variant="outline">
-          <Calendar className="mr-2 h-4 w-4" />
-          This Month
+
+        <Button
+          variant="outline"
+          className="text-sm"
+          onClick={() => {
+            const shareData = {
+              title: "My IntelliStack Stats",
+              text: "Check out my leaderboard stats on IntelliStack!",
+              url: window.location.href,
+            };
+
+            if (navigator.share) {
+              navigator
+                .share(shareData)
+                .catch((err) => console.error("Sharing failed", err));
+            } else {
+              navigator.clipboard.writeText(window.location.href);
+              alert("Link copied to clipboard!");
+            }
+          }}
+        >
+          <Share2 className="w-4 h-4 mr-2" />
+          Share Stats
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 pt-4">
         {/* Main Leaderboard */}
         <div className="lg:col-span-2">
-          <Tabs defaultValue="overall" className="space-y-6">
-            <TabsList>
-              <TabsTrigger value="overall" className="flex items-center gap-2">
+          <Tabs defaultValue="overall" className="space-y-4">
+            <TabsList className="grid grid-cols-3 gap-4 self-end mb-2">
+              <TabsTrigger
+                value="overall"
+                className="flex items-center gap-1.5 text-sm"
+              >
                 <Trophy className="h-4 w-4" />
                 Overall
               </TabsTrigger>
-              <TabsTrigger value="weekly" className="flex items-center gap-2">
+              <TabsTrigger
+                value="weekly"
+                className="flex items-center gap-1.5 text-sm"
+              >
                 <TrendingUp className="h-4 w-4" />
                 This Week
               </TabsTrigger>
               <TabsTrigger
                 value="categories"
-                className="flex items-center gap-2"
+                className="flex items-center gap-1.5 text-sm"
               >
                 <Star className="h-4 w-4" />
                 Categories
@@ -184,128 +213,117 @@ export default function LeaderboardClient() {
             </TabsList>
 
             <TabsContent value="overall">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Top Contributors</CardTitle>
-                  <CardDescription>
+              <Card className="border-0 shadow-sm">
+                <CardHeader className="p-0">
+                  <CardTitle className="text-lg">Top Contributors</CardTitle>
+                  <CardDescription className="text-sm">
                     All-time leaderboard based on community contributions
                   </CardDescription>
                 </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {topContributors.map((user) => (
-                      <div
-                        key={user.rank}
-                        className={`flex items-center justify-between p-4 rounded-lg border transition-colors hover:bg-muted/50 ${
-                          user.rank <= 3 ? "bg-muted/30" : ""
-                        }`}
-                      >
-                        <div className="flex items-center space-x-4">
-                          <div className="flex items-center justify-center w-8">
-                            {getRankIcon(user.rank)}
-                          </div>
-                          <Avatar className="h-10 w-10">
-                            <AvatarImage
-                              src={user.avatar || "/placeholder.svg"}
-                            />
-                            <AvatarFallback>
-                              {user.name
-                                .split(" ")
-                                .map((n) => n[0])
-                                .join("")}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div>
-                            <div className="flex items-center space-x-2">
-                              <Link href={`/profile/${user.username}`}>
-                                <span className="font-semibold hover:text-primary cursor-pointer">
-                                  {user.name}
-                                </span>
-                              </Link>
-                              <Badge variant="outline" className="text-xs">
-                                {user.badge}
-                              </Badge>
-                            </div>
-                            <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-                              <span>@{user.username}</span>
-                              <span className="flex items-center gap-1">
-                                <Flame className="h-3 w-3" />
-                                {user.streak}d
+                <CardContent className="p-4 space-y-4">
+                  {topContributors.map((user) => (
+                    <div
+                      key={user.rank}
+                      className={`flex items-center justify-between rounded-lg transition-colors hover:bg-muted/50 py-3 px-4 ${
+                        user.rank <= 3 ? "bg-muted/30" : "border"
+                      }`}
+                    >
+                      <div className="flex items-center space-x-4">
+                        {getRankIcon(user.rank)}
+                        <Avatar className="h-10 w-10">
+                          <AvatarImage
+                            src={user.avatar || "/placeholder.svg"}
+                          />
+                          <AvatarFallback>
+                            {user.name
+                              .split(" ")
+                              .map((n) => n[0])
+                              .join("")}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <div className="flex items-center space-x-2">
+                            <Link href={`/profile/${user.username}`}>
+                              <span className="font-semibold hover:text-primary cursor-pointer">
+                                {user.name}
                               </span>
-                            </div>
+                            </Link>
+                            <Badge variant="outline" className="text-xs">
+                              {user.badge}
+                            </Badge>
                           </div>
-                        </div>
-
-                        <div className="text-right">
-                          <div className="font-bold text-lg">
-                            {user.points.toLocaleString()}
-                          </div>
-                          <div className="flex items-center justify-end space-x-3 text-sm text-muted-foreground">
-                            <span>{user.prompts} prompts</span>
-                            <span>{user.likes} likes</span>
-                            <span className={getChangeColor(user.change)}>
-                              {user.change !== "0" && user.change}
+                          <div className="flex items-center space-x-4 text-sm text-muted-foreground">
+                            <span>@{user.username}</span>
+                            <span className="flex items-center gap-1">
+                              <Flame className="h-3 w-3" />
+                              {user.streak}d
                             </span>
                           </div>
                         </div>
                       </div>
-                    ))}
-                  </div>
+
+                      <div className="text-right">
+                        <div className="font-bold text-lg">
+                          {user.points.toLocaleString()}
+                        </div>
+                        <div className="flex items-center justify-end space-x-3 text-sm text-muted-foreground">
+                          <span>{user.prompts} prompts</span>
+                          <span>{user.likes} likes</span>
+                          <span className={getChangeColor(user.change)}>
+                            {user.change !== "0" && user.change}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </CardContent>
               </Card>
             </TabsContent>
 
             <TabsContent value="weekly">
-              <Card>
-                <CardHeader>
-                  <CardTitle>This Week's Top Performers</CardTitle>
-                  <CardDescription>
-                    Most active contributors this week
-                  </CardDescription>
+              <Card className="border-0 shadow-sm">
+                <CardHeader className="p-4 pb-0">
+                  <CardTitle className="text-lg">Weekly Top</CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {weeklyTop.map((user) => (
-                      <div
-                        key={user.rank}
-                        className="flex items-center justify-between p-4 rounded-lg border hover:bg-muted/50 transition-colors"
-                      >
-                        <div className="flex items-center space-x-4">
-                          <div className="flex items-center justify-center w-8">
-                            {getRankIcon(user.rank)}
+                <CardContent className="p-4 space-y-3">
+                  {weeklyTop.map((user) => (
+                    <div
+                      key={user.rank}
+                      className="flex items-center justify-between py-2 px-4 rounded-lg border hover:bg-muted/50"
+                    >
+                      <div className="flex items-center space-x-3">
+                        {getRankIcon(user.rank)}
+                        <Avatar className="h-6 w-6">
+                          <AvatarImage
+                            src={user.avatar || "/placeholder.svg"}
+                          />
+                          <AvatarFallback>
+                            {user.name
+                              .split(" ")
+                              .map((n) => n[0])
+                              .join("")}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <div className="flex items-center space-x-2">
+                            <span className="font-medium">{user.name}</span>
+                            <Badge variant="outline" className="text-xs">
+                              {user.badge}
+                            </Badge>
                           </div>
-                          <Avatar className="h-8 w-8">
-                            <AvatarImage
-                              src={user.avatar || "/placeholder.svg"}
-                            />
-                            <AvatarFallback>
-                              {user.name
-                                .split(" ")
-                                .map((n) => n[0])
-                                .join("")}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div>
-                            <div className="flex items-center space-x-2">
-                              <span className="font-medium">{user.name}</span>
-                              <Badge variant="outline" className="text-xs">
-                                {user.badge}
-                              </Badge>
-                            </div>
-                            <span className="text-sm text-muted-foreground">
-                              @{user.username}
-                            </span>
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <div className="font-semibold">{user.points} pts</div>
-                          <div className="text-sm text-muted-foreground">
-                            {user.prompts} prompts
-                          </div>
+                          <span className="text-sm text-muted-foreground">
+                            @{user.username}
+                          </span>
                         </div>
                       </div>
-                    ))}
-                  </div>
+                      <div className="text-right">
+                        <div className="font-semibold">{user.points} pts</div>
+                        <div className="text-sm text-muted-foreground">
+                          {user.prompts} prompts
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </CardContent>
               </Card>
             </TabsContent>

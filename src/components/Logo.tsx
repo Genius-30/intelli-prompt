@@ -3,15 +3,15 @@ import React from "react";
 
 function Logo() {
   return (
-    <div className="text-md md:text-lg font-bold flex items-center gap-2 text-primary select-none">
+    <div className="flex items-center gap-2 md:gap-3 text-md md:text-lg font-bold tracking-wide text-primary select-none">
       <Image
         src="/favicon.ico"
         alt="logo"
-        width={30}
-        height={30}
-        className="rounded-lg h-5 w-5 md:h-6 md:w-6 object-cover select-none"
+        width={32}
+        height={32}
+        className="rounded-md h-5 w-5 md:h-6 md:w-6 object-cover ring-2 ring-primary/30 dark:ring-primary/40 shadow-md shadow-primary/30"
       />
-      IntelliStack
+      <span>IntelliPrompt</span>
     </div>
   );
 }

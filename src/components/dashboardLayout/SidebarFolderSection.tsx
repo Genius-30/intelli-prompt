@@ -43,11 +43,15 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "../ui/tooltip";
-import { useDeleteFolder, useGetAllFolders } from "@/lib/queries/folder";
+import {
+  useCreateFolder,
+  useDeleteFolder,
+  useGetAllFolders,
+  useRenameFolder,
+} from "@/lib/queries/folder";
 import { useParams, useRouter } from "next/navigation";
 
-import { FolderCreateModal } from "../dashboard/FolderCreateModal";
-import { FolderRenameModal } from "../dashboard/FolderRenameModal";
+import { FolderCreateModal } from "@/components/dashboardLayout/FolderCreateModal";
 import Link from "next/link";
 import { SidebarSkeletonItem } from "@/components/skeletons/SidebarSkeleton";
 import { toast } from "sonner";
@@ -56,20 +60,26 @@ import { useState } from "react";
 
 export function SidebarFolderSection() {
   const { folderId, promptId } = useParams();
+  const [modalState, setModalState] = useState<{
+    type: "create" | "rename" | null;
+    folder?: { _id: string; title: string };
+  }>({ type: null });
   const [folderToDelete, setFolderToDelete] = useState<string | null>(null);
-  const [folderToRename, setFolderToRename] = useState<{
-    _id: string;
-    title: string;
-  } | null>(null);
-
   const [dialogOpen, setDialogOpen] = useState(false);
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(
     new Set()
   );
 
   const { data: folders = [], isLoading } = useGetAllFolders();
+  const { mutate: createFolder, isPending: isCreating } = useCreateFolder();
+  const { mutate: renameFolder, isPending: isRenaming } = useRenameFolder();
   const { mutate: deleteFolder, isPending: isDeleting } = useDeleteFolder();
   const router = useRouter();
+
+  const openCreateModal = () => setModalState({ type: "create" });
+  const openRenameModal = (folder: { _id: string; title: string }) =>
+    setModalState({ type: "rename", folder });
+  const closeModal = () => setModalState({ type: null });
 
   const handleDeleteFolder = (id: string) => {
     deleteFolder(id, {
@@ -236,7 +246,7 @@ export function SidebarFolderSection() {
                             <TooltipProvider>
                               <Tooltip>
                                 <TooltipTrigger asChild>
-                                  <span className="truncate text-sm font-medium">
+                                  <span className="truncate capitalize text-sm font-medium">
                                     {folder.title}
                                   </span>
                                 </TooltipTrigger>
@@ -267,17 +277,11 @@ export function SidebarFolderSection() {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent side="right" align="start">
                           <DropdownMenuItem
-                            onClick={() =>
-                              setFolderToRename({
-                                _id: folder._id,
-                                title: folder.title,
-                              })
-                            }
+                            onClick={() => openRenameModal(folder)}
                           >
                             <Edit2Icon className="mr-2 h-4 w-4" />
                             Rename
                           </DropdownMenuItem>
-
                           <DropdownMenuItem
                             onClick={() => {
                               setFolderToDelete(folder._id);
@@ -305,14 +309,15 @@ export function SidebarFolderSection() {
           })()}
         </div>
 
-        {/* Create Folder Modal with Button */}
+        {/* Add New Folder Button */}
         <SidebarMenuItem>
-          <FolderCreateModal>
-            <SidebarMenuButton className="text-muted-foreground hover:text-foreground">
-              <Plus className="h-4 w-4" />
-              <span>New Folder</span>
-            </SidebarMenuButton>
-          </FolderCreateModal>
+          <SidebarMenuButton
+            onClick={openCreateModal}
+            className="text-muted-foreground hover:text-foreground"
+          >
+            <Plus className="h-4 w-4" />
+            <span>New Folder</span>
+          </SidebarMenuButton>
         </SidebarMenuItem>
       </SidebarMenu>
 
@@ -359,12 +364,41 @@ export function SidebarFolderSection() {
         </AlertDialog>
       )}
 
-      {/* Rename Folder Modal */}
-      {folderToRename && (
-        <FolderRenameModal
-          folder={folderToRename}
-          open={!!folderToRename}
-          onClose={() => setFolderToRename(null)}
+      {/* Folder Creation/Rename Modal */}
+      {modalState.type && (
+        <FolderCreateModal
+          open={true}
+          onClose={closeModal}
+          defaultTitle={
+            modalState.type === "rename" ? modalState.folder?.title : ""
+          }
+          submitText={modalState.type === "rename" ? "Rename" : "Create"}
+          isPending={modalState.type === "rename" ? isRenaming : isCreating}
+          onSubmit={(title) => {
+            if (modalState.type === "create") {
+              createFolder(title, {
+                onSuccess: (data) => {
+                  const newId = data?._id;
+                  if (newId) {
+                    router.push(`/folders/${newId}/prompts`);
+                    // Auto-expand the newly created folder
+                    setExpandedFolders((prev) => new Set([...prev, newId]));
+                  }
+                  toast.success("Folder created");
+                },
+                onError: () => toast.error("Failed to create folder"),
+              });
+            } else if (modalState.type === "rename" && modalState.folder) {
+              renameFolder(
+                { _id: modalState.folder._id, title },
+                {
+                  onSuccess: () => toast.success("Folder renamed"),
+                  onError: () => toast.error("Failed to rename folder"),
+                }
+              );
+            }
+            closeModal();
+          }}
         />
       )}
     </SidebarGroup>

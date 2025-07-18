@@ -30,6 +30,21 @@ export default function RootLayout({
       <html lang="en">
         <head>
           <script
+            dangerouslySetInnerHTML={{
+              __html: `
+                try {
+                  if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                    document.documentElement.classList.add('dark')
+                    document.documentElement.style.colorScheme = 'dark'
+                  } else {
+                    document.documentElement.classList.remove('dark')
+                    document.documentElement.style.colorScheme = 'light'
+                  }
+                } catch (_) {}
+              `,
+            }}
+          />
+          <script
             src="https://checkout.razorpay.com/v1/checkout.js"
             async
           ></script>

@@ -30,7 +30,7 @@ export function FolderSelectModal() {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button className="bg-primary font-medium px-6 py-2 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 flex items-center gap-2 cursor-pointer">
+        <Button className="cursor-pointer">
           <Plus className="h-4 w-4" />
           New Prompt
         </Button>
