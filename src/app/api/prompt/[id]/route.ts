@@ -1,12 +1,12 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { Prompt } from "@/models/prompt.model";
 import { getAuthenticatedUser } from "@/utils/getAuthenticatedUser";
 import mongoose from "mongoose";
-import { Folder } from "@/models/folder.model";
 import { ModelResponse } from "@/models/modelResponse.model";
 
-export async function DELETE(
-  req: NextRequest,
+// updates prompt title
+export async function PATCH(
+  req: Request,
   { params }: { params: any }
 ) {
   try {
@@ -15,10 +15,37 @@ export async function DELETE(
 
     const promptId = (await params).id;
     if (!mongoose.Types.ObjectId.isValid(promptId)) {
-      return NextResponse.json(
-        { message: "invalid promptId" },
-        { status: 400 }
-      );
+      return NextResponse.json({ message: "invalid promptId" }, { status: 400 });
+    }
+
+    const { newTitle } = await req.json();
+    if (!newTitle) {
+      return NextResponse.json({ message: "invalid title" }, { status: 400 });
+    }
+
+    await Prompt.updateOne(
+      { _id: promptId, ownerId: userId },
+      { title: newTitle }
+    );
+
+    return NextResponse.json({ message: "prompt renamed" }, { status: 200 });
+  } catch (err) {
+    return NextResponse.json({ message: "error renaming prompt" }, { status: 500 });
+  }
+}
+
+// delete specific prompt
+export async function DELETE(
+  req: Request,
+  { params }: { params: any }
+) {
+  try {
+    const { userId, error } = await getAuthenticatedUser();
+    if (error) return error;
+
+    const promptId = (await params).id;
+    if (!mongoose.Types.ObjectId.isValid(promptId)) {
+      return NextResponse.json({ message: "invalid promptId" },{ status: 400 });
     }
 
     const prompt = await Prompt.findOneAndDelete({
@@ -26,20 +53,10 @@ export async function DELETE(
       ownerId: userId,
     });
     if (!prompt) {
-      return NextResponse.json(
-        { message: "couldn't delete prompt" },
-        { status: 400 }
-      );
+      return NextResponse.json({ message: "couldn't delete prompt" }, { status: 400 });
     }
 
     await ModelResponse.deleteMany({ promptId: promptId, ownerId: userId });
-
-    await Folder.updateOne(
-      { _id: prompt.folderId, ownerId: userId },
-      {
-        $inc: { totalVersions: -1 },
-      }
-    );
 
     return NextResponse.json({ message: "prompt deleted" }, { status: 201 });
   } catch (err) {
@@ -47,10 +64,10 @@ export async function DELETE(
   }
 }
 
+// fetch specific prompt
 export async function GET(
-  req: NextRequest,
+  req: Request,
   { params }: { params: any }
-
 ) {
   try {
     const { userId, error } = await getAuthenticatedUser();
@@ -58,64 +75,12 @@ export async function GET(
 
     const promptId = (await params).id;
     if (!mongoose.Types.ObjectId.isValid(promptId)) {
-      return NextResponse.json(
-        { message: "invalid promptId" },
-        { status: 400 }
-      );
+      return NextResponse.json({ message: "invalid promptId" }, { status: 400 });
     }
 
-    const prompt = await Prompt.findById({ _id: promptId });
+    const prompt = await Prompt.findById({ _id: promptId }).lean();
 
-    return NextResponse.json(
-      { message: "prompt fetched", prompt },
-      { status: 201 }
-    );
-  } catch (err) {
-    return NextResponse.json({ error: "err fetching prompt" }, { status: 500 });
-  }
-}
-
-export async function PATCH(
-  req: NextRequest,
-  { params }: { params: any }
-) {
-  try {
-    const { userId, error } = await getAuthenticatedUser();
-    if (error) return error;
-
-    const { folderId } = await req.json();
-    if (!folderId) {
-      return NextResponse.json(
-        { message: "require folderId" },
-        { status: 400 }
-      );
-    }
-
-    const promptId = (await params).id;
-    if (!mongoose.Types.ObjectId.isValid(promptId)) {
-      return NextResponse.json(
-        { message: "invalid promptId" },
-        { status: 400 }
-      );
-    }
-
-    await Prompt.updateMany(
-      { ownerId: userId, folderId: folderId },
-      {
-        $set: { isCurrent: false },
-      }
-    );
-    await Prompt.updateOne(
-      { _id: promptId, ownerId: userId },
-      {
-        $set: { isCurrent: true },
-      }
-    );
-
-    return NextResponse.json(
-      { message: "prompt isCurrent changed" },
-      { status: 201 }
-    );
+    return NextResponse.json({ message: "prompt fetched", prompt }, { status: 201 });
   } catch (err) {
     return NextResponse.json({ error: "err fetching prompt" }, { status: 500 });
   }

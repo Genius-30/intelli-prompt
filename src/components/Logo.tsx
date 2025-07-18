@@ -13,7 +13,7 @@ function Logo() {
           className="rounded-lg h-5 w-5 md:h-6 md:w-6 object-cover"
         />
       </div>
-      IntelliStack
+      IntelliPrompt
     </div>
   );
 }
