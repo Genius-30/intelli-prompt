@@ -24,9 +24,9 @@ export const AI_MODELS = {
     description: "Great for fast factual search and real-time answers",
     color: "#6366F1",
     models: [
-      { id: "pplx-7b-chat", name: "Perplexity 7B Chat" },
-      { id: "pplx-70b-chat", name: "Perplexity 70B Chat" },
-    ],
+      { id: "shisa-ai/shisa-v2-llama3.3-70b:free", name: "Perplexity 70B Chat" }, 
+      { id: "nvidia/llama-3.3-nemotron-super-49b-v1:free", name: "Perplexity nvidia" } 
+    ]
   },
   google: {
     logo: "/logos/gemini.png",
