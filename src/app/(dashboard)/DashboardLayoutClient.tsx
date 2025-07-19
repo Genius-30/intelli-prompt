@@ -152,7 +152,7 @@ export default function DashboardLayoutClient({
           </div>
         </header>
 
-        <main className="flex-1 p-6">{children}</main>
+        <main className="flex-1 p-8">{children}</main>
       </SidebarInset>
     </SidebarProvider>
   );

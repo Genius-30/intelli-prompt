@@ -54,6 +54,7 @@ import { useParams, useRouter } from "next/navigation";
 import { FolderCreateModal } from "@/components/dashboardLayout/FolderCreateModal";
 import Link from "next/link";
 import { SidebarSkeletonItem } from "@/components/skeletons/SidebarSkeleton";
+import { Skeleton } from "../ui/skeleton";
 import { toast } from "sonner";
 import { useGetPromptsByFolder } from "@/lib/queries/prompt";
 import { useState } from "react";
@@ -121,21 +122,44 @@ export function SidebarFolderSection() {
 
     if (isLoadingPrompts) {
       return (
-        <SidebarMenuSub>
+        <SidebarMenuSub className="gap-2 py-2">
           {Array.from({ length: 2 }).map((_, i) => (
-            <SidebarMenuSubItem key={i}>
-              <div className="flex items-center gap-2 px-2 py-1">
-                <div className="h-3 w-3 bg-muted animate-pulse rounded" />
-                <div className="h-3 flex-1 bg-muted animate-pulse rounded" />
-              </div>
-            </SidebarMenuSubItem>
+            <div key={i} className="flex items-center px-2 gap-1">
+              <Skeleton className="h-4 w-4 rounded" />
+              <Skeleton className="h-4 flex-1 rounded" />
+            </div>
           ))}
         </SidebarMenuSub>
       );
     }
 
-    if (prompts.length === 0) {
-      return (
+    return (
+      <>
+        <SidebarMenuSub>
+          {prompts.map((prompt: any) => (
+            <SidebarMenuSubItem key={prompt._id}>
+              <SidebarMenuSubButton
+                asChild
+                isActive={promptId === prompt._id}
+                onClick={() => navigateToPrompt(folderId, prompt._id)}
+              >
+                <button className="flex items-center gap-2 w-full">
+                  <FileText className="h-3 w-3 flex-shrink-0" />
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span className="truncate text-xs">{prompt.title}</span>
+                      </TooltipTrigger>
+                      <TooltipContent side="right">
+                        <p>{prompt.title}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </button>
+              </SidebarMenuSubButton>
+            </SidebarMenuSubItem>
+          ))}
+        </SidebarMenuSub>
         <SidebarMenuSub>
           <SidebarMenuSubItem>
             <Link
@@ -146,35 +170,7 @@ export function SidebarFolderSection() {
             </Link>
           </SidebarMenuSubItem>
         </SidebarMenuSub>
-      );
-    }
-
-    return (
-      <SidebarMenuSub>
-        {prompts.map((prompt: any) => (
-          <SidebarMenuSubItem key={prompt._id}>
-            <SidebarMenuSubButton
-              asChild
-              isActive={promptId === prompt._id}
-              onClick={() => navigateToPrompt(folderId, prompt._id)}
-            >
-              <button className="flex items-center gap-2 w-full">
-                <FileText className="h-3 w-3 flex-shrink-0" />
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <span className="truncate text-xs">{prompt.title}</span>
-                    </TooltipTrigger>
-                    <TooltipContent side="right">
-                      <p>{prompt.title}</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </button>
-            </SidebarMenuSubButton>
-          </SidebarMenuSubItem>
-        ))}
-      </SidebarMenuSub>
+      </>
     );
   };
 
@@ -257,7 +253,7 @@ export function SidebarFolderSection() {
                             </TooltipProvider>
 
                             {promptCount > 0 && (
-                              <span className="text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded-full ml-2 flex-shrink-0">
+                              <span className="text-xs text-muted-foreground bg-primary/40 px-1.5 py-0.5 rounded-full ml-2 flex-shrink-0">
                                 {promptCount}
                               </span>
                             )}

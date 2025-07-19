@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 
+import { CustomToaster } from "./CustomToaster";
 import { Loader } from "./ui/loader";
 import { Navbar } from "./navbar";
 import { usePathname } from "next/navigation";
@@ -33,6 +34,7 @@ export function AppShell({ children }: { readonly children: React.ReactNode }) {
       {/* ✅ Show Navbar only on root page when user is not logged in */}
       {shouldShowNavbar && <Navbar />}
       {children}
+      <CustomToaster />
     </div>
   );
 }

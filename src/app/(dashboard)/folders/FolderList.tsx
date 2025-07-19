@@ -1,17 +1,17 @@
 "use client";
 
-import { PromptCard } from "@/components/prompt/PromptCard";
-import { PromptCardSkeleton } from "@/components/skeletons/PromptCardSkeleton";
+import { FolderCard } from "@/components/folder/FolderCard";
+import { FolderCardSkeleton } from "@/components/skeletons/FolderCardSkeleton";
 import { useGetAllFolders } from "@/lib/queries/folder";
 
 export default function FolderList() {
-  const { data: folders, isLoading, error } = useGetAllFolders();
+  const { data: folders, isPending, error } = useGetAllFolders();
 
-  if (isLoading) {
+  if (isPending) {
     return (
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {[...Array(6)].map((_, i) => (
-          <PromptCardSkeleton key={i} />
+          <FolderCardSkeleton key={i} />
         ))}
       </div>
     );
@@ -22,15 +22,15 @@ export default function FolderList() {
   }
 
   return (
-    <div className="p-2 sm:p-6">
+    <div className="p-2">
       {folders?.length === 0 && (
         <p className="text-start text-muted-foreground mt-10">
           You haven't created any folders yet.
         </p>
       )}
-      <div className="w-full grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {folders.map((folder: any) => (
-          <PromptCard key={folder._id} prompt={folder} />
+          <FolderCard key={folder._id} folder={folder} />
         ))}
       </div>
     </div>

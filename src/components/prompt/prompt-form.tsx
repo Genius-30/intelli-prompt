@@ -1,10 +1,5 @@
 "use client";
 
-import { useState } from "react";
-import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Loader } from "../ui/loader";
 import {
   ArrowRightIcon,
   CheckCircle,
@@ -15,21 +10,26 @@ import {
   Undo2Icon,
   Zap,
 } from "lucide-react";
-import { AnimatedShinyText } from "../magicui/animated-shiny-text";
-import { toast } from "sonner";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
-import { useParams, useRouter } from "next/navigation";
 import {
-  useCreateVersion,
-  useUpdateVersion,
   useAddVersion,
-  useToggleFavorite,
+  useCreateVersion,
   useEnhancePrompt,
   useSetActiveVersion,
+  useToggleFavorite,
+  useUpdateVersion,
 } from "@/lib/queries/version";
-import { Badge } from "../ui/badge";
-import { cn } from "@/lib/utils";
+import { useParams, useRouter } from "next/navigation";
+
+import { AnimatedShinyText } from "../magicui/animated-shiny-text";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Loader } from "../ui/loader";
 import { PromptEnhancer } from "./prompt-enhancer";
+import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
+import { toast } from "sonner";
+import { useState } from "react";
 
 type PromptData = {
   _id: string;

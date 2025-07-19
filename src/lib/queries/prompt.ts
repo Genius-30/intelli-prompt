@@ -1,32 +1,57 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+
+import axiosInstance from "../axios";
+import { toast } from "sonner";
 
 export function useGetPromptsByFolder(folderId: string) {
   return useQuery({
     queryKey: ["prompts", "folder", folderId],
     queryFn: async () => {
       // Replace with your actual API call
-      const response = await fetch(`/api/folders/${folderId}/prompts`);
-      if (!response.ok) {
-        throw new Error("Failed to fetch prompts");
-      }
-      return response.json();
+      const response = await axiosInstance.get(
+        `/folder/${folderId}/allPrompts`
+      );
+      return response.data.prompts;
     },
     enabled: !!folderId,
   });
 }
 
-export function useGetPromptMeta(promptId: string) {
+type CreatePromptPayload = {
+  title: string;
+  content: string;
+  folderId: string;
+};
+
+export const useCreatePrompt = () => {
+  return useMutation({
+    mutationFn: async ({ title, content, folderId }: CreatePromptPayload) => {
+      const { data } = await axiosInstance.post("/prompt", {
+        title,
+        content,
+        folderId,
+      });
+      return data.newPrompt;
+    },
+    onSuccess: () => {
+      toast.success("Prompt created successfully");
+    },
+    onError: (err: any) => {
+      toast.error(err.response?.data?.message || "Failed to create prompt");
+    },
+  });
+};
+
+export const useGetPrompt = (promptId: string | undefined) => {
   return useQuery({
-    queryKey: ["promptMeta", promptId],
+    queryKey: ["prompt", promptId],
     queryFn: async () => {
       if (!promptId) throw new Error("Prompt ID is required");
 
-      const response = await fetch(`/api/prompts/${promptId}`);
-      if (!response.ok) {
-        throw new Error("Failed to fetch prompt metadata");
-      }
-      return response.json();
+      const { data } = await axiosInstance.get(`/prompt/${promptId}`);
+      return data.prompt;
     },
     enabled: !!promptId,
+    retry: false,
   });
-}
+};
