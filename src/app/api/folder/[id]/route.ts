@@ -4,6 +4,7 @@ import mongoose from "mongoose";
 import { getAuthenticatedUser } from "@/utils/getAuthenticatedUser";
 import { Prompt } from "@/models/prompt.model";
 import { ModelResponse } from "@/models/modelResponse.model";
+import { Version } from "@/models/version.model";
 
 // renames folder
 export async function PATCH(
@@ -53,6 +54,7 @@ export async function DELETE(
     const promptIds = prompts.map((prompt) => prompt._id);
 
     await ModelResponse.deleteMany({ promptId: { $in: promptIds } });
+    await Version.deleteMany({ promptId: { $in: promptIds } });
     await Prompt.deleteMany({ folderId });
     await Folder.findByIdAndDelete({ _id: folderId });
 

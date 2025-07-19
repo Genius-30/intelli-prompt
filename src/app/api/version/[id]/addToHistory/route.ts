@@ -33,12 +33,20 @@ export async function PATCH(
     existingVersion.isActive = false
     await existingVersion.save()
 
+    // Find the highest versionNumber for this prompt
+    const maxVersion = await Version.find({ promptId: existingVersion.promptId })
+      .sort({ versionNumber: -1 })
+      .limit(1)
+      .lean();
+    const nextVersionNumber = (maxVersion[0]?.versionNumber || 1) + 1;
+
     const newVersion = await Version.create({
       ownerId: userId,
       promptId: existingVersion.promptId,
       content: content || existingVersion.content,
       isActive: true,
-      isFavorite: false
+      isFavorite: false,
+      versionNumber: nextVersionNumber
     })
 
     await Prompt.updateOne(

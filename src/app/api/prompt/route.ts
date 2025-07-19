@@ -25,7 +25,8 @@ export async function POST(req: Request) {
       ownerId: userId,
       promptId: newPrompt._id,
       content,
-      isActive: true
+      isActive: true,
+      versionNumber: 1
     });
 
     return NextResponse.json({ message: 'prompt created', newPrompt, newVersion }, { status: 201 });

@@ -3,6 +3,7 @@ import { Prompt } from "@/models/prompt.model";
 import { getAuthenticatedUser } from "@/utils/getAuthenticatedUser";
 import mongoose from "mongoose";
 import { ModelResponse } from "@/models/modelResponse.model";
+import { Version } from "@/models/version.model";
 
 // updates prompt title
 export async function PATCH(
@@ -56,6 +57,7 @@ export async function DELETE(
       return NextResponse.json({ message: "couldn't delete prompt" }, { status: 400 });
     }
 
+    await Version.deleteMany({ promptId: promptId, ownerId: userId });
     await ModelResponse.deleteMany({ promptId: promptId, ownerId: userId });
 
     return NextResponse.json({ message: "prompt deleted" }, { status: 201 });
