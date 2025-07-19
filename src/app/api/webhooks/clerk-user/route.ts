@@ -4,7 +4,7 @@ import { verifyWebhook } from "@clerk/nextjs/webhooks";
 import { User } from "@/models/user.model";
 import connectDb from "@/lib/db";
 
-export async function POST(req: NextRequest) {
+export async function POST(req: Request) {
   try {
     const event: WebhookEvent = await verifyWebhook(req);
 
