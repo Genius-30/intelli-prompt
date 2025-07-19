@@ -1,17 +1,20 @@
-import { NextResponse } from 'next/server'
-import { Prompt } from '@/models/prompt.model'
-import { getAuthenticatedUser } from '@/utils/getAuthenticatedUser'
-import { Version } from '@/models/version.model'
+import { NextResponse } from "next/server";
+import { Prompt } from "@/models/prompt.model";
+import { Version } from "@/models/version.model";
+import { getAuthenticatedUser } from "@/utils/getAuthenticatedUser";
 
 // create new prompt
 export async function POST(req: Request) {
   try {
-    const { userId, error } = await getAuthenticatedUser()
-    if(error) return error
+    const { userId, error } = await getAuthenticatedUser();
+    if (error) return error;
 
     const { folderId, title, content } = await req.json();
-    if(!title || !folderId || !content){
-      return NextResponse.json({ message: 'missing required fields' }, { status: 400 });
+    if (!title || !folderId || !content) {
+      return NextResponse.json(
+        { message: "missing required fields" },
+        { status: 400 }
+      );
     }
 
     const newPrompt = await Prompt.create({
@@ -25,11 +28,17 @@ export async function POST(req: Request) {
       ownerId: userId,
       promptId: newPrompt._id,
       content,
-      isActive: true
+      isActive: true,
     });
 
-    return NextResponse.json({ message: 'prompt created', newPrompt, newVersion }, { status: 201 });
+    return NextResponse.json(
+      { message: "prompt created", newPrompt, newVersion },
+      { status: 201 }
+    );
   } catch (err) {
-    return NextResponse.json({ message: 'error creating prompt' }, { status: 500 });
+    return NextResponse.json(
+      { message: "error creating prompt" },
+      { status: 500 }
+    );
   }
 }

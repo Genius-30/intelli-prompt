@@ -1,0 +1,208 @@
+"use client";
+
+import {
+  AlertCircle,
+  CheckCircle2,
+  Edit3,
+  Loader,
+  Save,
+  Sparkles,
+} from "lucide-react";
+
+import { AnimatedShinyText } from "@/components/magicui/animated-shiny-text";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { PromptEnhancer } from "@/components/prompt/prompt-enhancer";
+import { Textarea } from "@/components/ui/textarea";
+import { toast } from "sonner";
+import { useCreatePrompt } from "@/lib/queries/prompt";
+import { useParams } from "next/navigation";
+import { useState } from "react";
+
+export default function NewPromptClient() {
+  const { folderId } = useParams();
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
+  const [showEnhancer, setShowEnhancer] = useState(false);
+  const [tokenEstimated, setTokenEstimated] = useState(100);
+
+  const createPromptMutation = useCreatePrompt();
+
+  // Estimate tokens (rough calculation: ~4 characters per token)
+  const estimateTokens = (text: string) => {
+    return Math.ceil(text.length / 4);
+  };
+
+  const handleContentChange = (value: string) => {
+    setContent(value);
+    setTokenEstimated(estimateTokens(value));
+  };
+
+  const handleShowEnhancer = () => {
+    if (!content.trim()) {
+      toast.error("Please enter some content first");
+      return;
+    }
+    setShowEnhancer(true);
+  };
+
+  const handleReplacePrompt = (enhanced: string) => {
+    setContent(enhanced);
+    setTokenEstimated(estimateTokens(enhanced));
+    toast.success("Prompt replaced with enhanced version");
+  };
+
+  const handleDiscardEnhancement = () => {
+    setShowEnhancer(false);
+    toast.info("Enhancement discarded");
+  };
+
+  const handleSavePrompt = () => {
+    if (!title.trim()) {
+      toast.error("Please enter a prompt title");
+      return;
+    }
+    if (!content.trim()) {
+      toast.error("Please enter prompt content");
+      return;
+    }
+
+    createPromptMutation.mutate(
+      {
+        title: title.trim(),
+        content: content.trim(),
+        folderId: String(folderId ?? ""),
+      },
+      {
+        onSuccess: () => {
+          toast.success("Prompt created successfully!");
+          // Reset form or redirect as needed
+          setTitle("");
+          setContent("");
+          setShowEnhancer(false);
+        },
+        onError: (error) => {
+          toast.error("Failed to create prompt");
+          console.error("Create prompt failed:", error);
+        },
+      }
+    );
+  };
+
+  const isFormValid = title.trim() && content.trim();
+
+  return (
+    <div className="max-w-6xl mx-auto space-y-6">
+      <div className="text-start">
+        <h1 className="text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 dark:from-gray-100 dark:to-gray-400 bg-clip-text text-transparent">
+          Create New Prompt
+        </h1>
+        <p className="text-sm text-muted-foreground">
+          Create your first prompt version and enhance it with AI
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Original Prompt Section */}
+        <div className="space-y-6">
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="title" className="text-sm font-medium">
+                Prompt Title *
+              </Label>
+              <Input
+                id="title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="Enter a descriptive title for your prompt..."
+                className="bg-background/50 backdrop-blur-sm border-border/50 focus:border-primary/50"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="content" className="text-sm font-medium">
+                  Prompt Content *
+                </Label>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-muted-foreground">
+                    ~{tokenEstimated} tokens
+                  </span>
+                  <Button
+                    onClick={handleShowEnhancer}
+                    disabled={!content.trim()}
+                    variant="outline"
+                    size="sm"
+                    className="flex items-center gap-2 border-primary/20 dark:border-primary/20 hover:border-primary/40 hover:bg-primary/5 dark:hover:bg-primary/10 bg-transparent transition-all duration-200 hover:shadow-sm"
+                  >
+                    <Sparkles className="w-4 h-4 text-primary" />
+                    <AnimatedShinyText className="text-primary">
+                      Enhance with AI
+                    </AnimatedShinyText>
+                  </Button>
+                </div>
+              </div>
+
+              <div className="relative">
+                <Textarea
+                  id="content"
+                  value={content}
+                  onChange={(e) => handleContentChange(e.target.value)}
+                  placeholder="Enter your prompt content here... Be specific about what you want to achieve."
+                  className="min-h-[250px] resize-none border-border/50 focus:border-primary/50 bg-background/50 backdrop-blur-sm"
+                />
+                <div className="absolute bottom-3 right-3 text-xs text-muted-foreground">
+                  {content.length} characters
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex gap-3">
+            <Button
+              onClick={handleSavePrompt}
+              disabled={!isFormValid || createPromptMutation.isPending}
+              className="flex items-center gap-2"
+            >
+              {createPromptMutation.isPending ? (
+                <>
+                  <Loader className="w-4 h-4" />
+                  Creating...
+                </>
+              ) : (
+                <>
+                  <Edit3 className="w-4 h-4" />
+                  Create Prompt
+                </>
+              )}
+            </Button>
+          </div>
+        </div>
+
+        {/* Enhanced Prompt Section */}
+        <div className="space-y-4">
+          {!showEnhancer && !content.trim() ? (
+            <PromptEnhancer
+              content={content}
+              onReplace={handleReplacePrompt}
+              onDiscard={handleDiscardEnhancement}
+              tokenEstimated={tokenEstimated}
+            />
+          ) : (
+            <div className="bg-muted/30 border border-dashed border-border/50 rounded-xl p-8 text-center">
+              <Sparkles className="w-12 h-12 text-muted-foreground/50 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-muted-foreground mb-2">
+                AI Enhancement Ready
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                Enter your prompt content and click "Enhance with AI" to get
+                AI-powered improvements
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}

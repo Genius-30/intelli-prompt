@@ -12,5 +12,5 @@ export const metadata = {
 };
 
 export default function FolderPage({ params }: FolderPageProps) {
-  return redirect(`/folders/${params.folderId}/prompts`);
+  redirect(`/folders/${params.folderId}/prompts`);
 }

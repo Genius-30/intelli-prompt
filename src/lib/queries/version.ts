@@ -1,4 +1,5 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+
 import axiosInstance from "../axios";
 
 type CreateVersionPayload = {
@@ -137,7 +138,7 @@ type EnhancePromptArgs = {
 export function useEnhancePrompt() {
   return useMutation({
     mutationFn: async ({ content, tokenEstimated }: EnhancePromptArgs) => {
-      const res = await axiosInstance.post(`/prompt/enhance`, {
+      const res = await axiosInstance.post(`/version/enhance`, {
         content,
         tokenEstimated,
       });

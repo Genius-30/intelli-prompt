@@ -4,7 +4,6 @@ import { AppShell } from "@/components/AppShell";
 import { Inter } from "next/font/google";
 import type { Metadata } from "next";
 import Providers from "./providers";
-import { Toaster } from "sonner";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -28,7 +27,6 @@ export default function RootLayout({
         <Providers>
           <AppShell>{children}</AppShell>
         </Providers>
-        <Toaster theme="system" />
       </body>
     </html>
   );
