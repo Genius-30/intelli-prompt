@@ -253,7 +253,7 @@ export function SidebarFolderSection() {
                             </TooltipProvider>
 
                             {promptCount > 0 && (
-                              <span className="text-xs text-muted-foreground bg-primary/40 px-1.5 py-0.5 rounded-full ml-2 flex-shrink-0">
+                              <span className="text-xs text-muted-foreground bg-foreground/10 px-1.5 py-0.5 rounded-full ml-2 flex-shrink-0">
                                 {promptCount}
                               </span>
                             )}

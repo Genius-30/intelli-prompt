@@ -1,30 +1,28 @@
 "use client";
 
-import {
-  AlertCircle,
-  CheckCircle2,
-  Edit3,
-  Loader,
-  Save,
-  Sparkles,
-} from "lucide-react";
+import { Edit3, Redo2, Sparkles, Undo2 } from "lucide-react";
+import { useRef, useState } from "react";
 
 import { AnimatedShinyText } from "@/components/magicui/animated-shiny-text";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Loader } from "@/components/ui/loader";
 import { PromptEnhancer } from "@/components/prompt/prompt-enhancer";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { useCreatePrompt } from "@/lib/queries/prompt";
 import { useParams } from "next/navigation";
-import { useState } from "react";
 
 export default function NewPromptClient() {
   const { folderId } = useParams();
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const [history, setHistory] = useState<string[]>([]);
+  const [future, setFuture] = useState<string[]>([]);
+  const MAX_HISTORY = 20;
   const [showEnhancer, setShowEnhancer] = useState(false);
+  const [triggerEnhance, setTriggerEnhance] = useState(false);
   const [tokenEstimated, setTokenEstimated] = useState(100);
 
   const createPromptMutation = useCreatePrompt();
@@ -35,8 +33,31 @@ export default function NewPromptClient() {
   };
 
   const handleContentChange = (value: string) => {
+    setHistory((prev) => {
+      const newHistory = [...prev, content];
+      return newHistory.length > MAX_HISTORY ? newHistory.slice(1) : newHistory;
+    });
     setContent(value);
     setTokenEstimated(estimateTokens(value));
+    setFuture([]); // clear redo stack on new input
+  };
+
+  const handleUndo = () => {
+    if (history.length === 0) return;
+    setFuture((prev) => [content, ...prev]);
+    const prevContent = history[history.length - 1];
+    setContent(prevContent);
+    setTokenEstimated(estimateTokens(prevContent));
+    setHistory((prev) => prev.slice(0, -1));
+  };
+
+  const handleRedo = () => {
+    if (future.length === 0) return;
+    setHistory((prev) => [...prev, content]);
+    const nextContent = future[0];
+    setContent(nextContent);
+    setTokenEstimated(estimateTokens(nextContent));
+    setFuture((prev) => prev.slice(1));
   };
 
   const handleShowEnhancer = () => {
@@ -45,6 +66,7 @@ export default function NewPromptClient() {
       return;
     }
     setShowEnhancer(true);
+    setTriggerEnhance(true); // tell enhancer to run now
   };
 
   const handleReplacePrompt = (enhanced: string) => {
@@ -55,6 +77,7 @@ export default function NewPromptClient() {
 
   const handleDiscardEnhancement = () => {
     setShowEnhancer(false);
+    setTriggerEnhance(false);
     toast.info("Enhancement discarded");
   };
 
@@ -134,7 +157,7 @@ export default function NewPromptClient() {
                     disabled={!content.trim()}
                     variant="outline"
                     size="sm"
-                    className="flex items-center gap-2 border-primary/20 dark:border-primary/20 hover:border-primary/40 hover:bg-primary/5 dark:hover:bg-primary/10 bg-transparent transition-all duration-200 hover:shadow-sm"
+                    className="flex items-center gap-2 border-primary/20 dark:border-primary/20 hover:border-primary/40 hover:bg-primary/5 dark:hover:bg-primary/10 bg-transparent transition-all duration-200 hover:shadow-sm cursor-pointer"
                   >
                     <Sparkles className="w-4 h-4 text-primary" />
                     <AnimatedShinyText className="text-primary">
@@ -150,10 +173,34 @@ export default function NewPromptClient() {
                   value={content}
                   onChange={(e) => handleContentChange(e.target.value)}
                   placeholder="Enter your prompt content here... Be specific about what you want to achieve."
-                  className="min-h-[250px] resize-none border-border/50 focus:border-primary/50 bg-background/50 backdrop-blur-sm"
+                  className="min-h-[250px] resize-none border-border/50 focus:border-primary/50 bg-background/50 backdrop-blur-sm pr-28"
                 />
-                <div className="absolute bottom-3 right-3 text-xs text-muted-foreground">
-                  {content.length} characters
+                <div className="absolute bottom-3 right-3 flex items-center gap-2">
+                  <span className="text-xs text-muted-foreground">
+                    {content.length} characters
+                  </span>
+                  <Button
+                    type="button"
+                    size="icon"
+                    variant="ghost"
+                    onClick={handleUndo}
+                    disabled={history.length === 0}
+                    className="p-1 h-6 w-6"
+                    aria-label="Undo"
+                  >
+                    <Undo2 className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    type="button"
+                    size="icon"
+                    variant="ghost"
+                    onClick={handleRedo}
+                    disabled={future.length === 0}
+                    className="p-1 h-6 w-6"
+                    aria-label="Redo"
+                  >
+                    <Redo2 className="w-4 h-4" />
+                  </Button>
                 </div>
               </div>
             </div>
@@ -182,12 +229,13 @@ export default function NewPromptClient() {
 
         {/* Enhanced Prompt Section */}
         <div className="space-y-4">
-          {!showEnhancer && !content.trim() ? (
+          {showEnhancer && content.trim() ? (
             <PromptEnhancer
               content={content}
               onReplace={handleReplacePrompt}
               onDiscard={handleDiscardEnhancement}
               tokenEstimated={tokenEstimated}
+              enhanceNow={triggerEnhance}
             />
           ) : (
             <div className="bg-muted/30 border border-dashed border-border/50 rounded-xl p-8 text-center">

@@ -21,9 +21,9 @@ export function SidebarMainLinks() {
   const pathname = usePathname();
 
   const links = [
-    { href: "/dashboard", label: "Dashboard", icon: LayoutDashboardIcon },
     { href: "/explore", label: "Explore", icon: UsersIcon },
     { href: "/leaderboard", label: "Leaderboard", icon: TrophyIcon },
+    { href: "/dashboard", label: "Dashboard", icon: LayoutDashboardIcon },
     { href: "/saved", label: "Saved", icon: BookmarkIcon },
   ];
 
