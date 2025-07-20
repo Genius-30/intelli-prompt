@@ -133,21 +133,27 @@ export const useToggleFavorite = () => {
 type EnhancePromptArgs = {
   content: string;
   tokenEstimated: number;
+  signal?: AbortSignal;
 };
 
 export function useEnhancePrompt() {
   return useMutation({
-    mutationFn: async ({ content, tokenEstimated }: EnhancePromptArgs) => {
-      const res = await axiosInstance.post(`/version/enhance`, {
-        content,
-        tokenEstimated,
-      });
-
-      if (!res.data?.response) {
-        throw new Error("No enhancement returned.");
+    mutationFn: async ({
+      content,
+      tokenEstimated,
+      signal,
+    }: EnhancePromptArgs) => {
+      try {
+        const res = await axiosInstance.post(
+          `/version/enhance`,
+          { content, tokenEstimated },
+          { signal }
+        );
+        return res.data.response as string;
+      } catch (err: any) {
+        console.error("Enhance API error:", err);
+        throw err;
       }
-
-      return res.data.response as string;
     },
   });
 }

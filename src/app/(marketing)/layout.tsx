@@ -1,5 +1,5 @@
-import type { ReactNode } from "react";
 import MarketingHeader from "@/components/MarketingHeader";
+import type { ReactNode } from "react";
 
 export default function MarketingLayout({
   children,

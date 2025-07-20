@@ -4,7 +4,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Bookmark,
   Clock,
-  Filter,
   Heart,
   MessageCircle,
   Search,

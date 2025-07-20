@@ -1,9 +1,10 @@
 "use client";
 
 import { AlertCircle, CheckCircle2, Copy, Sparkles, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 import { Loader } from "@/components/ui/loader";
 import { useEnhancePrompt } from "@/lib/queries/version";
 
@@ -12,6 +13,7 @@ type PromptEnhancerProps = {
   readonly onReplace: (enhanced: string) => void;
   readonly onDiscard: () => void;
   readonly tokenEstimated?: number;
+  readonly enhanceNow?: boolean;
 };
 
 export function PromptEnhancer({
@@ -19,77 +21,179 @@ export function PromptEnhancer({
   onReplace,
   onDiscard,
   tokenEstimated = 100,
+  enhanceNow = false,
 }: PromptEnhancerProps) {
   const [enhancedContent, setEnhancedContent] = useState<string>("");
   const [hasEnhanced, setHasEnhanced] = useState(false);
+  const [isCancelled, setIsCancelled] = useState(false);
+  const abortControllerRef = useRef<AbortController | null>(null);
   const enhanceMutation = useEnhancePrompt();
 
-  // Auto-enhance when content changes
   useEffect(() => {
-    if (content.trim() && !hasEnhanced) {
+    if (enhanceNow && content.trim()) {
       handleEnhance();
-      setHasEnhanced(true);
     }
-  }, [content, hasEnhanced]);
+
+    return () => {
+      abortControllerRef.current?.abort();
+    };
+  }, [enhanceNow]);
 
   const handleEnhance = () => {
     if (!content.trim()) return;
+    setIsCancelled(false);
+
+    // Abort previous if any
+    abortControllerRef.current?.abort();
+
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
 
     enhanceMutation.mutate(
-      { content, tokenEstimated },
+      { content, tokenEstimated, signal: controller.signal },
       {
         onSuccess: (enhanced) => {
-          setEnhancedContent(enhanced);
+          if (!controller.signal.aborted) {
+            setEnhancedContent(enhanced);
+          }
         },
         onError: (error) => {
-          console.error("Enhancement failed:", error);
+          if (controller.signal.aborted) {
+            console.warn("Enhancement cancelled by user");
+            setIsCancelled(true);
+          } else {
+            console.error("Enhancement failed:", error);
+          }
         },
       }
     );
   };
 
+  const handleCancel = () => {
+    abortControllerRef.current?.abort();
+    setIsCancelled(true);
+    setHasEnhanced(false);
+    enhanceMutation.reset();
+  };
+
   const handleRetry = () => {
     setHasEnhanced(true);
+    setEnhancedContent("");
     handleEnhance();
   };
 
   const handleReplace = () => {
     if (enhancedContent) {
       onReplace(enhancedContent);
+      setHasEnhanced(false);
     }
   };
 
   let contentDisplay;
 
-  if (enhanceMutation.isPending) {
+  if (enhanceMutation.isPending && !isCancelled) {
     contentDisplay = (
-      <div className="flex items-center justify-center py-8">
-        <Loader className="w-6 h-6" />
-        <span className="ml-3 text-sm text-muted-foreground">
-          Enhancing your prompt with AI...
-        </span>
-      </div>
-    );
-  } else if (enhanceMutation.isError) {
-    contentDisplay = (
-      <div className="flex flex-col items-center justify-center py-8 space-y-3">
-        <AlertCircle className="w-8 h-8 text-destructive opacity-50" />
-        <div className="text-center">
-          <p className="text-sm text-destructive font-medium">
-            Enhancement failed
-          </p>
-          <p className="text-xs text-muted-foreground mt-1">
-            {enhanceMutation.error?.message || "Something went wrong"}
-          </p>
+      <div className="flex flex-col items-center justify-center py-8 gap-3">
+        <div className="flex items-center justify-center">
+          <Loader className="w-6 h-6" />
+          <span className="ml-3 text-sm text-muted-foreground">
+            Enhancing your prompt with AI...
+          </span>
         </div>
         <Button
           size="sm"
           variant="outline"
-          onClick={handleRetry}
-          className="mt-2 bg-transparent"
+          className="bg-transparent"
+          onClick={handleCancel}
+        >
+          Cancel
+        </Button>
+      </div>
+    );
+  } else if (isCancelled) {
+    contentDisplay = (
+      <div className="flex flex-col items-center justify-center py-8 gap-3">
+        <span className="text-sm text-muted-foreground">
+          Enhancement cancelled.
+        </span>
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => {
+            setIsCancelled(false);
+            setHasEnhanced(false);
+            handleEnhance();
+          }}
+          className="bg-transparent"
         >
           Try Again
         </Button>
+      </div>
+    );
+  } else if (enhanceMutation.isError) {
+    // Custom error handling for 402 and 403
+    let errorTitle = "Enhancement failed";
+    let errorMessage = enhanceMutation.error?.message || "Something went wrong";
+    let showRetry = true;
+    let actionButton = null;
+
+    // Try to extract status code if available
+    let status: number | undefined = undefined;
+    const error = enhanceMutation.error as any;
+    if (error) {
+      status = error.status ?? error.response?.status;
+    }
+
+    if (status === 402) {
+      errorTitle = "Not enough tokens";
+      errorMessage =
+        "You have run out of tokens. Please upgrade your plan or wait for your quota to reset.";
+      showRetry = false;
+      actionButton = (
+        <Button
+          size="sm"
+          variant="outline"
+          className="mt-2 bg-transparent"
+          asChild
+        >
+          <Link href="/pricing">Upgrade Plan</Link>
+        </Button>
+      );
+    } else if (status === 403) {
+      errorTitle = "Subscription Ended";
+      errorMessage =
+        "Your subscription has ended. Please renew to continue using AI enhancements.";
+      showRetry = false;
+      actionButton = (
+        <Button
+          size="sm"
+          variant="outline"
+          className="mt-2 bg-transparent"
+          asChild
+        >
+          <Link href="/pricing">Renew Subscription</Link>
+        </Button>
+      );
+    }
+
+    contentDisplay = (
+      <div className="flex flex-col items-center justify-center py-8 space-y-3">
+        <AlertCircle className="w-8 h-8 text-destructive opacity-50" />
+        <div className="text-center">
+          <p className="text-sm text-destructive font-medium">{errorTitle}</p>
+          <p className="text-xs text-muted-foreground mt-1">{errorMessage}</p>
+        </div>
+        {showRetry && (
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={handleRetry}
+            className="mt-2 bg-transparent"
+          >
+            Try Again
+          </Button>
+        )}
+        {actionButton}
       </div>
     );
   } else if (enhancedContent) {
@@ -138,14 +242,14 @@ export function PromptEnhancer({
         </div>
       </div>
 
-      <div className="bg-background/80 backdrop-blur-sm border border-border/30 rounded-lg p-4 min-h-[120px] shadow-inner">
+      <div className="bg-background/80 backdrop-blur-sm border border-border/30 rounded-lg p-4 min-h-[200px] shadow-inner">
         {contentDisplay}
       </div>
 
       {enhancedContent &&
         !enhanceMutation.isPending &&
         !enhanceMutation.isError && (
-          <div className="flex items-center gap-3 mt-4 pt-4 border-t border-border/30">
+          <div className="flex items-center flex-wrap gap-3 mt-4 pt-4 border-t border-border/30">
             <Button
               size="sm"
               onClick={handleReplace}
