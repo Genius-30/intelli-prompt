@@ -1,26 +1,36 @@
+import { Card, CardContent, CardHeader } from "../ui/card";
+
 import { Skeleton } from "@/components/ui/skeleton";
 
-export function PromptCardSkeleton() {
+export default function PromptCardSkeleton() {
   return (
-    <div className="space-y-4">
-      <div className="rounded-md border p-4 space-y-3">
-        {/* Title Skeleton */}
-        <Skeleton className="h-6 w-3/4" />
+    <Card className="w-full max-w-sm hover:shadow-md transition-shadow duration-200 cursor-pointer group gap-2">
+      <CardHeader>
+        <div className="w-full flex items-center justify-between gap-2">
+          <h3 className="w-3/4 font-semibold text-lg leading-tight">
+            <Skeleton className="h-6 w-full" />
+          </h3>
+          <Skeleton className="h-6 w-6 rounded-full" />
+        </div>
+      </CardHeader>
 
-        {/* Prompt Content Skeleton */}
-        <Skeleton className="h-4 w-full" />
-        <Skeleton className="h-4 w-11/12" />
-        <Skeleton className="h-4 w-10/12" />
+      <CardContent className="py-0">
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+            <Skeleton className="h-4 w-4" />
+            <span>
+              <Skeleton className="h-4 w-16" />
+            </span>
+          </div>
 
-        {/* Footer (Updated time + buttons) */}
-        <div className="flex flex-col gap-3 pt-4">
-          <Skeleton className="h-4 w-1/3" />
-          <div className="flex gap-2">
-            <Skeleton className="h-8 w-16 rounded-md" />
-            <Skeleton className="h-8 w-16 rounded-md" />
+          <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+            <Skeleton className="h-4 w-4" />
+            <span>
+              <Skeleton className="h-4 w-16" />
+            </span>
           </div>
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }

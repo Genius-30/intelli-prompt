@@ -142,8 +142,9 @@ export function SidebarFolderSection() {
                 asChild
                 isActive={promptId === prompt._id}
                 onClick={() => navigateToPrompt(folderId, prompt._id)}
+                className="w-full"
               >
-                <button className="flex items-center gap-2 w-full">
+                <div className="w-full flex items-center gap-2">
                   <FileText className="h-3 w-3 flex-shrink-0" />
                   <TooltipProvider>
                     <Tooltip>
@@ -155,7 +156,7 @@ export function SidebarFolderSection() {
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
-                </button>
+                </div>
               </SidebarMenuSubButton>
             </SidebarMenuSubItem>
           ))}

@@ -25,7 +25,7 @@ import { AnimatedShinyText } from "../magicui/animated-shiny-text";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Loader } from "../ui/loader";
-import { PromptEnhancer } from "./prompt-enhancer";
+import { PromptEnhancer } from "./PromptEnhancer";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";

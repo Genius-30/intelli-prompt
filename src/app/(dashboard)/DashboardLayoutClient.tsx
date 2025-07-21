@@ -32,7 +32,7 @@ import {
 import { SignOutButton, useClerk, useUser } from "@clerk/nextjs";
 
 import { Badge } from "@/components/ui/badge";
-import { BreadcrumbResponsive } from "../../components/BreadCrumbResponsive";
+import { BreadcrumbResponsive } from "../../components/dashboardLayout/BreadCrumbResponsive";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import Logo from "../../components/Logo";

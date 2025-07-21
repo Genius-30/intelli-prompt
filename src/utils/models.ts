@@ -22,21 +22,25 @@ export async function callOpenRouter({
     const res = await axios.post(
       "https://openrouter.ai/api/v1/chat/completions",
       { model, messages, temperature, max_tokens },
-      { 
-        headers: { 
+      {
+        headers: {
           Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
-          "Content-Type": "application/json"
-        } 
+          "Content-Type": "application/json",
+        },
       }
-    )
+    );
 
     return {
       temperature: temperature || 0,
       tokensUsed: res.data.usage?.total_tokens || 0,
-      response: res.data.choices?.[0]?.message.content || 'No response',
-    }
+      response: res.data.choices?.[0]?.message.content || "No response",
+    };
   } catch (err) {
-      console.log('err calling openRouter', err)
-      return { temperature: 0, tokensUsed: 0, response: "Error calling OpenRouter" };
+    console.log("err calling openRouter", err);
+    return {
+      temperature: 0,
+      tokensUsed: 0,
+      response: "Error calling OpenRouter",
+    };
   }
 }
