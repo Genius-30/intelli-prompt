@@ -1,18 +1,17 @@
 "use client";
 
-import { Edit3, Redo2, Sparkles, Undo2 } from "lucide-react";
-import { useRef, useState } from "react";
+import { Edit3, Redo2, Undo2 } from "lucide-react";
+import { useParams, useRouter } from "next/navigation";
 
-import { AnimatedShinyText } from "@/components/magicui/animated-shiny-text";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Loader } from "@/components/ui/loader";
-import { PromptEnhancer } from "@/components/prompt/prompt-enhancer";
+import { PromptEnhancer } from "@/components/prompt/PromptEnhancer";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { useCreatePrompt } from "@/lib/queries/prompt";
-import { useParams } from "next/navigation";
+import { useState } from "react";
 
 export default function NewPromptClient() {
   const { folderId } = useParams();
@@ -21,11 +20,11 @@ export default function NewPromptClient() {
   const [history, setHistory] = useState<string[]>([]);
   const [future, setFuture] = useState<string[]>([]);
   const MAX_HISTORY = 20;
-  const [showEnhancer, setShowEnhancer] = useState(false);
-  const [triggerEnhance, setTriggerEnhance] = useState(false);
   const [tokenEstimated, setTokenEstimated] = useState(100);
 
   const createPromptMutation = useCreatePrompt();
+
+  const router = useRouter();
 
   // Estimate tokens (rough calculation: ~4 characters per token)
   const estimateTokens = (text: string) => {
@@ -60,15 +59,6 @@ export default function NewPromptClient() {
     setFuture((prev) => prev.slice(1));
   };
 
-  const handleShowEnhancer = () => {
-    if (!content.trim()) {
-      toast.error("Please enter some content first");
-      return;
-    }
-    setShowEnhancer(true);
-    setTriggerEnhance(true); // tell enhancer to run now
-  };
-
   const handleReplacePrompt = (enhanced: string) => {
     setContent(enhanced);
     setTokenEstimated(estimateTokens(enhanced));
@@ -76,8 +66,6 @@ export default function NewPromptClient() {
   };
 
   const handleDiscardEnhancement = () => {
-    setShowEnhancer(false);
-    setTriggerEnhance(false);
     toast.info("Enhancement discarded");
   };
 
@@ -103,7 +91,9 @@ export default function NewPromptClient() {
           // Reset form or redirect as needed
           setTitle("");
           setContent("");
-          setShowEnhancer(false);
+          setHistory([]);
+          setFuture([]);
+          router.push(`/folders/${folderId}/prompts/`);
         },
         onError: (error) => {
           toast.error("Failed to create prompt");
@@ -126,7 +116,7 @@ export default function NewPromptClient() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-2">
         {/* Original Prompt Section */}
         <div className="space-y-6">
           <div className="space-y-4">
@@ -148,23 +138,9 @@ export default function NewPromptClient() {
                 <Label htmlFor="content" className="text-sm font-medium">
                   Prompt Content *
                 </Label>
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-muted-foreground">
-                    ~{tokenEstimated} tokens
-                  </span>
-                  <Button
-                    onClick={handleShowEnhancer}
-                    disabled={!content.trim()}
-                    variant="outline"
-                    size="sm"
-                    className="flex items-center gap-2 border-primary/20 dark:border-primary/20 hover:border-primary/40 hover:bg-primary/5 dark:hover:bg-primary/10 bg-transparent transition-all duration-200 hover:shadow-sm cursor-pointer"
-                  >
-                    <Sparkles className="w-4 h-4 text-primary" />
-                    <AnimatedShinyText className="text-primary">
-                      Enhance with AI
-                    </AnimatedShinyText>
-                  </Button>
-                </div>
+                <span className="text-xs text-muted-foreground">
+                  ~{tokenEstimated} tokens
+                </span>
               </div>
 
               <div className="relative">
@@ -205,51 +181,37 @@ export default function NewPromptClient() {
               </div>
             </div>
           </div>
-
-          <div className="flex gap-3">
-            <Button
-              onClick={handleSavePrompt}
-              disabled={!isFormValid || createPromptMutation.isPending}
-              className="flex items-center gap-2"
-            >
-              {createPromptMutation.isPending ? (
-                <>
-                  <Loader className="w-4 h-4" />
-                  Creating...
-                </>
-              ) : (
-                <>
-                  <Edit3 className="w-4 h-4" />
-                  Create Prompt
-                </>
-              )}
-            </Button>
-          </div>
         </div>
 
         {/* Enhanced Prompt Section */}
-        <div className="space-y-4">
-          {showEnhancer && content.trim() ? (
-            <PromptEnhancer
-              content={content}
-              onReplace={handleReplacePrompt}
-              onDiscard={handleDiscardEnhancement}
-              tokenEstimated={tokenEstimated}
-              enhanceNow={triggerEnhance}
-            />
-          ) : (
-            <div className="bg-muted/30 border border-dashed border-border/50 rounded-xl p-8 text-center">
-              <Sparkles className="w-12 h-12 text-muted-foreground/50 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-muted-foreground mb-2">
-                AI Enhancement Ready
-              </h3>
-              <p className="text-sm text-muted-foreground">
-                Enter your prompt content and click "Enhance with AI" to get
-                AI-powered improvements
-              </p>
-            </div>
-          )}
+        <div className="h-full">
+          <PromptEnhancer
+            content={content}
+            onReplace={handleReplacePrompt}
+            onDiscard={handleDiscardEnhancement}
+            tokenEstimated={tokenEstimated}
+          />
         </div>
+      </div>
+
+      <div className="flex gap-3">
+        <Button
+          onClick={handleSavePrompt}
+          disabled={!isFormValid || createPromptMutation.isPending}
+          className="flex items-center gap-2"
+        >
+          {createPromptMutation.isPending ? (
+            <>
+              <Loader className="w-4 h-4" />
+              Creating...
+            </>
+          ) : (
+            <>
+              <Edit3 className="w-4 h-4" />
+              Create Prompt
+            </>
+          )}
+        </Button>
       </div>
     </div>
   );

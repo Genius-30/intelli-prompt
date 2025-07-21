@@ -1,4 +1,4 @@
-import { callOpenRouter } from '@/utils/models'
+import { callOpenRouter } from "@/utils/models";
 
 export interface IResponse {
   tokensUsed: number;

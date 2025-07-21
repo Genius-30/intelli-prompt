@@ -55,3 +55,20 @@ export const useGetPrompt = (promptId: string | undefined) => {
     retry: false,
   });
 };
+
+export function useToggleFavoritePrompt(promptId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async () => {
+      const response = await axiosInstance.patch(
+        `/prompt/${promptId}/favorite`
+      );
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["prompts"] });
+      queryClient.invalidateQueries({ queryKey: ["prompt", promptId] });
+    },
+  });
+}

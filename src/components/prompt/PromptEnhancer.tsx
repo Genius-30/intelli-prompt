@@ -1,11 +1,22 @@
 "use client";
 
-import { AlertCircle, CheckCircle2, Copy, Sparkles, X } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import {
+  AlertCircle,
+  CheckCircle2,
+  ChevronRight,
+  Copy,
+  Sparkles,
+  X,
+} from "lucide-react";
+import { useRef, useState } from "react";
 
+import { AnimatedGradientText } from "../magicui/animated-gradient-text";
+import { AnimatedShinyText } from "../magicui/animated-shiny-text";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Loader } from "@/components/ui/loader";
+import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 import { useEnhancePrompt } from "@/lib/queries/version";
 
 type PromptEnhancerProps = {
@@ -13,7 +24,6 @@ type PromptEnhancerProps = {
   readonly onReplace: (enhanced: string) => void;
   readonly onDiscard: () => void;
   readonly tokenEstimated?: number;
-  readonly enhanceNow?: boolean;
 };
 
 export function PromptEnhancer({
@@ -21,27 +31,16 @@ export function PromptEnhancer({
   onReplace,
   onDiscard,
   tokenEstimated = 100,
-  enhanceNow = false,
 }: PromptEnhancerProps) {
   const [enhancedContent, setEnhancedContent] = useState<string>("");
-  const [hasEnhanced, setHasEnhanced] = useState(false);
   const [isCancelled, setIsCancelled] = useState(false);
   const abortControllerRef = useRef<AbortController | null>(null);
   const enhanceMutation = useEnhancePrompt();
 
-  useEffect(() => {
-    if (enhanceNow && content.trim()) {
-      handleEnhance();
-    }
-
-    return () => {
-      abortControllerRef.current?.abort();
-    };
-  }, [enhanceNow]);
-
   const handleEnhance = () => {
     if (!content.trim()) return;
     setIsCancelled(false);
+    setEnhancedContent("");
 
     // Abort previous if any
     abortControllerRef.current?.abort();
@@ -53,7 +52,17 @@ export function PromptEnhancer({
       { content, tokenEstimated, signal: controller.signal },
       {
         onSuccess: (enhanced) => {
-          if (!controller.signal.aborted) {
+          if (controller.signal.aborted) return;
+
+          if (
+            typeof enhanced === "string" &&
+            enhanced.toLowerCase().includes("error calling openrouter")
+          ) {
+            // Treat this as error
+            toast.error("Enhancement failed!");
+            enhanceMutation.reset();
+            setEnhancedContent("");
+          } else {
             setEnhancedContent(enhanced);
           }
         },
@@ -62,6 +71,9 @@ export function PromptEnhancer({
             console.warn("Enhancement cancelled by user");
             setIsCancelled(true);
           } else {
+            toast.error(
+              error?.message || "AI enhancement failed. Please try again."
+            );
             console.error("Enhancement failed:", error);
           }
         },
@@ -72,21 +84,28 @@ export function PromptEnhancer({
   const handleCancel = () => {
     abortControllerRef.current?.abort();
     setIsCancelled(true);
-    setHasEnhanced(false);
     enhanceMutation.reset();
   };
 
   const handleRetry = () => {
-    setHasEnhanced(true);
     setEnhancedContent("");
+    setIsCancelled(false);
     handleEnhance();
   };
 
   const handleReplace = () => {
     if (enhancedContent) {
       onReplace(enhancedContent);
-      setHasEnhanced(false);
+      setEnhancedContent("");
+      setIsCancelled(false);
     }
+  };
+
+  const handleDiscard = () => {
+    onDiscard();
+    setEnhancedContent("");
+    setIsCancelled(false);
+    abortControllerRef.current?.abort();
   };
 
   let contentDisplay;
@@ -121,7 +140,9 @@ export function PromptEnhancer({
           variant="outline"
           onClick={() => {
             setIsCancelled(false);
-            setHasEnhanced(false);
+            setEnhancedContent("");
+            abortControllerRef.current?.abort();
+            enhanceMutation.reset();
             handleEnhance();
           }}
           className="bg-transparent"
@@ -212,29 +233,65 @@ export function PromptEnhancer({
     );
   } else {
     contentDisplay = (
-      <div className="flex items-center justify-center py-8">
-        <div className="text-center">
-          <Sparkles className="w-8 h-8 text-muted-foreground mx-auto mb-2 opacity-50" />
-          <span className="text-muted-foreground text-sm">
-            Waiting for content to enhance
-          </span>
+      <div className="flex flex-col items-center justify-center gap-4">
+        <div className="flex flex-col items-center">
+          <Sparkles className="w-12 h-12 text-muted-foreground/50 mb-2" />
+          <h3 className="text-lg font-medium text-center text-muted-foreground">
+            AI Enhancement Ready
+          </h3>
+          <p className="text-sm text-center text-muted-foreground">
+            Enter your prompt content and click the button below to enhance it
+            with AI.
+          </p>
         </div>
+
+        <button
+          type="button"
+          onClick={handleEnhance}
+          disabled={!content.trim() || enhanceMutation.isPending}
+          className="cursor-pointer disabled:bg-muted rounded-full"
+        >
+          <div className="group relative mx-auto flex items-center justify-center rounded-full px-4 py-1.5 shadow-[inset_0_-8px_10px_#8fdfff1f] transition-shadow duration-500 ease-out hover:shadow-[inset_0_-5px_10px_#8fdfff3f]">
+            <span
+              className={cn(
+                "absolute inset-0 block h-full w-full animate-gradient rounded-[inherit] bg-gradient-to-r from-[#ffaa40]/50 via-[#9c40ff]/50 to-[#ffaa40]/50 bg-[length:300%_100%] p-[1px]"
+              )}
+              style={{
+                WebkitMask:
+                  "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
+                WebkitMaskComposite: "destination-out",
+                mask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
+                maskComposite: "subtract",
+                WebkitClipPath: "padding-box",
+              }}
+            />
+            <Sparkles className="w-4 h-4 text-[#ffaa40]" />
+            <hr className="mx-2 h-4 w-px shrink-0 bg-neutral-500" />
+            <AnimatedGradientText className="text-sm font-medium">
+              Enhance with AI
+            </AnimatedGradientText>
+            <ChevronRight
+              className="ml-1 size-4 stroke-neutral-500 transition-transform
+            duration-300 ease-in-out group-hover:translate-x-0.5"
+            />
+          </div>
+        </button>
       </div>
     );
   }
 
   return (
-    <div className="bg-gradient-to-br from-muted/50 to-muted border border-border/50 rounded-xl p-6 shadow-sm backdrop-blur-sm">
+    <div className="h-full flex flex-col bg-gradient-to-br from-muted/30 to-muted/40 border border-border/50 rounded-lg p-4 shadow-sm backdrop-blur-sm">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <div className="w-2 h-2 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full animate-pulse" />
+          <div className="w-2.5 h-2.5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full animate-pulse" />
           <h3 className="text-sm font-semibold text-foreground">
             AI Enhanced Version
           </h3>
         </div>
         <div className="flex items-center gap-2">
           <Sparkles className="w-4 h-4 text-muted-foreground" />
-          {tokenEstimated && (
+          {!!tokenEstimated && (
             <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded">
               ~{tokenEstimated} tokens
             </span>
@@ -242,18 +299,18 @@ export function PromptEnhancer({
         </div>
       </div>
 
-      <div className="bg-background/80 backdrop-blur-sm border border-border/30 rounded-lg p-4 min-h-[200px] shadow-inner">
+      <div className="min-h-[200px] h-full flex items-center justify-around bg-muted/50 backdrop-blur-sm border border-border/30 rounded-lg p-4">
         {contentDisplay}
       </div>
 
       {enhancedContent &&
         !enhanceMutation.isPending &&
         !enhanceMutation.isError && (
-          <div className="flex items-center flex-wrap gap-3 mt-4 pt-4 border-t border-border/30">
+          <div className="flex items-center flex-wrap gap-3 mt-4 border-t border-border/30">
             <Button
               size="sm"
               onClick={handleReplace}
-              className="flex items-center gap-2 bg-primary hover:bg-primary/90 shadow-sm"
+              className="flex items-center gap-2 bg-primary hover:bg-primary/90 shadow-sm cursor-pointer"
             >
               <Copy className="w-3.5 h-3.5" />
               Replace Original
@@ -262,7 +319,7 @@ export function PromptEnhancer({
               size="sm"
               variant="outline"
               onClick={handleRetry}
-              className="flex items-center gap-2 bg-transparent"
+              className="flex items-center gap-2 bg-transparent cursor-pointer"
             >
               <Sparkles className="w-3.5 h-3.5" />
               Re-enhance
@@ -270,12 +327,8 @@ export function PromptEnhancer({
             <Button
               size="sm"
               variant="ghost"
-              onClick={() => {
-                onDiscard();
-                setEnhancedContent("");
-                setHasEnhanced(false);
-              }}
-              className="flex items-center gap-2 hover:bg-destructive/10 hover:text-destructive"
+              onClick={handleDiscard}
+              className="flex items-center gap-2 hover:bg-destructive/10 hover:text-destructive cursor-pointer"
             >
               <X className="w-3.5 h-3.5" />
               Discard
