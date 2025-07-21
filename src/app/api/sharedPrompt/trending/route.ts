@@ -1,6 +1,8 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { SharedPrompt } from '@/models/sharedPrompt.model';
-import { getAuthenticatedUser } from '@/utils/getAuthenticatedUser';
+import connectDb from '@/lib/db';
+import { rateLimit } from '@/lib/rateLimit';
+import { getSetCache } from '@/lib/redisCache';
 
 // score calculation: likes*1 + shares*8 + saves*3 + comments*5
 function getScore(prompt: any): number {
@@ -12,12 +14,21 @@ function getScore(prompt: any): number {
   );
 }
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
-    const { userId, error } = await getAuthenticatedUser();
-    if (error) return error;
+    const result = await rateLimit(req);
+    if (result) return result;
 
-    // Only select fields needed for ranking and display
+    await connectDb();
+
+    const data = await getSetCache('trendingPrompts', 60, getTrendingPosts);
+    return NextResponse.json({ message:'trending prompts fetched', data }, { status: 200 });
+  } catch (error) {
+    return NextResponse.json({ error: 'Failed to fetch trending prompts' }, { status: 500 });
+  }
+}
+
+async function getTrendingPosts() {
     const prompts = await SharedPrompt.find({}, {
       title: 1,
       content: 1,
@@ -42,10 +53,6 @@ export async function GET() {
       return dateB - dateA;
     });
 
-    const top10 = scoredPrompts.slice(0, 10);
-
-    return NextResponse.json({ message:'trending prompt fetched', top10 }, { status: 200 });
-  } catch (error) {
-    return NextResponse.json({ error: 'Failed to fetch trending prompts' }, { status: 500 });
-  }
+    return scoredPrompts.slice(0, 10);
 }
+

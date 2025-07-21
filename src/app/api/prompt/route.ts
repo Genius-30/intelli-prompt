@@ -1,11 +1,15 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { Prompt } from '@/models/prompt.model'
 import { getAuthenticatedUser } from '@/utils/getAuthenticatedUser'
 import { Version } from '@/models/version.model'
+import { rateLimit } from '@/lib/rateLimit'
 
 // create new prompt
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   try {
+    const result = await rateLimit(req);
+    if (result) return result;
+
     const { userId, error } = await getAuthenticatedUser()
     if(error) return error
 

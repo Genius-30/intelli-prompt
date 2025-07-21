@@ -6,6 +6,7 @@ import { ModelResponse } from '@/models/modelResponse.model';
 import { Folder } from '@/models/folder.model';
 import { Subscription } from '@/models/subscription.model';
 import { getAuthenticatedUser } from '@/utils/getAuthenticatedUser';
+import { getSetCache } from '@/lib/redisCache';
 
 export async function GET(
   req: Request,
@@ -15,63 +16,70 @@ export async function GET(
     const { userId, error } = await getAuthenticatedUser();
     if (error) return error;
 
-    const user = await User.findById(userId).lean();
-    if (!user) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
-    }
-
-    // Subscription details (latest)
-    const subscription = await Subscription.findOne({ ownerId: userId }).sort({ subscriptionEnds: -1 }).lean();
-
-    // Prompts, ModelResponses, Folders count
-    const [promptCount, modelResponseCount, folderCount] = await Promise.all([
-      Prompt.countDocuments({ ownerId: userId }),
-      ModelResponse.countDocuments({ ownerId: userId }),
-      Folder.countDocuments({ ownerId: userId })
-    ]);
-
-    // SharedPrompts by user
-    const sharedPrompts = await SharedPrompt.find({ ownerId: userId }).lean();
-
-    // Engagement stats
-    let likes = 0, saves = 0, shares = 0, comments = 0;
-    sharedPrompts.forEach(sp => {
-      likes += sp.likes?.length || 0;
-      saves += sp.saves?.length || 0;
-      shares += sp.shares?.length || 0;
-      comments += sp.comments?.length || 0;
-    });
-
-    // Followers and following
-    const followerCount = user.followerCount || 0;
-    const followeeCount = user.followeeCount || 0;
-
-    // Token info
-    const tokensUsed = user.tokensUsed || 0;
-    const tokenLimit = user.tokenLimit || 0;
-    const tokensLeft = tokenLimit - tokensUsed;
-
-    // Rank
-    const rank = user.rank;
-
-    // Other details
-    const details = {
-      fullname: user.fullname,
-      username: user.username,
-      email: user.email,
-      avatar: user.avatar,
-      plan: user.plan,
-      streak: user.streak,
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt
-    };
-
-    const fullDetails = {
-      tokensUsed, tokensLeft, tokenLimit, subscription, promptCount, modelResponseCount, folderCount, likes, saves, shares, comments, followerCount, followeeCount, rank, ...details
-    };
+    const data = await getSetCache(`userAnalytics:${userId}`, 60, () => getUserAnalytics(userId));
     
-    return NextResponse.json({ message:'user analytics fetched', fullDetails }, { status: 200 });
+    return NextResponse.json({ message:'user analytics fetched', data }, { status: 200 });
   } catch (error) {
     return NextResponse.json({ error: 'Failed to fetch user analytics' }, { status: 500 });
   }
+}
+
+async function getUserAnalytics(userId: string) {
+  const user = await User.findById(userId).lean();
+  if (!user) {
+    return NextResponse.json({ error: 'User not found' }, { status: 404 });
+  }
+
+  const subscription = await Subscription.findOne({ ownerId: userId }).sort({ subscriptionEnds: -1 }).lean();
+
+  const counts = await getCounts(userId);
+  const engagements = await getEngagementStats(userId);
+
+  // Other details
+  const details = {
+    ...counts,
+    ...engagements,
+    followerCount: user.followerCount || 0,
+    followeeCount: user.followeeCount || 0,
+    tokenLimit: user.tokenLimit || 0,
+    tokensUsed: user.tokensUsed || 0,
+    tokensLeft: user.tokenLimit - user.tokensUsed,
+    fullname: user.fullname,
+    username: user.username,
+    email: user.email,
+    avatar: user.avatar,
+    plan: user.plan,
+    rank: user.rank,
+    streak: user.streak,
+    subscription,
+    createdAt: user.createdAt,
+    updatedAt: user.updatedAt
+  };
+
+  return details;
+}
+
+async function getCounts(userId: string) {
+  const [promptCount, modelResponseCount, folderCount] = await Promise.all([
+    Prompt.countDocuments({ ownerId: userId }),
+    ModelResponse.countDocuments({ ownerId: userId }),
+    Folder.countDocuments({ ownerId: userId })
+  ]);
+  
+  return { promptCount, modelResponseCount, folderCount };
+}
+
+async function getEngagementStats(userId: string) {
+  const sharedPrompts = await SharedPrompt.find({ ownerId: userId }).lean();
+
+  let likes = 0, saves = 0, shares = 0, comments = 0;
+
+  sharedPrompts.forEach((sp) => {
+    likes += sp.likes?.length || 0;
+    saves += sp.saves?.length || 0;
+    shares += sp.shares?.length || 0;
+    comments += sp.comments?.length || 0;
+  });
+
+  return { likes, saves, shares, comments };
 }

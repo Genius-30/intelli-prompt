@@ -3,9 +3,13 @@ import { WebhookEvent } from "@clerk/nextjs/server";
 import { verifyWebhook } from "@clerk/nextjs/webhooks";
 import { User } from "@/models/user.model";
 import connectDb from "@/lib/db";
+import { rateLimit } from "@/lib/rateLimit";
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   try {
+    const result = await rateLimit(req);
+    if (result) return result;
+    
     const event: WebhookEvent = await verifyWebhook(req);
 
     const { type, data } = event;

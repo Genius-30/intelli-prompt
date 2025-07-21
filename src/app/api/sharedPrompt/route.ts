@@ -1,6 +1,9 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { SharedPrompt } from '@/models/sharedPrompt.model';
 import { getAuthenticatedUser } from '@/utils/getAuthenticatedUser';
+import connectDb from '@/lib/db';
+import { rateLimit } from '@/lib/rateLimit';
+import { getSetCache } from '@/lib/redisCache';
 
 // create a sharedPrompt
 export async function POST(req: Request) {
@@ -28,15 +31,21 @@ export async function POST(req: Request) {
 }
 
 // get all sharedPrompt
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
-    const { userId, error } = await getAuthenticatedUser();
-    if (error) return error;
+    const result = await rateLimit(req);
+    if (result) return result;
 
-    const prompts = await SharedPrompt.find()
+    await connectDb();
 
-    return NextResponse.json({ message:'all sharedPrompt fetched', prompts }, { status: 200 });
+    const data = await getSetCache('allSharedPrompts', 60, getAllSharedPrompts);
+
+    return NextResponse.json({ message:'all sharedPrompt fetched', data }, { status: 200 });
   } catch (error) {
     return NextResponse.json({ error: 'Failed fetching all sharedPrompts' }, { status: 500 });
   }
+}
+
+export async function getAllSharedPrompts() {
+  return await SharedPrompt.find()
 }

@@ -1,10 +1,14 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { Folder } from '@/models/folder.model'
 import { getAuthenticatedUser } from '@/utils/getAuthenticatedUser'
+import { rateLimit } from '@/lib/rateLimit';
 
 // create new folder
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   try {
+    const result = await rateLimit(req);
+    if (result) return result;
+
     const { userId, error } = await getAuthenticatedUser()
     if(error) return error
 

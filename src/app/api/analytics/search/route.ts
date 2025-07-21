@@ -1,13 +1,18 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { SharedPrompt } from '@/models/sharedPrompt.model';
 import { User } from '@/models/user.model';
-import { getAuthenticatedUser } from '@/utils/getAuthenticatedUser';
+import connectDb from '@/lib/db';
+import { rateLimit } from '@/lib/rateLimit';
+import { getSetCache } from '@/lib/redisCache';
+import { getAllSharedPrompts } from '../../sharedPrompt/route';
 
 // Search sharedPrompts by title, username, or tags
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   try {
-    const { userId, error } = await getAuthenticatedUser();
-    if (error) return error;
+    const result = await rateLimit(request);
+    if (result) return result;
+
+    await connectDb();
     
     const { searchParams } = new URL(request.url);
     const title = searchParams.get('title');
@@ -35,13 +40,17 @@ export async function GET(request: Request) {
       }
     }
 
-    const results = await SharedPrompt.find(query)
-      .select('title content tags modelUsed ownerId createdAt')
-      .sort({ createdAt: -1 })
-      .limit(20).lean();
+    const data = await getSetCache('searchedResults', 60, () => getSearchResults(query));
 
-    return NextResponse.json({ message: 'searching sharedPrompts successful', results }, { status: 200 });
+    return NextResponse.json({ message: 'searching sharedPrompts successful', results: data }, { status: 200 });
   } catch (error) {
     return NextResponse.json({ error: 'Failed to search sharedPrompts' }, { status: 500 });
   }
+}
+
+async function getSearchResults(query: any) {
+  return await SharedPrompt.find(query)
+    .select('title content tags modelUsed ownerId createdAt')
+    .sort({ createdAt: -1 })
+    .limit(20).lean();
 }

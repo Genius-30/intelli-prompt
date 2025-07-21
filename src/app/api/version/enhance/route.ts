@@ -1,13 +1,14 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { getAuthenticatedUser } from "@/utils/getAuthenticatedUser";
 import { enhancedPrompt } from "@/utils/enhancePrompt";
 import { checkSubscription, deductTokens, isEnoughToken } from "@/utils/manageTokens";
+import { rateLimit } from "@/lib/rateLimit";
 
-export async function POST(
-  req: Request,
-  { params }: { params: any }
-) {
+export async function POST(req: NextRequest) {
   try {
+    const result = await rateLimit(req);
+    if (result) return result;
+
     const { userId, error } = await getAuthenticatedUser();
     if (error) return error;
 

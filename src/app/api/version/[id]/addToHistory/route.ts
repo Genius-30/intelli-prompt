@@ -1,14 +1,18 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { Version } from "@/models/version.model"
 import { getAuthenticatedUser } from '@/utils/getAuthenticatedUser'
 import mongoose from "mongoose"
 import { Prompt } from "@/models/prompt.model";
+import { rateLimit } from "@/lib/rateLimit";
 
 export async function PATCH(
-  req: Request, 
+  req: NextRequest, 
   { params }: { params: any }
 ) {
   try {
+    const result = await rateLimit(req);
+    if (result) return result;
+
     const { userId, error } = await getAuthenticatedUser()
     if(error) return error
 

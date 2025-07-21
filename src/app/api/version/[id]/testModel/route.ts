@@ -1,16 +1,20 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { getAuthenticatedUser } from "@/utils/getAuthenticatedUser";
 import { callOpenRouter } from '@/utils/models'
 import { checkSubscription, deductTokens, isEnoughToken } from "@/utils/manageTokens";
 import { IResponse } from "@/utils/enhancePrompt";
 import { Version } from "@/models/version.model";
+import { rateLimit } from "@/lib/rateLimit";
 
 // to test prompt on models
 export async function POST(
-  req: Request,
+  req: NextRequest,
   { params }: { params: any }
 ) {
   try {
+    const result = await rateLimit(req);
+    if (result) return result;
+
     const { userId, error } = await getAuthenticatedUser();
     if (error) return error;
 
