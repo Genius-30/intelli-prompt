@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
       totalVersions: 1,
     });
 
-    const newVersion = await Version.create({
+    await Version.create({
       ownerId: userId,
       promptId: newPrompt._id,
       content,
@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
       versionNumber: 1
     });
 
-    return NextResponse.json({ message: 'prompt created', newPrompt, newVersion }, { status: 201 });
+    return NextResponse.json({ message: 'prompt created' }, { status: 201 });
   } catch (err) {
     return NextResponse.json({ message: 'error creating prompt' }, { status: 500 });
   }

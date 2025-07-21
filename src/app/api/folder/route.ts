@@ -17,12 +17,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ message: 'title is required' }, { status: 400 })
     }
 
-    const folder = await Folder.create({
+    await Folder.create({
       title,
       ownerId: userId,
     })
 
-    return NextResponse.json({ message: 'folder created', folder }, { status: 201 })
+    return NextResponse.json({ message: 'folder created' }, { status: 201 })
   } catch (err) {
     return NextResponse.json({ message: 'error creating folder' }, { status: 500 })
   }
