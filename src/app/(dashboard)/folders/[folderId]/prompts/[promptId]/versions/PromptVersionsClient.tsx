@@ -22,6 +22,7 @@ import {
   useSetActiveVersion,
 } from "@/lib/queries/version";
 import { useEffect, useRef } from "react";
+import { useParams, usePathname } from "next/navigation";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -30,8 +31,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { VersionsSkeleton } from "@/components/skeletons/VersionsSkeleton";
 import { formatDistanceToNow } from "date-fns";
 import { toast } from "sonner";
-import { useGetPromptMeta } from "@/lib/queries/folder";
-import { useParams } from "next/navigation";
+import { useGetPrompt } from "@/lib/queries/prompt";
 
 interface Version {
   _id: string;
@@ -44,9 +44,10 @@ interface Version {
 
 export function PromptVersionsClient() {
   const { promptId } = useParams();
+  const pathname = usePathname();
   const activeVersionRef = useRef<HTMLDivElement | null>(null);
 
-  const { data: promptMeta, isLoading } = useGetPromptMeta(promptId as string);
+  const { data: promptMeta, isLoading } = useGetPrompt(promptId as string);
   const { data: versions = [], isLoading: versionsLoading } = useGetAllVersions(
     promptId as string
   );
@@ -66,7 +67,7 @@ export function PromptVersionsClient() {
   }, [versionsLoading]);
 
   return (
-    <div className="sm:p-6">
+    <div>
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-2">
         <div>
@@ -107,7 +108,7 @@ export function PromptVersionsClient() {
                 No versions available yet.
               </p>
               <Button asChild>
-                <Link href={`/prompts/${promptId}/versions/new`}>
+                <Link href={`${pathname}/new`}>
                   <PlusIcon className="w-4 h-4" /> Create Version
                 </Link>
               </Button>

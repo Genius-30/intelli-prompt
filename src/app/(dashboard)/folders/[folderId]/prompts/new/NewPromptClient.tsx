@@ -87,7 +87,6 @@ export default function NewPromptClient() {
       },
       {
         onSuccess: () => {
-          toast.success("Prompt created successfully!");
           // Reset form or redirect as needed
           setTitle("");
           setContent("");
@@ -96,7 +95,6 @@ export default function NewPromptClient() {
           router.push(`/folders/${folderId}/prompts/`);
         },
         onError: (error) => {
-          toast.error("Failed to create prompt");
           console.error("Create prompt failed:", error);
         },
       }
