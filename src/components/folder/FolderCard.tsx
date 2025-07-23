@@ -1,9 +1,9 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { FolderIcon, Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { FolderIcon } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { useRouter } from "next/navigation";
 
@@ -31,7 +31,9 @@ export function FolderCard({ folder }: FolderCardProps) {
   return (
     <Card
       onClick={goToFolder}
-      className="cursor-pointer hover:shadow-lg transition-shadow border border-border/50 gap-2"
+      className={`hover:shadow-lg transition-shadow border border-border/50 gap-2 ${
+        folder.promptCount !== 0 ? "cursor-pointer" : ""
+      }`}
     >
       <CardHeader className="flex flex-row items-center justify-between gap-3 pb-1">
         <div className="flex items-center gap-2 truncate">
@@ -50,9 +52,9 @@ export function FolderCard({ folder }: FolderCardProps) {
             variant="outline"
             size="sm"
             onClick={goToNewPrompt}
-            className="text-xs h-7 px-2"
+            className="text-xs h-7 px-2 cursor-pointer"
           >
-            + Create Prompt
+            <Plus className="h-3 w-3" /> Create Prompt
           </Button>
         )}
       </CardHeader>

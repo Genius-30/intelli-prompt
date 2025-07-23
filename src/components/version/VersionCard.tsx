@@ -114,7 +114,8 @@ export const VersionCard = forwardRef<HTMLDivElement, VersionCardProps>(
 
             {/* Actions */}
             <div className="flex items-end md:items-center justify-between md:justify-normal gap-2 flex-shrink-0 w-full md:w-auto">
-              <div className="flex gap-2 md:w-auto justify-end">
+              <div className="flex flex-wrap gap-2 md:w-auto">
+                {/* Edit Button */}
                 <Button
                   asChild
                   size="sm"
@@ -127,6 +128,7 @@ export const VersionCard = forwardRef<HTMLDivElement, VersionCardProps>(
                   </Link>
                 </Button>
 
+                {/* Test Button */}
                 <Button
                   asChild
                   size="sm"
@@ -139,19 +141,22 @@ export const VersionCard = forwardRef<HTMLDivElement, VersionCardProps>(
                   </Link>
                 </Button>
 
+                {/* Share to Community Button */}
                 <Button
-                  asChild
+                  onClick={() => {
+                    // You can open modal or navigate to share route
+                    console.log("Share to Community clicked");
+                  }}
                   size="sm"
                   variant="default"
                   className="text-xs md:w-auto"
                 >
-                  <Link href={`${pathname}/${version._id}/test`}>
-                    <Share className="w-3 h-3 mr-1" />
-                    Share
-                  </Link>
+                  <Share className="w-3 h-3 mr-1" />
+                  Share
                 </Button>
               </div>
 
+              {/* Dropdown for more options */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button

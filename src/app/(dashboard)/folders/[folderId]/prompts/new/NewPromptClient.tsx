@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Loader } from "@/components/ui/loader";
+import { PromptContentInput } from "@/components/version/PromptContentInput";
 import { PromptEnhancer } from "@/components/prompt/PromptEnhancer";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
@@ -126,58 +127,17 @@ export default function NewPromptClient() {
                 id="title"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                placeholder="Enter a descriptive title for your prompt..."
+                placeholder="Enter title for your prompt..."
                 className="bg-background/50 backdrop-blur-sm border-border/50 focus:border-primary/50"
               />
             </div>
 
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="content" className="text-sm font-medium">
-                  Prompt Content *
-                </Label>
-                <span className="text-xs text-muted-foreground">
-                  ~{tokenEstimated} tokens
-                </span>
-              </div>
-
-              <div className="relative">
-                <Textarea
-                  id="content"
-                  value={content}
-                  onChange={(e) => handleContentChange(e.target.value)}
-                  placeholder="Enter your prompt content here... Be specific about what you want to achieve."
-                  className="min-h-[250px] resize-none border-border/50 focus:border-primary/50 bg-background/50 backdrop-blur-sm pr-28"
-                />
-                <div className="absolute bottom-3 right-3 flex items-center gap-2">
-                  <span className="text-xs text-muted-foreground">
-                    {content.length} characters
-                  </span>
-                  <Button
-                    type="button"
-                    size="icon"
-                    variant="ghost"
-                    onClick={handleUndo}
-                    disabled={history.length === 0}
-                    className="p-1 h-6 w-6"
-                    aria-label="Undo"
-                  >
-                    <Undo2 className="w-4 h-4" />
-                  </Button>
-                  <Button
-                    type="button"
-                    size="icon"
-                    variant="ghost"
-                    onClick={handleRedo}
-                    disabled={future.length === 0}
-                    className="p-1 h-6 w-6"
-                    aria-label="Redo"
-                  >
-                    <Redo2 className="w-4 h-4" />
-                  </Button>
-                </div>
-              </div>
-            </div>
+            <PromptContentInput
+              value={content}
+              onChange={(val) => setContent(val)}
+              tokenEstimated={tokenEstimated}
+              setTokenEstimated={setTokenEstimated}
+            />
           </div>
         </div>
 

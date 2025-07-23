@@ -168,15 +168,18 @@ export function useSetActiveVersion() {
       versionId: string;
       promptId: string;
     }) => {
-      const res = await axiosInstance.patch(`/prompt/${versionId}`, {
+      const res = await axiosInstance.patch(`/version/${versionId}/active`, {
         promptId,
       });
 
       return res.data;
     },
-    onSuccess: (_, { promptId, versionId }) => {
-      queryClient.invalidateQueries({ queryKey: ["promptVersions", promptId] });
-      queryClient.invalidateQueries({ queryKey: ["version", versionId] });
+    onSuccess: (_, { promptId }) => {
+      queryClient.invalidateQueries({ queryKey: ["versions"] });
+      queryClient.invalidateQueries({ queryKey: ["prompt", promptId] });
+    },
+    onError: () => {
+      console.error("Error setting active version");
     },
   });
 }

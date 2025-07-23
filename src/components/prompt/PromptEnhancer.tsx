@@ -11,7 +11,6 @@ import {
 import { useRef, useState } from "react";
 
 import { AnimatedGradientText } from "../magicui/animated-gradient-text";
-import { AnimatedShinyText } from "../magicui/animated-shiny-text";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Loader } from "@/components/ui/loader";
