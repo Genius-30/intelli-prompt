@@ -79,6 +79,9 @@ export async function GET(
     }
 
     const prompt = await Prompt.findById({ _id: promptId }).lean();
+    if(!prompt){
+      return NextResponse.json({ message: "prompt not found" }, { status: 404 });
+    }
 
     return NextResponse.json({ message: "prompt fetched", prompt }, { status: 201 });
   } catch (err) {
