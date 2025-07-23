@@ -11,7 +11,7 @@ export interface IFolder extends Document {
 const FolderSchema: Schema<IFolder> = new Schema(
   {
     title: { type: String, required: true, maxlength: 75 },
-    ownerId: { type: String, required: true },
+    ownerId: { type: String, required: true, index: true },
   },
   { timestamps: true }
 )
