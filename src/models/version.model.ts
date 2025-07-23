@@ -15,8 +15,8 @@ export interface IVersion extends Document {
 
 const VersionSchema: Schema<IVersion> = new Schema(
   {
-    ownerId: { type: String, required: true },
-    promptId: { type: Schema.Types.ObjectId, ref: 'Prompt', default: null },
+    ownerId: { type: String, required: true, index: true },
+    promptId: { type: Schema.Types.ObjectId, ref: 'Prompt', default: null, index: true },
     versionNumber: { type: Number, required: true },
     content: { type: String, required: true },
     isActive: { type: Boolean, default: true },

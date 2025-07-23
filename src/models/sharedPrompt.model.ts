@@ -23,7 +23,7 @@ export interface IShared extends Document {
 
 const SharedPromptSchema: Schema<IShared> = new Schema(
   {
-    ownerId: { type: String, required: true },
+    ownerId: { type: String, required: true, index: true },
     title: { type: String, required: true },
     content: { type: String, required: true },
     tags: { type: [String], default: [] },
@@ -44,5 +44,8 @@ const SharedPromptSchema: Schema<IShared> = new Schema(
   },
   { timestamps: true }
 );
+
+SharedPromptSchema.index({ tags: 1 })
+SharedPromptSchema.index({ title: 'text' })
 
 export const SharedPrompt: Model<IShared> = mongoose.models.sharedPrompt || mongoose.model<IShared>('sharedPrompt', SharedPromptSchema);

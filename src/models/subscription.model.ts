@@ -15,7 +15,7 @@ export interface ISubscription extends Document {
 
 const SubscriptionSchema: Schema<ISubscription> = new Schema(
   {
-    ownerId: { type: String, required: true },
+    ownerId: { type: String, required: true, index: true },
     paymentId: { type: String, required: true },
     amount: { type: Number, required: true },
     currency: { type: String, default: 'INR' },

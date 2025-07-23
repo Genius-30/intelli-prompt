@@ -26,10 +26,10 @@ export interface IUser extends Document {
 
 const UserSchema: Schema<IUser> = new Schema(
   {
-    _id: { type: String, required: true }, // clerkId
+    _id: { type: String, required: true, }, // clerkId
     fullname: { type: String, required: true },
     username: { type: String, required: true, unique: true },
-    bio: { type: String, required: true, unique: true, maxlength: 80 },
+    bio: { type: String, required: true, maxlength: 80 },
     email: { type: String, required: true, unique: true },
     avatar: { type: String, default: "" },
     plan: {
@@ -45,7 +45,7 @@ const UserSchema: Schema<IUser> = new Schema(
     subscriptionEnds: {
       type: Date,
       required: true,
-      default: new Date(new Date().setMonth(new Date().getMonth() + 12)),
+      default: () => new Date(new Date().setMonth(new Date().getMonth() + 12)),
     },
     streak: {
       current: { type: Number, default: 0 },
