@@ -1,12 +1,14 @@
-import {redis} from './redis';
-import {NextResponse, NextRequest} from 'next/server';
+import { NextRequest, NextResponse } from "next/server";
 
-const MAX_TOKENS = 10; 
-const REFILL_RATE = 1; 
+import { redis } from "./redis";
+
+const MAX_TOKENS = 10;
+const REFILL_RATE = 1;
 const INTERVAL = 1000;
 
 export async function rateLimit(req: NextRequest) {
-  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "anonymous";
+  const ip =
+    req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "anonymous";
   const key = `rate-limit:${ip}`;
 
   const tokenData = await redis.hgetall(key);
@@ -22,7 +24,7 @@ export async function rateLimit(req: NextRequest) {
 
   if (tokens > 0) {
     await redis.hmset(key, { tokens: tokens - 1, lastRefill });
-    return null; 
+    return null;
   } else {
     return NextResponse.json(
       { error: "Too many requests, slow down!" },

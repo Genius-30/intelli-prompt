@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import axiosInstance from "../axios";
+import { toast } from "sonner";
 
 type CreateVersionPayload = {
   content: string;
@@ -90,14 +91,12 @@ export function useDeleteVersion(promptId: string) {
 
 export const useGetAllVersions = (promptId: string) => {
   return useQuery({
-    queryKey: ["promptVersions", promptId],
+    queryKey: ["versions", promptId],
     queryFn: async () => {
-      if (!promptId) throw new Error("Prompt ID is required");
+      if (!promptId) return toast.error("Prompt ID is required");
 
-      const res = await axiosInstance.post(`/prompt/fetchPrompts`, {
-        folderId: promptId,
-      });
-      return res.data.prompts;
+      const res = await axiosInstance.get(`/prompt/${promptId}/allVersions`);
+      return res.data.versions;
     },
     enabled: !!promptId,
   });
@@ -115,16 +114,16 @@ export const useGetVersion = (versionId: string | undefined) => {
   });
 };
 
-export const useToggleFavorite = () => {
+export const useToggleFavoriteVersion = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const res = await axiosInstance.patch(`/prompt/${id}/favorite`);
+      const res = await axiosInstance.patch(`/version/${id}/favorite`);
       return res.data;
     },
     onSuccess: (_, id) => {
-      queryClient.invalidateQueries({ queryKey: ["prompts"] });
+      queryClient.invalidateQueries({ queryKey: ["versions"] });
       queryClient.invalidateQueries({ queryKey: ["version", id] });
     },
   });
@@ -158,30 +157,26 @@ export function useEnhancePrompt() {
   });
 }
 
-export function useSetActiveVersion(promptFolderId: string, versionId: string) {
+export function useSetActiveVersion() {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async ({
       versionId,
-      folderId,
+      promptId,
     }: {
       versionId: string;
-      folderId: string;
+      promptId: string;
     }) => {
       const res = await axiosInstance.patch(`/prompt/${versionId}`, {
-        folderId,
+        promptId,
       });
 
       return res.data;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["promptVersions", promptFolderId],
-      });
-      queryClient.invalidateQueries({
-        queryKey: ["version", versionId],
-      });
+    onSuccess: (_, { promptId, versionId }) => {
+      queryClient.invalidateQueries({ queryKey: ["promptVersions", promptId] });
+      queryClient.invalidateQueries({ queryKey: ["version", versionId] });
     },
   });
 }

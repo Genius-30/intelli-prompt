@@ -10,12 +10,6 @@ export default function PromptFormClient() {
   const { promptId } = useParams();
   const { data: versions = [] } = useGetAllVersions(promptId as string);
 
-  useEffect(() => {
-    if (versions.length > 0) {
-      redirect(`/prompts/${promptId}/versions`);
-    }
-  }, [versions, promptId]);
-
   return (
     <div>
       <h1 className="text-2xl font-bold mb-4">Create New Prompt</h1>

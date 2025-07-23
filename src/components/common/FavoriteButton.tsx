@@ -26,7 +26,7 @@ export default function FavoriteButton({
         e.stopPropagation();
         onClick(e);
       }}
-      className={cn("p-1 rounded hover:bg-muted/50 transition", className)}
+      className={cn("h-8 w-8 p-0 hover:bg-muted/50 transition", className)}
       disabled={isPending}
       {...props}
     >
