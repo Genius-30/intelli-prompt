@@ -72,3 +72,21 @@ export function useToggleFavoritePrompt(promptId: string) {
     },
   });
 }
+
+export function useDeletePrompt(promptId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async () => {
+      const response = await axiosInstance.delete(`/prompt/${promptId}`);
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["prompts"] });
+      toast.success("Prompt deleted successfully");
+    },
+    onError: (err: any) => {
+      toast.error(err.response?.data?.message || "Failed to delete prompt");
+    },
+  });
+}

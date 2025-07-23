@@ -1,8 +1,9 @@
 "use client";
 
-import { useParams, redirect } from "next/navigation";
-import { useEffect } from "react";
+import { redirect, useParams } from "next/navigation";
+
 import { PromptForm } from "@/components/prompt/prompt-form";
+import { useEffect } from "react";
 import { useGetAllVersions } from "@/lib/queries/version";
 
 export default function PromptFormClient() {
@@ -16,7 +17,7 @@ export default function PromptFormClient() {
   }, [versions, promptId]);
 
   return (
-    <div className="p-6 max-w-5xl mx-auto">
+    <div>
       <h1 className="text-2xl font-bold mb-4">Create New Prompt</h1>
       <PromptForm />
     </div>
