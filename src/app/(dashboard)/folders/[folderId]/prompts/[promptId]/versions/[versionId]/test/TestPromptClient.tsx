@@ -154,7 +154,7 @@ export default function TestPromptPage() {
                     handleModelSelect(
                       provider,
                       value,
-                      selected?.temperature ?? 0.7
+                      selected?.temperature ?? 1.5
                     )
                   }
                 >
@@ -177,7 +177,7 @@ export default function TestPromptPage() {
                     </label>
                     <Slider
                       min={0}
-                      max={1}
+                      max={2}
                       step={0.1}
                       value={[selected.temperature]}
                       onValueChange={([value]) =>
