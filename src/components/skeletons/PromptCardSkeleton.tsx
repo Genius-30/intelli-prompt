@@ -6,7 +6,14 @@ import {
   CardFooter,
   CardHeader,
 } from "@/components/ui/card";
-import { Clock, ExternalLink, GitBranch, Loader2, Trash2 } from "lucide-react";
+import {
+  Clock,
+  DivideCircle,
+  ExternalLink,
+  GitBranch,
+  Loader2,
+  Trash2,
+} from "lucide-react";
 
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
@@ -33,10 +40,10 @@ export default function PromptCard() {
             <Skeleton className="h-4 w-12" />
             <Skeleton className="h-4 w-1/4" />
           </div>
-          <p className="text-sm text-foreground/80 line-clamp-3 leading-relaxed">
+          <div>
             <Skeleton className="h-4 w-full" />
             <Skeleton className="h-4 w-5/6 mt-1" />
-          </p>
+          </div>
         </div>
 
         {/* Metadata */}

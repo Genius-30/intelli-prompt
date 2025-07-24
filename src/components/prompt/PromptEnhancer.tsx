@@ -70,9 +70,7 @@ export function PromptEnhancer({
             console.warn("Enhancement cancelled by user");
             setIsCancelled(true);
           } else {
-            toast.error(
-              error?.message || "AI enhancement failed. Please try again."
-            );
+            toast.error("AI enhancement failed. Please try again.");
             console.error("Enhancement failed:", error);
           }
         },
@@ -95,7 +93,6 @@ export function PromptEnhancer({
   const handleReplace = () => {
     if (enhancedContent) {
       onReplace(enhancedContent);
-      setEnhancedContent("");
       setIsCancelled(false);
     }
   };
@@ -111,7 +108,7 @@ export function PromptEnhancer({
 
   if (enhanceMutation.isPending && !isCancelled) {
     contentDisplay = (
-      <div className="flex flex-col items-center justify-center py-8 gap-3">
+      <div className="h-full flex flex-col items-center justify-center py-8 gap-3">
         <div className="flex items-center justify-center">
           <Loader className="w-6 h-6" />
           <span className="ml-3 text-sm text-muted-foreground">
@@ -130,9 +127,9 @@ export function PromptEnhancer({
     );
   } else if (isCancelled) {
     contentDisplay = (
-      <div className="flex flex-col items-center justify-center py-8 gap-3">
+      <div className="h-full flex flex-col items-center justify-center py-8 gap-3">
         <span className="text-sm text-muted-foreground">
-          Enhancement cancelled.
+          Enhancement cancelled!
         </span>
         <Button
           size="sm"
@@ -153,7 +150,7 @@ export function PromptEnhancer({
   } else if (enhanceMutation.isError) {
     // Custom error handling for 402 and 403
     let errorTitle = "Enhancement failed";
-    let errorMessage = enhanceMutation.error?.message || "Something went wrong";
+    let errorMessage = "An error occurred while enhancing your prompt.";
     let showRetry = true;
     let actionButton = null;
 
@@ -197,7 +194,7 @@ export function PromptEnhancer({
     }
 
     contentDisplay = (
-      <div className="flex flex-col items-center justify-center py-8 space-y-3">
+      <div className="h-full w-full flex flex-col items-center justify-center py-8 space-y-3">
         <AlertCircle className="w-8 h-8 text-destructive opacity-50" />
         <div className="text-center">
           <p className="text-sm text-destructive font-medium">{errorTitle}</p>
@@ -218,21 +215,23 @@ export function PromptEnhancer({
     );
   } else if (enhancedContent) {
     contentDisplay = (
-      <div className="relative w-full self-start">
-        <div className="flex items-center gap-2 mb-3">
-          <CheckCircle2 className="w-4 h-4 text-green-500" />
-          <span className="text-xs text-green-600 dark:text-green-400 font-medium">
-            Enhanced successfully
-          </span>
+      <div className="relative h-full w-full self-start">
+        <div className="h-full min-h-[100px] flex flex-col items-start bg-green-50/50 dark:bg-green-950/20 p-3 rounded-md border border-green-200/50 dark:border-green-800/50">
+          <div className="flex items-center gap-2 mb-2">
+            <CheckCircle2 className="w-4 h-4 text-green-500" />
+            <span className="text-xs text-green-600 dark:text-green-400 font-medium ">
+              Enhanced successfully
+            </span>
+          </div>
+          <p className="text-sm leading-relaxed whitespace-pre-wrap">
+            {enhancedContent}
+          </p>
         </div>
-        <p className="min-h-[100px] text-sm leading-relaxed whitespace-pre-wrap bg-green-50/50 dark:bg-green-950/20 p-3 rounded-md border border-green-200/50 dark:border-green-800/50">
-          {enhancedContent}
-        </p>
       </div>
     );
   } else {
     contentDisplay = (
-      <div className="flex flex-col items-center justify-center gap-4 md:*:px-8">
+      <div className="h-full flex flex-col items-center justify-center gap-4 md:*:px-8">
         <div className="flex flex-col items-center">
           <Sparkles className="w-12 h-12 text-muted-foreground/50 mb-2" />
           <h3 className="text-lg font-medium text-center text-muted-foreground">
@@ -248,40 +247,42 @@ export function PromptEnhancer({
           type="button"
           onClick={handleEnhance}
           disabled={!content.trim() || enhanceMutation.isPending}
-          className="cursor-pointer disabled:bg-muted rounded-full p-0"
+          className={cn(
+            "group relative flex items-center justify-center rounded-full px-2 py-1.5",
+            "transition-shadow duration-500 ease-out",
+            "shadow-[inset_0_-8px_10px_#8fdfff1f] hover:shadow-[inset_0_-5px_10px_#8fdfff3f]",
+            " text-white",
+            "disabled:opacity-60 disabled:hover:shadow-none disabled:cursor-default cursor-pointer"
+          )}
         >
-          <div className="group relative w-full mx-auto flex items-center justify-center rounded-full px-4 py-1.5 shadow-[inset_0_-8px_10px_#8fdfff1f] transition-shadow duration-500 ease-out hover:shadow-[inset_0_-5px_10px_#8fdfff3f]">
-            <span
-              className={cn(
-                "absolute inset-0 block h-full w-full animate-gradient rounded-[inherit] bg-gradient-to-r from-[#ffaa40]/50 via-[#9c40ff]/50 to-[#ffaa40]/50 bg-[length:300%_100%] p-[1px]"
-              )}
-              style={{
-                WebkitMask:
-                  "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
-                WebkitMaskComposite: "destination-out",
-                mask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
-                maskComposite: "subtract",
-                WebkitClipPath: "padding-box",
-              }}
-            />
-            <Sparkles className="w-4 h-4 text-[#ffaa40]" />
-            <hr className="mx-2 h-4 w-px shrink-0 bg-neutral-500" />
-            <AnimatedGradientText className="text-sm font-medium">
-              Enhance with AI
-            </AnimatedGradientText>
-            <ChevronRight
-              className="ml-1 size-4 stroke-neutral-500 transition-transform
-            duration-300 ease-in-out group-hover:translate-x-0.5"
-            />
-          </div>
+          {/* Gradient Border Background */}
+          <span
+            className="absolute inset-0 block h-full w-full animate-gradient rounded-[inherit] bg-gradient-to-r from-[#ffaa40]/50 via-[#9c40ff]/50 to-[#ffaa40]/50 bg-[length:300%_100%] p-[1px]"
+            style={{
+              WebkitMask:
+                "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
+              WebkitMaskComposite: "destination-out",
+              mask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
+              maskComposite: "subtract",
+              WebkitClipPath: "padding-box",
+            }}
+          />
+
+          {/* Icon and Text */}
+          <Sparkles className="w-4 h-4 text-[#ffaa40]" />
+          <hr className="mx-2 h-4 w-px shrink-0 bg-neutral-500" />
+          <AnimatedGradientText className="text-sm font-medium">
+            Enhance with AI
+          </AnimatedGradientText>
+          <ChevronRight className="ml-1 size-4 stroke-neutral-500 transition-transform duration-300 ease-in-out group-hover:translate-x-0.5" />
         </button>
       </div>
     );
   }
 
   return (
-    <div className="h-full flex flex-col">
-      <div className="flex-1 flex flex-col bg-gradient-to-br from-muted/30 to-muted/40 border border-border/50 rounded-lg p-4 shadow-sm backdrop-blur-sm">
+    <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col bg-gradient-to-br from-muted/30 to-muted/40 border border-border/50 rounded-lg p-4 pb-0 shadow-sm backdrop-blur-sm">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <div className="w-2.5 h-2.5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full animate-pulse" />
@@ -299,42 +300,40 @@ export function PromptEnhancer({
           </div>
         </div>
 
-        <div className="min-h-[200px] h-full flex items-center justify-around bg-muted/50 backdrop-blur-sm border border-border/30 rounded-lg p-4">
+        <div className="min-h-[250px] flex-1 h-full w-full flex items-center justify-center pb-4">
           {contentDisplay}
         </div>
       </div>
 
-      <div className="min-h-9 flex items-center flex-wrap gap-3 mt-6 border-t border-border/30">
-        {!enhancedContent &&
-          !enhanceMutation.isPending &&
-          !enhanceMutation.isError && (
-            <>
-              <Button
-                onClick={handleReplace}
-                className="flex items-center gap-2 bg-primary hover:bg-primary/90 shadow-sm cursor-pointer"
-              >
-                <Copy className="w-3.5 h-3.5" />
-                Replace Original
-              </Button>
-              <Button
-                variant="outline"
-                onClick={handleRetry}
-                className="flex items-center gap-2 bg-transparent cursor-pointer"
-              >
-                <Sparkles className="w-3.5 h-3.5" />
-                Re-enhance
-              </Button>
-              <Button
-                variant="ghost"
-                onClick={handleDiscard}
-                className="flex items-center gap-2 hover:bg-destructive/10 hover:text-destructive cursor-pointer"
-              >
-                <X className="w-3.5 h-3.5" />
-                Discard
-              </Button>
-            </>
-          )}
-      </div>
+      {enhancedContent &&
+        !enhanceMutation.isPending &&
+        !enhanceMutation.isError && (
+          <div className="flex items-center flex-wrap gap-3 mt-6">
+            <Button
+              onClick={handleReplace}
+              className="flex items-center gap-2 bg-primary hover:bg-primary/90 shadow-sm cursor-pointer"
+            >
+              <Copy className="w-3.5 h-3.5" />
+              Replace Original
+            </Button>
+            <Button
+              variant="outline"
+              onClick={handleRetry}
+              className="flex items-center gap-2 bg-transparent cursor-pointer"
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              Re-enhance
+            </Button>
+            <Button
+              variant="ghost"
+              onClick={handleDiscard}
+              className="flex items-center gap-2 hover:bg-destructive/10 hover:text-destructive cursor-pointer"
+            >
+              <X className="w-3.5 h-3.5" />
+              Discard
+            </Button>
+          </div>
+        )}
     </div>
   );
 }

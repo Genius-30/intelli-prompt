@@ -12,5 +12,5 @@ export const metadata = {
 };
 
 export default function PromptsPage({ params }: PromptPageProps) {
-  redirect(`/folders/${params.folderId}/prompts/${params.promptId}`);
+  redirect(`/folders/${params.folderId}/prompts/${params.promptId}/versions`);
 }

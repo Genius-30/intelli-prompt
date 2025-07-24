@@ -113,7 +113,7 @@ export function SidebarFolderSection() {
   };
 
   const navigateToPrompt = (folderId: string, promptId: string) => {
-    router.push(`/folders/${folderId}/prompts/${promptId}`);
+    router.push(`/folders/${folderId}/prompts/${promptId}/versions`);
   };
 
   const FolderPrompts = ({ folderId }: { folderId: string }) => {
@@ -144,7 +144,7 @@ export function SidebarFolderSection() {
                 onClick={() => navigateToPrompt(folderId, prompt._id)}
                 className="w-full"
               >
-                <div className="w-full flex items-center gap-2">
+                <div className="w-full flex items-center gap-2 cursor-pointer">
                   <FileText className="h-3 w-3 flex-shrink-0" />
                   <TooltipProvider>
                     <Tooltip>

@@ -5,7 +5,7 @@ import { toast } from "sonner";
 
 export function useGetPromptsByFolder(folderId: string) {
   return useQuery({
-    queryKey: ["prompts", "folder", folderId],
+    queryKey: ["prompts", folderId],
     queryFn: async () => {
       // Replace with your actual API call
       const response = await axiosInstance.get(
@@ -16,6 +16,20 @@ export function useGetPromptsByFolder(folderId: string) {
     enabled: !!folderId,
   });
 }
+
+export const useGetPrompt = (promptId: string | undefined) => {
+  return useQuery({
+    queryKey: ["prompt", promptId],
+    queryFn: async () => {
+      if (!promptId) throw new Error("Prompt ID is required");
+
+      const { data } = await axiosInstance.get(`/prompt/${promptId}`);
+      return data.prompt;
+    },
+    enabled: !!promptId,
+    retry: false,
+  });
+};
 
 type CreatePromptPayload = {
   title: string;
@@ -39,20 +53,6 @@ export const useCreatePrompt = () => {
     onError: (err: any) => {
       toast.error(err.response?.data?.message || "Failed to create prompt");
     },
-  });
-};
-
-export const useGetPrompt = (promptId: string | undefined) => {
-  return useQuery({
-    queryKey: ["prompt", promptId],
-    queryFn: async () => {
-      if (!promptId) throw new Error("Prompt ID is required");
-
-      const { data } = await axiosInstance.get(`/prompt/${promptId}`);
-      return data.prompt;
-    },
-    enabled: !!promptId,
-    retry: false,
   });
 };
 

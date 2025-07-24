@@ -1,4 +1,4 @@
-import EditPromptClient from "./EditPromptClient";
+import EditVersionClient from "./EditVersionClient";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -28,5 +28,5 @@ export const metadata: Metadata = {
 };
 
 export default function EditPromptPage() {
-  return <EditPromptClient />;
+  return <EditVersionClient />;
 }

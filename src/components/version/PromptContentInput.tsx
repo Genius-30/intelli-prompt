@@ -55,7 +55,7 @@ export function PromptContentInput({
   };
 
   return (
-    <div className="space-y-2">
+    <div className="flex-1 space-y-2">
       <div className="flex items-center justify-between">
         <Label htmlFor="content" className="text-sm font-medium">
           Prompt Content
@@ -65,13 +65,13 @@ export function PromptContentInput({
         </span>
       </div>
 
-      <div className="relative">
+      <div className="relative flex-1 min-h-[280px]">
         <Textarea
           id="content"
           value={value}
           onChange={(e) => handleChange(e.target.value)}
           placeholder="Enter your prompt content here... Be specific about what you want to achieve."
-          className="min-h-[280px] resize-none border-border/50 focus:border-primary/50 bg-background/50 backdrop-blur-sm pr-28"
+          className="h-[calc(100%-60px)] min-h-[280px] w-full resize-none border-border/50 focus:border-primary/50 bg-background/50"
         />
         <div className="absolute bottom-3 right-3 flex items-center gap-2">
           <span className="text-xs text-muted-foreground">

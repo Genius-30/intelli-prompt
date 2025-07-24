@@ -1,40 +1,33 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { ComponentProps } from "react";
 import { Star } from "lucide-react";
-import { cn } from "@/lib/utils";
 
-interface FavoriteButtonProps extends ComponentProps<"button"> {
+interface FavoriteButtonProps {
   isFavorite: boolean;
-  isPending?: boolean;
-  onClick: (e: React.MouseEvent<HTMLButtonElement>) => void;
+  isPending: boolean;
+  onClick: () => void;
 }
 
 export default function FavoriteButton({
   isFavorite,
-  isPending = false,
+  isPending,
   onClick,
-  className,
-  ...props
 }: FavoriteButtonProps) {
   return (
     <Button
       variant="ghost"
+      type="button"
       size="icon"
-      onClick={(e) => {
-        e.stopPropagation();
-        onClick(e);
-      }}
-      className={cn("h-8 w-8 p-0 hover:bg-muted/50 transition", className)}
+      onClick={onClick}
       disabled={isPending}
-      {...props}
+      className={` ${
+        isFavorite
+          ? "text-amber-500"
+          : "text-muted-foreground hover:text-amber-500"
+      }`}
     >
-      {isFavorite ? (
-        <Star className="h-5 w-5 text-yellow-500 fill-current" />
-      ) : (
-        <Star className="h-5 w-5 text-gray-400" />
-      )}
+      <Star className={`w-3 h-3 ${isFavorite ? "fill-current" : ""}`} />
     </Button>
   );
 }

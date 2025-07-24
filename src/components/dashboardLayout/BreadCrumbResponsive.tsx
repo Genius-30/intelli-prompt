@@ -66,7 +66,7 @@ export function BreadcrumbResponsive() {
     if (segment === folderId) label = folder?.title ?? "...";
     else if (segment === promptId) label = prompt?.title ?? "...";
     else if (segment === versionId)
-      label = version?.version ? `v${version.version}` : "...";
+      label = version?.versionNumber ? `v${version.versionNumber}` : "...";
 
     return { label, href };
   });
