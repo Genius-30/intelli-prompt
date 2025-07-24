@@ -1,6 +1,6 @@
 "use client";
 
-import { Eye, Loader2, Play } from "lucide-react";
+import { Crown, Eye, Loader2, Lock, Play, ThermometerSun } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -15,6 +15,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
+import { AIModelSelector } from "@/components/version/AiModelSelector";
 import { AI_MODELS } from "@/lib/constants";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -27,9 +28,12 @@ import { useGetResponse } from "@/lib/queries/response";
 import { useParams } from "next/navigation";
 import { useState } from "react";
 
+const isUserPremium = false;
+
 export default function TestPromptClient() {
   const { versionId } = useParams();
   const [tokenEstimated, setTokenEstimated] = useState(0);
+  const [globalTemperature, setGlobalTemperature] = useState(1.5);
   const { mutate: testPrompt, isPending: isTesting } = useGetResponse();
   const [selectedModels, setSelectedModels] = useState<
     { provider: string; model: string; temperature: number }[]
@@ -52,10 +56,16 @@ export default function TestPromptClient() {
       return;
     }
 
+    // Update all selected models with current global temperature
+    const modelsWithCurrentTemp = selectedModels.map((model) => ({
+      ...model,
+      temperature: globalTemperature,
+    }));
+
     testPrompt(
       {
         versionId: versionId as string,
-        models: selectedModels,
+        models: modelsWithCurrentTemp,
         tokenEstimated,
       },
       {
@@ -66,21 +76,24 @@ export default function TestPromptClient() {
     );
   };
 
-  const handleModelSelect = (
-    provider: string,
-    modelId: string,
-    temperature: number
-  ) => {
+  const handleModelSelect = (provider: string, modelId: string) => {
+    const providerData = AI_MODELS[provider as keyof typeof AI_MODELS];
+
+    // Check if model requires premium and user is not premium
+    if (providerData?.premium && !isUserPremium) {
+      toast.error(
+        "This model is only available for premium users. Please upgrade your plan."
+      );
+      return;
+    }
+
     setSelectedModels((prev) => {
       const others = prev.filter((m) => m.provider !== provider);
-      return [...others, { provider, model: modelId, temperature }];
+      return [
+        ...others,
+        { provider, model: modelId, temperature: globalTemperature },
+      ];
     });
-  };
-
-  const handleTemperatureChange = (provider: string, temperature: number) => {
-    setSelectedModels((prev) =>
-      prev.map((m) => (m.provider === provider ? { ...m, temperature } : m))
-    );
   };
 
   const handleDeselectModel = (provider: string) => {
@@ -92,11 +105,11 @@ export default function TestPromptClient() {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       {/* Header */}
-      <div className="text-center space-y-2">
-        <h1 className="text-3xl font-bold tracking-tight">AI Model Testing</h1>
-        <p className="text-muted-foreground">
+      <div className="text-start">
+        <h1 className="text-2xl font-bold tracking-tight">AI Model Testing</h1>
+        <p className="text-sm text-muted-foreground">
           Test your prompts across multiple AI models and compare responses
         </p>
       </div>
@@ -118,152 +131,91 @@ export default function TestPromptClient() {
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {Object.entries(AI_MODELS).map(([provider, data]) => {
+          {Object.keys(AI_MODELS).map((provider) => {
             const selected = selectedModels.find(
               (m) => m.provider === provider
             );
-            const IconComponent = data.icon;
-
             return (
-              <div
+              <AIModelSelector
                 key={provider}
-                className={`group relative overflow-hidden rounded-xl border transition-all duration-200 hover:shadow-lg ${
-                  selected
-                    ? "border-primary shadow-md bg-primary/5"
-                    : "border-border bg-card hover:border-primary/50"
-                }`}
-              >
-                <div className="p-5 space-y-4">
-                  {/* Header */}
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-center gap-3">
-                      <div
-                        className="p-2 rounded-lg"
-                        style={{ backgroundColor: `${data.color}15` }}
-                      >
-                        <IconComponent
-                          className="w-5 h-5"
-                          style={{ color: data.color }}
-                        />
-                      </div>
-                      <div>
-                        <h3 className="font-semibold text-sm capitalize">
-                          {data.name}
-                        </h3>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          {data.description}
-                        </p>
-                      </div>
-                    </div>
-
-                    {selected && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-8 px-2 text-xs text-destructive hover:text-destructive hover:bg-destructive/10"
-                        onClick={() => handleDeselectModel(provider)}
-                      >
-                        Remove
-                      </Button>
-                    )}
-                  </div>
-
-                  {/* Model Selection */}
-                  <Select
-                    value={selected?.model || ""}
-                    onValueChange={(value) =>
-                      handleModelSelect(
-                        provider,
-                        value,
-                        selected?.temperature ?? 1.0
-                      )
-                    }
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Choose model" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {data.models.map((model) => (
-                        <SelectItem key={model.id} value={model.id}>
-                          <div className="flex flex-col">
-                            <span className="font-medium">{model.name}</span>
-                            {model.description && (
-                              <span className="text-xs text-muted-foreground">
-                                {model.description}
-                              </span>
-                            )}
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-
-                  {/* Temperature Control */}
-                  {selected && (
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <label className="text-xs font-medium text-muted-foreground">
-                          Temperature
-                        </label>
-                        <span className="text-xs font-mono bg-muted px-2 py-1 rounded">
-                          {selected.temperature.toFixed(1)}
-                        </span>
-                      </div>
-                      <Slider
-                        min={0}
-                        max={2}
-                        step={0.1}
-                        value={[selected.temperature]}
-                        onValueChange={([value]) =>
-                          handleTemperatureChange(provider, value)
-                        }
-                        className="w-full"
-                      />
-                      <div className="flex justify-between text-xs text-muted-foreground">
-                        <span>Focused</span>
-                        <span>Creative</span>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
+                provider={provider}
+                selectedModel={selected?.model}
+                isUserPremium={isUserPremium}
+                onSelect={handleModelSelect}
+                onDeselect={handleDeselectModel}
+              />
             );
           })}
         </div>
       </div>
 
-      {/* Test Button */}
-      <TooltipProvider>
-        <div className="flex justify-center">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                onClick={handleTestPrompt}
-                disabled={isTesting || selectedModels.length === 0}
-                size="lg"
-                className="px-8"
-              >
-                {isTesting ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Testing...
-                  </>
-                ) : (
-                  <>
-                    <Play className="w-4 h-4 mr-2" />
-                    Run Test ({selectedModels.length} models)
-                  </>
-                )}
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              {selectedModels.length === 0
-                ? "Select at least one model to test"
-                : `Test prompt with ${selectedModels.length} selected models`}
-            </TooltipContent>
-          </Tooltip>
+      {/* Temperature Control & Test Button */}
+      <div className="border rounded-lg">
+        <div className="flex items-center gap-2 px-3 py-2 border-b bg-muted/30">
+          <ThermometerSun className="w-3 h-3 text-muted-foreground" />
+          <span className="text-xs text-muted-foreground">
+            Temperature & Test
+          </span>
         </div>
-      </TooltipProvider>
+        <div className="p-3">
+          <div className="flex items-center justify-around gap-4">
+            {/* Temperature Control */}
+            <div className="w-full max-w-[400px] space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium">Temperature</span>
+                <span className="text-xs font-mono bg-muted px-2 py-1 rounded">
+                  {globalTemperature.toFixed(1)}
+                </span>
+              </div>
+              <Slider
+                min={0}
+                max={2}
+                step={0.1}
+                value={[globalTemperature]}
+                onValueChange={([value]) => setGlobalTemperature(value)}
+                className="w-full"
+              />
+              <div className="flex justify-between text-xs text-muted-foreground">
+                <span>Focused</span>
+                <span>Creative</span>
+              </div>
+            </div>
+
+            {/* Test Button */}
+            <div className="flex-shrink-0">
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      onClick={handleTestPrompt}
+                      disabled={isTesting || selectedModels.length === 0}
+                      size="lg"
+                      className="px-6"
+                    >
+                      {isTesting ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Testing...
+                        </>
+                      ) : (
+                        <>
+                          <Play className="w-4 h-4 mr-2" />
+                          Run Test
+                        </>
+                      )}
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    {selectedModels.length === 0
+                      ? "Select at least one model to test"
+                      : `Test ${selectedModels.length} models at temperature ${globalTemperature}`}
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* Results Section */}
       {(isTesting || responses.length > 0) && (

@@ -1,6 +1,6 @@
 "use client";
 
-import { Clock, Eye, FileText, Pencil, Zap } from "lucide-react";
+import { Eye, FileText, Pencil, Zap } from "lucide-react";
 import { useGetVersion, useToggleFavoriteVersion } from "@/lib/queries/version";
 import { usePathname, useRouter } from "next/navigation";
 
@@ -37,7 +37,7 @@ export function PromptVersionTestCard({
   }, [version?.content, onTokenEstimated]);
 
   if (isLoading || !version)
-    return <Skeleton className="h-32 w-full rounded-xl" />;
+    return <Skeleton className="h-32 w-full rounded-lg" />;
 
   const handleToggleFavorite = () => {
     toggleFavorite(versionId, {
@@ -51,90 +51,83 @@ export function PromptVersionTestCard({
   const tokenCount = estimateTokens(version.content);
 
   return (
-    <div className="relative overflow-hidden rounded-xl border bg-gradient-to-br from-primary/5 to-primary/10 backdrop-blur-sm">
-      <div className="p-6 space-y-4">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-primary/10">
-              <FileText className="w-5 h-5 text-primary" />
-            </div>
-            <div>
-              <h2 className="text-lg font-semibold">Prompt Content</h2>
-              <p className="text-sm text-muted-foreground">
-                Version {version.versionNumber}
-              </p>
-            </div>
-          </div>
+    <div className="border rounded-lg">
+      {/* Header */}
+      <div className="flex items-center justify-between px-3 py-2 border-b bg-muted/30">
+        <div className="flex items-center gap-2">
+          <FileText className="w-3 h-3 text-muted-foreground" />
+          <span className="text-xs text-muted-foreground">
+            Prompt Content - Version {version.versionNumber}
+          </span>
+        </div>
+        <div className="flex items-center gap-1">
+          <FavoriteButton
+            isFavorite={version.isFavorite}
+            isPending={isPending}
+            onClick={handleToggleFavorite}
+          />
+          <SetActiveVersionButton
+            versionId={version.id}
+            promptId={version.promptId}
+            isActive={version.isActive}
+          />
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-6 w-6"
+            onClick={() => router.back()}
+          >
+            <Pencil className="w-3 h-3" />
+          </Button>
+        </div>
+      </div>
 
-          <div className="flex items-center gap-2">
-            <FavoriteButton
-              isFavorite={version.isFavorite}
-              isPending={isPending}
-              onClick={handleToggleFavorite}
-            />
-            <SetActiveVersionButton
-              versionId={version.id}
-              promptId={version.promptId}
-              isActive={version.isActive}
-            />
+      {/* Content */}
+      <div className="py-3 px-4">
+        <div className="max-h-48 overflow-y-auto">
+          <pre className="whitespace-pre-wrap text-sm leading-relaxed">
+            {version.content || "No content available"}
+          </pre>
+        </div>
+      </div>
+
+      {/* Footer */}
+      <div className="flex items-center justify-between px-3 py-2 border-t bg-muted/30">
+        <div className="flex items-center gap-2">
+          {showTokenEstimate && version.content && (
+            <p className="text-xs text-muted-foreground">
+              ~{tokenCount} tokens
+            </p>
+          )}
+        </div>
+
+        <div className="flex gap-1">
+          {isInTestPage && (
             <Button
               variant="ghost"
-              size="icon"
-              onClick={() => router.back()}
-              className="hover:bg-primary/10"
+              size="sm"
+              className="h-6 px-2 text-xs"
+              onClick={() =>
+                router.push(pathname.replace("/test", "/responses"))
+              }
             >
-              <Pencil className="w-4 h-4" />
+              <Eye className="w-3 h-3 mr-1" />
+              Responses
             </Button>
-          </div>
-        </div>
-
-        {/* Content */}
-        <div className="relative">
-          <div className="max-h-48 overflow-y-auto rounded-lg bg-background/50 p-4 border">
-            <pre className="whitespace-pre-wrap text-sm font-mono leading-relaxed">
-              {version.content || "No content available"}
-            </pre>
-          </div>
-        </div>
-
-        {/* Footer */}
-        <div className="flex items-center justify-between pt-2">
-          <div className="flex items-center gap-4">
-            {showTokenEstimate && version.content && (
-              <Badge variant="secondary" className="text-xs">
-                ~{tokenCount} tokens
-              </Badge>
-            )}
-          </div>
-
-          {/* Action Buttons */}
-          <div className="flex gap-2">
-            {isInTestPage && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() =>
-                  router.push(pathname.replace("/test", "/responses"))
-                }
-                className="hover:bg-primary/10"
-              >
-                <Eye className="w-4 h-4 mr-2" />
-                View Responses
-              </Button>
-            )}
-            {isInResponsePage && (
-              <Button
-                size="sm"
-                onClick={() =>
-                  router.push(pathname.replace("/responses", "/test"))
-                }
-              >
-                <Zap className="w-4 h-4 mr-2" />
-                Test Prompt
-              </Button>
-            )}
-          </div>
+          )}
+          {isInResponsePage && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-6 px-2 text-xs"
+              onClick={() =>
+                router.push(pathname.replace("/responses", "/test"))
+              }
+            >
+              <Zap className="w-3 h-3 mr-1" />
+              Test
+            </Button>
+          )}
         </div>
       </div>
     </div>
