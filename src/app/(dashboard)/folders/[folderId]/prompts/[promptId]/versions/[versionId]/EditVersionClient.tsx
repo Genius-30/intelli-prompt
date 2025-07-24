@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertTriangle, CheckCircle, Plus, Redo2Icon, Zap } from "lucide-react";
+import { AlertTriangle, Plus, Redo2Icon, Zap } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -9,7 +9,6 @@ import {
 import {
   useAddVersion,
   useGetVersion,
-  useSetActiveVersion,
   useToggleFavoriteVersion,
   useUpdateVersion,
 } from "@/lib/queries/version";
@@ -22,7 +21,7 @@ import FavoriteButton from "@/components/common/FavoriteButton";
 import { Loader } from "@/components/ui/loader";
 import { PromptContentInput } from "@/components/version/PromptContentInput";
 import { PromptEnhancer } from "@/components/prompt/PromptEnhancer";
-import { cn } from "@/lib/utils";
+import { SetActiveVersionButton } from "@/components/common/SetActiveVersionButton";
 import { estimateTokens } from "@/utils/tokeEstimate";
 import { toast } from "sonner";
 
@@ -60,7 +59,6 @@ export default function EditVersionClient() {
     useAddVersion();
   const { mutate: toggleFavorite, isPending: isToggling } =
     useToggleFavoriteVersion();
-  const { mutate: setActiveVersion } = useSetActiveVersion();
 
   useEffect(() => {
     if (initialData?.content) {
@@ -132,26 +130,11 @@ export default function EditVersionClient() {
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          <Button
-            variant="ghost"
-            size="icon"
-            type="button"
-            onClick={() => {
-              if (initialData.isActive) return toast.info("Already active");
-              setActiveVersion({
-                versionId: initialData._id,
-                promptId: initialData.promptId,
-              });
-            }}
-            title={initialData.isActive ? "Already Active" : "Set as Active"}
-          >
-            <CheckCircle
-              className={cn(
-                "w-5 h-5",
-                initialData.isActive ? "text-blue-500" : "text-muted-foreground"
-              )}
-            />
-          </Button>
+          <SetActiveVersionButton
+            versionId={initialData._id}
+            promptId={initialData.promptId}
+            isActive={initialData.isActive}
+          />
 
           <FavoriteButton
             isFavorite={initialData.isFavorite}

@@ -23,7 +23,7 @@ export default function FavoriteButton({
       disabled={isPending}
       className={` ${
         isFavorite
-          ? "text-amber-500"
+          ? "text-amber-500 hover:text-amber-600"
           : "text-muted-foreground hover:text-amber-500"
       }`}
     >

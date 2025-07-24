@@ -1,13 +1,14 @@
 "use client";
 
-import { useParams } from "next/navigation";
-import { useGetAllResponsesForVersion } from "@/lib/queries/response";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { PromptVersionViewer } from "@/components/version/prompt-version-viewer";
-import { Skeleton } from "@/components/ui/skeleton";
-import { ModelResponseCard } from "@/components/version/model-response-card";
+
 import { AI_MODELS } from "@/lib/constants";
+import { ModelResponseCard } from "@/components/version/ModelResponseCard";
+import { PromptVersionTestCard } from "@/components/version/PromptVersionTestCard";
+import { Skeleton } from "@/components/ui/skeleton";
 import { getProviderByModelId } from "@/utils/ai-model-utils";
+import { useGetAllResponsesForVersion } from "@/lib/queries/response";
+import { useParams } from "next/navigation";
 
 export default function AllResponsesClient() {
   const { versionId } = useParams();
@@ -63,8 +64,8 @@ export default function AllResponsesClient() {
   }
 
   return (
-    <div className="p-0 sm:p-6">
-      <PromptVersionViewer
+    <div>
+      <PromptVersionTestCard
         versionId={versionId as string}
         showTokenEstimate={false}
       />
