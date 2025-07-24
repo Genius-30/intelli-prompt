@@ -16,7 +16,7 @@ type PromptTesterProps = Readonly<{
 
 export function PromptTester() {
   const [values, setValues] = useState<Record<string, string>>({});
-  const [temperature, setTemperature] = useState(0.7);
+  const [temperature, setTemperature] = useState(1.5);
   const [model, setModel] = useState("gpt-4");
   const [renderedOutput, setRenderedOutput] = useState<string | null>(null);
 
@@ -55,7 +55,7 @@ export function PromptTester() {
           </Label>
           <Slider
             min={0}
-            max={1}
+            max={2}
             step={0.1}
             value={[temperature]}
             onValueChange={([val]) => setTemperature(val)}

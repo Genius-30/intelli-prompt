@@ -35,13 +35,11 @@ export async function POST(
     }
 
     const versionDoc = await Version.findById(versionId);
-    if (!versionDoc) {
-      return NextResponse.json({ message: "version not found" }, { status: 404 });
+    if (!versionDoc?.content) {
+      return NextResponse.json({ message: "version or content not found" }, { status: 404 });
     }
-    const content = versionDoc?.content;
-    if (!content) {
-      return NextResponse.json({ message: "No content found in version" }, { status: 404 });
-    }
+
+    const content = versionDoc.content
 
     const results = await Promise.all(
       models.map(async (modelOption) => {
@@ -50,22 +48,14 @@ export async function POST(
           messages: [{ role: "user", content }]
         })) as IResponse;
 
-        if ("err" in result || result.response?.startsWith("Error")) {
-          return {
-            ...modelOption,
-            response: result.response || "No response generated",
-            _id: null,
-            error: "Error occurred while generating response!",
-          };
-        }
-
-        await deductTokens({ userId, tokensUsed: result.tokensUsed });
+        await deductTokens({ userId, tokensUsed: result.tokensUsed || 0 });
 
         return {
           ...modelOption,
           tokensUsed: result.tokensUsed,
           temperature: result.temperature,
-          response: result.response
+          response: result.response,
+          error: result.error
         };
       })
     );

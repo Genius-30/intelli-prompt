@@ -12,6 +12,13 @@ export interface IModelCallProps {
   max_tokens?: number;
 }
 
+interface IModelResponse {
+  temperature: number;
+  tokensUsed: number;
+  response: string;
+  error?: any;
+}
+
 // Detects errors related to quota/rate limits
 const isQuotaOrRateLimitError = (err: any) => {
   const msg = err?.response?.data?.error?.message?.toLowerCase() || "";
@@ -19,7 +26,7 @@ const isQuotaOrRateLimitError = (err: any) => {
 
   return (
     status === 402 || status === 429 ||
-    msg.includes("insufficient credits") || msg.includes("rate limited")
+    msg.includes("insufficient credits") || msg.includes("rate limit")
   );
 };
 
@@ -45,19 +52,28 @@ const callWithKey = async (
 export async function callOpenRouter({
   model = "google/gemini-2.0-flash-exp:free",
   messages,
-  temperature = 0.7,
+  temperature = 1.5,
   max_tokens = 300,
-}: IModelCallProps): Promise<object> {
-  const keys = [process.env.OPENROUTER_API_KEY!, process.env.OPENROUTER_API_KEY_2!].filter(Boolean);
+}: IModelCallProps): Promise<IModelResponse> {
+  const keys = [process.env.OPENROUTER_API_KEY!, process.env.OPENROUTER_API_KEY_2!, process.env.OPENROUTER_API_KEY_3!].filter(Boolean);
 
   for(const key of keys){
     try {
       const res = await callWithKey(key, model, messages, temperature, max_tokens);
+      const content = res.data.choices?.[0]?.message.content?.trim() || ''
+      if(!content){
+        return {
+          temperature,
+          tokensUsed: 0,
+          response: "",
+          error: `No response from ${model}`,
+        }
+      }
 
       return {
         temperature: temperature || 0,
         tokensUsed: res.data.usage?.total_tokens || 0,
-        response: res.data.choices?.[0]?.message.content || 'No response',
+        response: content
       };
     } catch (err) {
       if (isQuotaOrRateLimitError(err)) {
@@ -66,12 +82,19 @@ export async function callOpenRouter({
       }
 
       console.error('Error calling OpenRouter:', err);
+      return {
+        temperature,
+        tokensUsed: 0,
+        response: "",
+        error: err,
+      }
     }
   }
 
   return {
     temperature: 0,
     tokensUsed: 0,
-    response: 'All api keys are either exhausted or rate limited',
+    response: "",
+    error: 'All api keys are either exhausted or rate limited'
   }
 }
