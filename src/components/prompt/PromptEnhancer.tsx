@@ -218,21 +218,21 @@ export function PromptEnhancer({
     );
   } else if (enhancedContent) {
     contentDisplay = (
-      <div className="relative">
+      <div className="relative w-full self-start">
         <div className="flex items-center gap-2 mb-3">
           <CheckCircle2 className="w-4 h-4 text-green-500" />
           <span className="text-xs text-green-600 dark:text-green-400 font-medium">
             Enhanced successfully
           </span>
         </div>
-        <p className="text-sm leading-relaxed whitespace-pre-wrap bg-green-50/50 dark:bg-green-950/20 p-3 rounded-md border border-green-200/50 dark:border-green-800/50">
+        <p className="min-h-[100px] text-sm leading-relaxed whitespace-pre-wrap bg-green-50/50 dark:bg-green-950/20 p-3 rounded-md border border-green-200/50 dark:border-green-800/50">
           {enhancedContent}
         </p>
       </div>
     );
   } else {
     contentDisplay = (
-      <div className="flex flex-col items-center justify-center gap-4">
+      <div className="flex flex-col items-center justify-center gap-4 md:*:px-8">
         <div className="flex flex-col items-center">
           <Sparkles className="w-12 h-12 text-muted-foreground/50 mb-2" />
           <h3 className="text-lg font-medium text-center text-muted-foreground">
@@ -248,9 +248,9 @@ export function PromptEnhancer({
           type="button"
           onClick={handleEnhance}
           disabled={!content.trim() || enhanceMutation.isPending}
-          className="cursor-pointer disabled:bg-muted rounded-full"
+          className="cursor-pointer disabled:bg-muted rounded-full p-0"
         >
-          <div className="group relative mx-auto flex items-center justify-center rounded-full px-4 py-1.5 shadow-[inset_0_-8px_10px_#8fdfff1f] transition-shadow duration-500 ease-out hover:shadow-[inset_0_-5px_10px_#8fdfff3f]">
+          <div className="group relative w-full mx-auto flex items-center justify-center rounded-full px-4 py-1.5 shadow-[inset_0_-8px_10px_#8fdfff1f] transition-shadow duration-500 ease-out hover:shadow-[inset_0_-5px_10px_#8fdfff3f]">
             <span
               className={cn(
                 "absolute inset-0 block h-full w-full animate-gradient rounded-[inherit] bg-gradient-to-r from-[#ffaa40]/50 via-[#9c40ff]/50 to-[#ffaa40]/50 bg-[length:300%_100%] p-[1px]"
@@ -280,60 +280,61 @@ export function PromptEnhancer({
   }
 
   return (
-    <div className="h-full flex flex-col bg-gradient-to-br from-muted/30 to-muted/40 border border-border/50 rounded-lg p-4 shadow-sm backdrop-blur-sm">
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
-          <div className="w-2.5 h-2.5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full animate-pulse" />
-          <h3 className="text-sm font-semibold text-foreground">
-            AI Enhanced Version
-          </h3>
-        </div>
-        <div className="flex items-center gap-2">
-          <Sparkles className="w-4 h-4 text-muted-foreground" />
-          {!!tokenEstimated && (
-            <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded">
-              ~{tokenEstimated} tokens
-            </span>
-          )}
-        </div>
-      </div>
-
-      <div className="min-h-[200px] h-full flex items-center justify-around bg-muted/50 backdrop-blur-sm border border-border/30 rounded-lg p-4">
-        {contentDisplay}
-      </div>
-
-      {enhancedContent &&
-        !enhanceMutation.isPending &&
-        !enhanceMutation.isError && (
-          <div className="flex items-center flex-wrap gap-3 mt-4 border-t border-border/30">
-            <Button
-              size="sm"
-              onClick={handleReplace}
-              className="flex items-center gap-2 bg-primary hover:bg-primary/90 shadow-sm cursor-pointer"
-            >
-              <Copy className="w-3.5 h-3.5" />
-              Replace Original
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={handleRetry}
-              className="flex items-center gap-2 bg-transparent cursor-pointer"
-            >
-              <Sparkles className="w-3.5 h-3.5" />
-              Re-enhance
-            </Button>
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={handleDiscard}
-              className="flex items-center gap-2 hover:bg-destructive/10 hover:text-destructive cursor-pointer"
-            >
-              <X className="w-3.5 h-3.5" />
-              Discard
-            </Button>
+    <div className="h-full flex flex-col">
+      <div className="flex-1 flex flex-col bg-gradient-to-br from-muted/30 to-muted/40 border border-border/50 rounded-lg p-4 shadow-sm backdrop-blur-sm">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <div className="w-2.5 h-2.5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full animate-pulse" />
+            <h3 className="text-sm font-semibold text-foreground">
+              AI Enhanced Version
+            </h3>
           </div>
-        )}
+          <div className="flex items-center gap-2">
+            <Sparkles className="w-4 h-4 text-muted-foreground" />
+            {!!tokenEstimated && (
+              <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded">
+                ~{tokenEstimated} tokens
+              </span>
+            )}
+          </div>
+        </div>
+
+        <div className="min-h-[200px] h-full flex items-center justify-around bg-muted/50 backdrop-blur-sm border border-border/30 rounded-lg p-4">
+          {contentDisplay}
+        </div>
+      </div>
+
+      <div className="min-h-9 flex items-center flex-wrap gap-3 mt-6 border-t border-border/30">
+        {!enhancedContent &&
+          !enhanceMutation.isPending &&
+          !enhanceMutation.isError && (
+            <>
+              <Button
+                onClick={handleReplace}
+                className="flex items-center gap-2 bg-primary hover:bg-primary/90 shadow-sm cursor-pointer"
+              >
+                <Copy className="w-3.5 h-3.5" />
+                Replace Original
+              </Button>
+              <Button
+                variant="outline"
+                onClick={handleRetry}
+                className="flex items-center gap-2 bg-transparent cursor-pointer"
+              >
+                <Sparkles className="w-3.5 h-3.5" />
+                Re-enhance
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={handleDiscard}
+                className="flex items-center gap-2 hover:bg-destructive/10 hover:text-destructive cursor-pointer"
+              >
+                <X className="w-3.5 h-3.5" />
+                Discard
+              </Button>
+            </>
+          )}
+      </div>
     </div>
   );
 }

@@ -139,6 +139,25 @@ export default function NewPromptClient() {
               setTokenEstimated={setTokenEstimated}
             />
           </div>
+          <div className="flex gap-3">
+            <Button
+              onClick={handleSavePrompt}
+              disabled={!isFormValid || createPromptMutation.isPending}
+              className="flex items-center gap-2"
+            >
+              {createPromptMutation.isPending ? (
+                <>
+                  <Loader className="w-4 h-4" />
+                  Creating...
+                </>
+              ) : (
+                <>
+                  <Edit3 className="w-4 h-4" />
+                  Create Prompt
+                </>
+              )}
+            </Button>
+          </div>
         </div>
 
         {/* Enhanced Prompt Section */}
@@ -150,26 +169,6 @@ export default function NewPromptClient() {
             tokenEstimated={tokenEstimated}
           />
         </div>
-      </div>
-
-      <div className="flex gap-3">
-        <Button
-          onClick={handleSavePrompt}
-          disabled={!isFormValid || createPromptMutation.isPending}
-          className="flex items-center gap-2"
-        >
-          {createPromptMutation.isPending ? (
-            <>
-              <Loader className="w-4 h-4" />
-              Creating...
-            </>
-          ) : (
-            <>
-              <Edit3 className="w-4 h-4" />
-              Create Prompt
-            </>
-          )}
-        </Button>
       </div>
     </div>
   );
