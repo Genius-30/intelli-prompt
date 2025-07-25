@@ -45,14 +45,16 @@ export function PromptVersionsClient() {
   const { mutate: setActiveVersion, isPending: isActivating } =
     useSetActiveVersion();
 
-  const activeVersion = versions?.find((v) => v.isActive);
+  const activeVersion = versions?.find((v: Version) => v.isActive);
   const activeVersionId = activeVersion?._id;
 
-  const latestVersion = versions?.reduce((latest, current) => {
-    return new Date(current.createdAt) > new Date(latest.createdAt)
-      ? current
-      : latest;
-  });
+  const latestVersion = versions?.reduce(
+    (latest: Version, current: Version) => {
+      return new Date(current.createdAt) > new Date(latest.createdAt)
+        ? current
+        : latest;
+    }
+  );
 
   useEffect(() => {
     if (activeVersionRef.current && !versionsLoading) {
@@ -214,7 +216,6 @@ export function PromptVersionsClient() {
               <VersionCard
                 version={version}
                 versionNumber={versionNumber}
-                promptId={promptId as string}
                 onSetActive={handleSetActive}
                 onDelete={handleDelete}
                 isActivating={isActivating}

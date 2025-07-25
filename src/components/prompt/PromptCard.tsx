@@ -116,7 +116,7 @@ export default function PromptCard({
           <div className="bg-muted/30 rounded-lg p-3 border border-border/30">
             <div className="flex items-center gap-2 mb-2">
               <span className="text-xs font-medium text-muted-foreground">
-                #v2{activeVersion.versionNumber}
+                #v{activeVersion.versionNumber}
               </span>
               <Badge variant="secondary" className="text-xs">
                 Active

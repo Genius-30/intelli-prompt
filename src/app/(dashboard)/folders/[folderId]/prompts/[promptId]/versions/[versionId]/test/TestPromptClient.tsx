@@ -1,27 +1,38 @@
 "use client";
 
-import { Crown, Eye, Loader2, Lock, Play, ThermometerSun } from "lucide-react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Eye, Loader2, Play, ThermometerSun } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { lazy, Suspense } from "react";
 
-import { AIModelSelector } from "@/components/version/AiModelSelector";
+const AIModelSelector = lazy(() =>
+  import("@/components/version/AiModelSelector").then((m) => ({
+    default: m.AIModelSelector,
+  }))
+);
+const ModelResponseCard = lazy(() =>
+  import("@/components/response/ModelResponseCard").then((m) => ({
+    default: m.ModelResponseCard,
+  }))
+);
+const ModelResponseSkeleton = lazy(() =>
+  import("@/components/skeletons/ModelResponseSkeleton").then((m) => ({
+    default: m.ModelResponseSkeleton,
+  }))
+);
+const PromptVersionTestCard = lazy(() =>
+  import("@/components/response/PromptVersionTestCard").then((m) => ({
+    default: m.PromptVersionTestCard,
+  }))
+);
+
 import { AI_MODELS } from "@/lib/constants";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ModelResponseCard } from "@/components/version/ModelResponseCard";
-import { ModelResponseSkeleton } from "@/components/skeletons/ModelResponseSkeleton";
-import { PromptVersionTestCard } from "@/components/version/PromptVersionTestCard";
 import { Slider } from "@/components/ui/slider";
 import { toast } from "sonner";
 import { useGetResponse } from "@/lib/queries/response";
@@ -48,30 +59,7 @@ export default function TestPromptClient() {
       isFavorite?: boolean;
       error?: string;
     }[]
-  >([
-    {
-      provider: "openai",
-      model: "gpt-4",
-      temperature: 1,
-      response: "This is a mock response from GPT-4. It worked perfectly.",
-      _id: "mock-id-1",
-    },
-    {
-      provider: "anthropic",
-      model: "claude-3-opus",
-      temperature: 1.2,
-      response: "Claude's mock reply with a more verbose answer.",
-      _id: "mock-id-2",
-    },
-    {
-      provider: "mistral",
-      model: "mistral-7b",
-      temperature: 1.5,
-      response: "Error: Something went wrong on the model's side.",
-      _id: "mock-id-3",
-      error: "Mocked error: model not responding",
-    },
-  ]);
+  >([]);
 
   const handleTestPrompt = () => {
     if (!versionId || selectedModels.length === 0) {
@@ -123,7 +111,7 @@ export default function TestPromptClient() {
     setSelectedModels((prev) => prev.filter((m) => m.provider !== provider));
   };
 
-  const handleDeleteLocalResponse = (id: string) => {
+  const handleDeleteResponse = (id: string) => {
     setResponses((prev) => prev.filter((res) => res._id !== id));
   };
 
@@ -138,11 +126,15 @@ export default function TestPromptClient() {
       </div>
 
       {/* Prompt Viewer */}
-      <PromptVersionTestCard
-        versionId={versionId as string}
-        showTokenEstimate={true}
-        onTokenEstimated={(value) => setTokenEstimated(value)}
-      />
+      <Suspense
+        fallback={<div className="h-32 bg-muted animate-pulse rounded-lg" />}
+      >
+        <PromptVersionTestCard
+          versionId={versionId as string}
+          showTokenEstimate={true}
+          onTokenEstimated={(value) => setTokenEstimated(value)}
+        />
+      </Suspense>
 
       {/* Model Selection Grid */}
       <div className="space-y-4">
@@ -159,14 +151,20 @@ export default function TestPromptClient() {
               (m) => m.provider === provider
             );
             return (
-              <AIModelSelector
+              <Suspense
                 key={provider}
-                provider={provider}
-                selectedModel={selected?.model}
-                isUserPremium={isUserPremium}
-                onSelect={handleModelSelect}
-                onDeselect={handleDeselectModel}
-              />
+                fallback={
+                  <div className="h-24 bg-muted animate-pulse rounded-lg" />
+                }
+              >
+                <AIModelSelector
+                  provider={provider}
+                  selectedModel={selected?.model}
+                  isUserPremium={isUserPremium}
+                  onSelect={handleModelSelect}
+                  onDeselect={handleDeselectModel}
+                />
+              </Suspense>
             );
           })}
         </div>
@@ -250,12 +248,18 @@ export default function TestPromptClient() {
 
           <div className="grid gap-4">
             {isTesting
-              ? selectedModels.map((m, i) => (
-                  <ModelResponseSkeleton
-                    key={i}
-                    provider={m.provider as keyof typeof AI_MODELS}
-                    model={m.model}
-                  />
+              ? selectedModels.map((m) => (
+                  <Suspense
+                    key={`${m.provider}-${m.model}`}
+                    fallback={
+                      <div className="h-32 bg-muted animate-pulse rounded-lg" />
+                    }
+                  >
+                    <ModelResponseSkeleton
+                      provider={m.provider as keyof typeof AI_MODELS}
+                      model={m.model}
+                    />
+                  </Suspense>
                 ))
               : responses.map((res) => {
                   const hasError =
@@ -279,14 +283,20 @@ export default function TestPromptClient() {
                           </p>
                         </div>
                       ) : (
-                        <ModelResponseCard
-                          provider={res.provider as keyof typeof AI_MODELS}
-                          model={res.model}
-                          temperature={res.temperature}
-                          response={res.response}
-                          modelId={res._id || ""}
-                          onDeleteLocally={handleDeleteLocalResponse}
-                        />
+                        <Suspense
+                          fallback={
+                            <div className="h-32 bg-muted animate-pulse rounded-lg" />
+                          }
+                        >
+                          <ModelResponseCard
+                            provider={res.provider as keyof typeof AI_MODELS}
+                            model={res.model}
+                            temperature={res.temperature}
+                            response={res.response}
+                            modelId={res._id || ""}
+                            onDelete={handleDeleteResponse}
+                          />
+                        </Suspense>
                       )}
                     </div>
                   );

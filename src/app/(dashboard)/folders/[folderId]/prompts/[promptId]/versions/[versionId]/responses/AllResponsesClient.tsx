@@ -3,8 +3,8 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
 import { AI_MODELS } from "@/lib/constants";
-import { ModelResponseCard } from "@/components/version/ModelResponseCard";
-import { PromptVersionTestCard } from "@/components/version/PromptVersionTestCard";
+import { ModelResponseCard } from "@/components/response/ModelResponseCard";
+import { PromptVersionTestCard } from "@/components/response/PromptVersionTestCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getProviderByModelId } from "@/utils/ai-model-utils";
 import { useGetAllResponsesForVersion } from "@/lib/queries/response";

@@ -22,6 +22,7 @@ export function VersionLegend() {
         <TooltipContent
           side="bottom"
           className="max-w-xs bg-muted border-muted"
+          arrowClassName="bg-muted fill-muted"
         >
           <div className="space-y-2 text-xs">
             <div className="space-y-1">

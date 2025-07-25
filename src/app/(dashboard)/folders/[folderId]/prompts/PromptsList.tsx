@@ -9,6 +9,24 @@ import PromptCard from "@/components/prompt/PromptCard";
 import PromptCardSkeleton from "@/components/skeletons/PromptCardSkeleton";
 import { useGetPromptsByFolder } from "@/lib/queries/prompt";
 
+interface ActiveVersion {
+  _id: string;
+  content: string;
+  versionNumber: number;
+  isActive: boolean;
+  createdAt?: string;
+}
+
+interface Prompt {
+  _id: string;
+  title: string;
+  totalVersions: number;
+  isFavorite?: boolean;
+  createdAt: string;
+  updatedAt?: string;
+  activeVersion?: ActiveVersion;
+}
+
 export default function PromptsList() {
   const { folderId } = useParams();
   const pathname = usePathname();
@@ -72,7 +90,7 @@ export default function PromptsList() {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      {prompts.map((prompt) => (
+      {prompts.map((prompt: Prompt) => (
         <PromptCard key={prompt._id} {...prompt} />
       ))}
     </div>

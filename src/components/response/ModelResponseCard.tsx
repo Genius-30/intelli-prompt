@@ -24,8 +24,8 @@ import { Badge } from "../ui/badge";
 import { Button } from "@/components/ui/button";
 import ReactMarkdown from "react-markdown";
 import { toast } from "sonner";
-import { useDeleteResponse } from "@/lib/queries/response";
 import { useParams } from "next/navigation";
+import { useSaveModelResponse } from "@/lib/queries/response";
 
 type ProviderKey = keyof typeof AI_MODELS;
 
@@ -35,7 +35,7 @@ interface ModelResponseCardProps {
   readonly temperature: number;
   readonly response: string;
   readonly modelId: string;
-  readonly onDeleteLocally?: (id: string) => void;
+  readonly onDelete?: (id: string) => void;
 }
 
 export function ModelResponseCard({
@@ -44,14 +44,14 @@ export function ModelResponseCard({
   temperature,
   response,
   modelId,
-  onDeleteLocally,
+  onDelete,
 }: ModelResponseCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const { versionId } = useParams();
-  const { mutate: deleteResponse, isPending: isDeletingResponse } =
-    useDeleteResponse(versionId as string);
+  const { mutate: saveModelResponse, isPending: isSaving } =
+    useSaveModelResponse();
 
   const providerData = AI_MODELS[provider];
   const IconComponent = providerData?.icon;
@@ -82,13 +82,7 @@ export function ModelResponseCard({
   }, [isSaved]);
 
   const handleDelete = () => {
-    deleteResponse(modelId, {
-      onSuccess: () => {
-        toast.success("Response deleted!");
-        onDeleteLocally?.(modelId);
-      },
-      onError: () => toast.error("Failed to delete response"),
-    });
+    onDelete?.(modelId);
   };
 
   const handleCopy = async () => {
@@ -100,16 +94,28 @@ export function ModelResponseCard({
     }
   };
 
-  const handleSave = async () => {
-    try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 500));
-
-      setIsSaved(true);
-      toast.success("Response saved successfully!");
-    } catch (error) {
-      toast.error("Failed to save response");
+  const handleSave = () => {
+    if (!versionId || typeof versionId !== "string") {
+      toast.error("Missing version ID");
+      return;
     }
+
+    saveModelResponse(
+      {
+        versionId,
+        model,
+        temperature,
+        response,
+      },
+      {
+        onSuccess: () => {
+          setIsSaved(true);
+        },
+        onError: () => {
+          toast.error("Failed to save response");
+        },
+      }
+    );
   };
 
   return (
@@ -200,7 +206,6 @@ export function ModelResponseCard({
                     variant="ghost"
                     className="h-8 w-8 hover:text-destructive"
                     onClick={handleDelete}
-                    disabled={isDeletingResponse}
                   >
                     <Trash2 className="w-3 h-3" />
                   </Button>

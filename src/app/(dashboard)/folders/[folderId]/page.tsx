@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 
 interface FolderPageProps {
-  params: { folderId: string };
+  params: Promise<{ folderId: string }>;
 }
 
 export const metadata = {
@@ -11,6 +11,7 @@ export const metadata = {
   },
 };
 
-export default function FolderPage({ params }: FolderPageProps) {
-  redirect(`/folders/${params.folderId}/prompts`);
+export default async function FolderPage({ params }: FolderPageProps) {
+  const { folderId } = await params;
+  redirect(`/folders/${folderId}/prompts`);
 }

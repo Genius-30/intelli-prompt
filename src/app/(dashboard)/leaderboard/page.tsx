@@ -1,4 +1,4 @@
-import LeaderboardClient from "./LeaderBoardClient";
+import LeaderboardClient from "./LeaderboardClient";
 
 function LeaderboardPage() {
   return <LeaderboardClient />;
