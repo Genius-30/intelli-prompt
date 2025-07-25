@@ -32,12 +32,16 @@ export async function DELETE(req: Request, { params }: { params: any }) {
 
     await ModelResponse.deleteMany({ versionId, ownerId: userId });
 
-    await Prompt.updateOne(
+    const prompt = await Prompt.findOneAndUpdate(
       { _id: version.promptId, ownerId: userId },
       {
         $inc: { totalVersions: -1 },
-      }
+      },
+      { new: true }
     );
+    if (prompt && prompt.totalVersions <= 0) {
+      await Prompt.deleteOne({ _id: prompt._id, ownerId: userId });
+    }
 
     return NextResponse.json({ message: "version deleted" }, { status: 201 });
   } catch (err) {
