@@ -12,7 +12,7 @@ export interface IModelCallProps {
   max_tokens?: number;
 }
 
-interface IModelResponse {
+export interface IModelResponse {
   temperature: number;
   tokensUsed: number;
   response: string;
@@ -37,7 +37,7 @@ const callWithKey = async (
   temperature: number,
   max_tokens: number
 ) => {
-  return axios.post(
+  return await axios.post(
     "https://openrouter.ai/api/v1/chat/completions",
     { model, messages, temperature, max_tokens },
     {

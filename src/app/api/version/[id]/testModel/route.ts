@@ -2,9 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { getAuthenticatedUser } from "@/utils/getAuthenticatedUser";
 import { callOpenRouter } from '@/utils/models'
 import { checkSubscription, deductTokens, isEnoughToken } from "@/utils/manageTokens";
-import { IResponse } from "@/utils/enhancePrompt";
 import { Version } from "@/models/version.model";
 import { rateLimit } from "@/lib/rateLimit";
+import { IModelResponse } from "@/utils/models";
 
 // to test prompt on models
 export async function POST(
@@ -46,7 +46,7 @@ export async function POST(
         const result = (await callOpenRouter({
           ...modelOption,
           messages: [{ role: "user", content }]
-        })) as IResponse;
+        })) as IModelResponse;
 
         await deductTokens({ userId, tokensUsed: result.tokensUsed || 0 });
 
