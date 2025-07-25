@@ -30,10 +30,6 @@ export function useGetResponse() {
       return res.data.results;
     },
 
-    onSuccess: () => {
-      toast.success("Prompt tested successfully");
-    },
-
     onError: (error: any) => {
       toast.error(error?.response?.data?.message || "Failed to test prompt");
     },
@@ -102,11 +98,8 @@ type SaveModelResponsePayload = {
 
 export const useSaveModelResponse = () => {
   return useMutation({
-    mutationFn: async ({ versionId, ...body }: SaveModelResponsePayload) => {
-      const { data } = await axiosInstance.post(
-        `/testModel/${versionId}`,
-        body
-      );
+    mutationFn: async (payload: SaveModelResponsePayload) => {
+      const { data } = await axiosInstance.post("/testModel", payload);
       return data;
     },
   });

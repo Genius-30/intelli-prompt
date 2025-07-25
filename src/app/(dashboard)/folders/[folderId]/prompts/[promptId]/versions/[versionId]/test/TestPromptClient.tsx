@@ -7,32 +7,14 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { lazy, Suspense } from "react";
 
-const AIModelSelector = lazy(() =>
-  import("@/components/version/AiModelSelector").then((m) => ({
-    default: m.AIModelSelector,
-  }))
-);
-const ModelResponseCard = lazy(() =>
-  import("@/components/response/ModelResponseCard").then((m) => ({
-    default: m.ModelResponseCard,
-  }))
-);
-const ModelResponseSkeleton = lazy(() =>
-  import("@/components/skeletons/ModelResponseSkeleton").then((m) => ({
-    default: m.ModelResponseSkeleton,
-  }))
-);
-const PromptVersionTestCard = lazy(() =>
-  import("@/components/response/PromptVersionTestCard").then((m) => ({
-    default: m.PromptVersionTestCard,
-  }))
-);
-
+import { AIModelSelector } from "@/components/version/AiModelSelector";
 import { AI_MODELS } from "@/lib/constants";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { ModelResponseCard } from "@/components/response/ModelResponseCard";
+import { ModelResponseSkeleton } from "@/components/skeletons/ModelResponseSkeleton";
+import { PromptVersionTestCard } from "@/components/response/PromptVersionTestCard";
 import { Slider } from "@/components/ui/slider";
 import { toast } from "sonner";
 import { useGetResponse } from "@/lib/queries/response";
@@ -111,7 +93,7 @@ export default function TestPromptClient() {
     setSelectedModels((prev) => prev.filter((m) => m.provider !== provider));
   };
 
-  const handleDeleteResponse = (id: string) => {
+  const handleRemoveResponse = (id: string) => {
     setResponses((prev) => prev.filter((res) => res._id !== id));
   };
 
@@ -126,15 +108,11 @@ export default function TestPromptClient() {
       </div>
 
       {/* Prompt Viewer */}
-      <Suspense
-        fallback={<div className="h-32 bg-muted animate-pulse rounded-lg" />}
-      >
-        <PromptVersionTestCard
-          versionId={versionId as string}
-          showTokenEstimate={true}
-          onTokenEstimated={(value) => setTokenEstimated(value)}
-        />
-      </Suspense>
+      <PromptVersionTestCard
+        versionId={versionId as string}
+        showTokenEstimate={true}
+        onTokenEstimated={(value) => setTokenEstimated(value)}
+      />
 
       {/* Model Selection Grid */}
       <div className="space-y-4">
@@ -145,26 +123,20 @@ export default function TestPromptClient() {
           </Badge>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="grid gap-4 grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {Object.keys(AI_MODELS).map((provider) => {
             const selected = selectedModels.find(
               (m) => m.provider === provider
             );
             return (
-              <Suspense
+              <AIModelSelector
                 key={provider}
-                fallback={
-                  <div className="h-24 bg-muted animate-pulse rounded-lg" />
-                }
-              >
-                <AIModelSelector
-                  provider={provider}
-                  selectedModel={selected?.model}
-                  isUserPremium={isUserPremium}
-                  onSelect={handleModelSelect}
-                  onDeselect={handleDeselectModel}
-                />
-              </Suspense>
+                provider={provider}
+                selectedModel={selected?.model}
+                isUserPremium={isUserPremium}
+                onSelect={handleModelSelect}
+                onDeselect={handleDeselectModel}
+              />
             );
           })}
         </div>
@@ -195,6 +167,7 @@ export default function TestPromptClient() {
                 value={[globalTemperature]}
                 onValueChange={([value]) => setGlobalTemperature(value)}
                 className="w-full"
+                disabled={isTesting || selectedModels.length === 0}
               />
               <div className="flex justify-between text-xs text-muted-foreground">
                 <span>Focused</span>
@@ -226,7 +199,10 @@ export default function TestPromptClient() {
                       )}
                     </Button>
                   </TooltipTrigger>
-                  <TooltipContent>
+                  <TooltipContent
+                    className="bg-muted"
+                    arrowClassName="bg-muted fill-muted"
+                  >
                     {selectedModels.length === 0
                       ? "Select at least one model to test"
                       : `Test ${selectedModels.length} models at temperature ${globalTemperature}`}
@@ -249,17 +225,11 @@ export default function TestPromptClient() {
           <div className="grid gap-4">
             {isTesting
               ? selectedModels.map((m) => (
-                  <Suspense
+                  <ModelResponseSkeleton
                     key={`${m.provider}-${m.model}`}
-                    fallback={
-                      <div className="h-32 bg-muted animate-pulse rounded-lg" />
-                    }
-                  >
-                    <ModelResponseSkeleton
-                      provider={m.provider as keyof typeof AI_MODELS}
-                      model={m.model}
-                    />
-                  </Suspense>
+                    provider={m.provider as keyof typeof AI_MODELS}
+                    model={m.model}
+                  />
                 ))
               : responses.map((res) => {
                   const hasError =
@@ -277,26 +247,30 @@ export default function TestPromptClient() {
                             </span>
                           </div>
                           <p className="text-sm text-destructive">
-                            {res.error ||
-                              res.response ||
-                              "Unknown error occurred"}
+                            {(() => {
+                              if (typeof res.error === "string") {
+                                return res.error;
+                              }
+                              if (typeof res.response === "string") {
+                                return res.response;
+                              }
+                              return JSON.stringify(
+                                res.error ?? res.response ?? "No response",
+                                null,
+                                2
+                              );
+                            })()}
                           </p>
                         </div>
                       ) : (
-                        <Suspense
-                          fallback={
-                            <div className="h-32 bg-muted animate-pulse rounded-lg" />
-                          }
-                        >
-                          <ModelResponseCard
-                            provider={res.provider as keyof typeof AI_MODELS}
-                            model={res.model}
-                            temperature={res.temperature}
-                            response={res.response}
-                            modelId={res._id || ""}
-                            onDelete={handleDeleteResponse}
-                          />
-                        </Suspense>
+                        <ModelResponseCard
+                          provider={res.provider as keyof typeof AI_MODELS}
+                          model={res.model}
+                          temperature={res.temperature}
+                          response={res.response}
+                          modelId={res._id || ""}
+                          onRemove={handleRemoveResponse}
+                        />
                       )}
                     </div>
                   );

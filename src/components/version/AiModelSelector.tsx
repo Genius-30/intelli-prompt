@@ -1,6 +1,6 @@
 "use client";
 
-import { Clock, Crown } from "lucide-react";
+import { Clock, Crown, XIcon } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -58,7 +58,7 @@ export function AIModelSelector({
 
   return (
     <div
-      className={`group relative overflow-hidden rounded-xl border-2 transition-all duration-200 ${
+      className={`group relative overflow-hidden rounded-xl border transition-all duration-200 ${
         isDisabled
           ? "border-muted bg-muted/30 opacity-60"
           : selectedModel
@@ -135,11 +135,11 @@ export function AIModelSelector({
           {selectedModel && !isDisabled && (
             <Button
               variant="ghost"
-              size="sm"
-              className="h-7 px-2 text-xs text-destructive hover:text-destructive hover:bg-destructive/10"
+              size="icon"
+              className="h-7 px-2 text-destructive hover:text-destructive hover:bg-destructive/10"
               onClick={() => onDeselect(provider)}
             >
-              Remove
+              <XIcon className="w-4 h-4" />
             </Button>
           )}
         </div>

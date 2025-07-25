@@ -74,10 +74,10 @@ export function PromptVersionTestCard({
           <Button
             variant="ghost"
             size="icon"
-            className="h-6 w-6"
             onClick={() => router.back()}
+            title="Edit Prompt"
           >
-            <Pencil className="w-3 h-3" />
+            <Pencil className="w-5 h-5" />
           </Button>
         </div>
       </div>

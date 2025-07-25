@@ -5,6 +5,7 @@ import {
   BookmarkCheck,
   ChevronDown,
   ChevronUp,
+  CircleX,
   Copy,
   CopyCheck,
   ThermometerSun,
@@ -35,7 +36,7 @@ interface ModelResponseCardProps {
   readonly temperature: number;
   readonly response: string;
   readonly modelId: string;
-  readonly onDelete?: (id: string) => void;
+  readonly onRemove?: (id: string) => void;
 }
 
 export function ModelResponseCard({
@@ -44,7 +45,7 @@ export function ModelResponseCard({
   temperature,
   response,
   modelId,
-  onDelete,
+  onRemove,
 }: ModelResponseCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
@@ -71,18 +72,8 @@ export function ModelResponseCard({
     }
   }, [isCopied]);
 
-  // Reset save state after 2 seconds
-  useEffect(() => {
-    if (isSaved) {
-      const timer = setTimeout(() => {
-        setIsSaved(false);
-      }, 2000);
-      return () => clearTimeout(timer);
-    }
-  }, [isSaved]);
-
-  const handleDelete = () => {
-    onDelete?.(modelId);
+  const handleRemove = () => {
+    onRemove?.(modelId);
   };
 
   const handleCopy = async () => {
@@ -172,19 +163,23 @@ export function ModelResponseCard({
                     )}
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent>
-                  {isCopied ? "Copied!" : "Copy response"}
+                <TooltipContent
+                  className="bg-muted"
+                  arrowClassName="bg-muted fill-muted"
+                >
+                  {isCopied && "Copied!"}
                 </TooltipContent>
               </Tooltip>
 
               {/* Save Button */}
-              <Tooltip open={isSaved}>
+              <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
                     size="icon"
                     variant="ghost"
                     className="h-8 w-8"
                     onClick={handleSave}
+                    disabled={isSaving}
                   >
                     {isSaved ? (
                       <BookmarkCheck className="w-3 h-3" />
@@ -193,24 +188,32 @@ export function ModelResponseCard({
                     )}
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent>
+                <TooltipContent
+                  className="bg-muted"
+                  arrowClassName="bg-muted fill-muted"
+                >
                   {isSaved ? "Saved!" : "Save response"}
                 </TooltipContent>
               </Tooltip>
 
-              {/* Delete Button */}
+              {/* Remove Button */}
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
                     size="icon"
                     variant="ghost"
                     className="h-8 w-8 hover:text-destructive"
-                    onClick={handleDelete}
+                    onClick={handleRemove}
                   >
-                    <Trash2 className="w-3 h-3" />
+                    <CircleX className="w-3 h-3" />
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent>Delete response</TooltipContent>
+                <TooltipContent
+                  className="bg-muted"
+                  arrowClassName="bg-muted fill-muted"
+                >
+                  Remove response
+                </TooltipContent>
               </Tooltip>
 
               {/* Expand/Collapse Button */}
@@ -229,7 +232,10 @@ export function ModelResponseCard({
                     )}
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent>
+                <TooltipContent
+                  className="bg-muted"
+                  arrowClassName="bg-muted fill-muted"
+                >
                   {isExpanded ? "Collapse" : "Expand"}
                 </TooltipContent>
               </Tooltip>

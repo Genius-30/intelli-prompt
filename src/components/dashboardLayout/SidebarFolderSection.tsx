@@ -38,12 +38,6 @@ import {
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "../ui/tooltip";
-import {
   useCreateFolder,
   useDeleteFolder,
   useGetAllFolders,
@@ -135,7 +129,7 @@ export function SidebarFolderSection() {
 
     return (
       <>
-        <SidebarMenuSub>
+        <SidebarMenuSub className="w-full mr-0 pr-3">
           {prompts.map((prompt: any) => (
             <SidebarMenuSubItem key={prompt._id}>
               <SidebarMenuSubButton
@@ -146,16 +140,7 @@ export function SidebarFolderSection() {
               >
                 <div className="w-full flex items-center gap-2 cursor-pointer">
                   <FileText className="h-3 w-3 flex-shrink-0" />
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <span className="truncate text-xs">{prompt.title}</span>
-                      </TooltipTrigger>
-                      <TooltipContent side="right">
-                        <p>{prompt.title}</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
+                  <p className="truncate">{prompt.title}</p>
                 </div>
               </SidebarMenuSubButton>
             </SidebarMenuSubItem>
@@ -240,18 +225,7 @@ export function SidebarFolderSection() {
                           <Folder className="h-4 w-4 flex-shrink-0" />
 
                           <div className="flex items-center justify-between w-full min-w-0">
-                            <TooltipProvider>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <span className="truncate capitalize text-sm font-medium">
-                                    {folder.title}
-                                  </span>
-                                </TooltipTrigger>
-                                <TooltipContent side="right">
-                                  <p>{folder.title}</p>
-                                </TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
+                            <p className="truncate">{folder.title}</p>
 
                             {promptCount > 0 && (
                               <span className="text-xs text-muted-foreground bg-foreground/10 px-1.5 py-0.5 rounded-full ml-2 flex-shrink-0">
