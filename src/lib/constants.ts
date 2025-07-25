@@ -1,18 +1,18 @@
 import {
-  Bot,
-  Brain,
-  Cpu,
-  Flame,
-  Search,
-  Sparkles,
-  Target,
-  Zap,
-} from "lucide-react";
+  AlibabaCloud,
+  Anthropic,
+  DeepSeek,
+  Gemini,
+  Mistral,
+  Ollama,
+  OpenAI,
+  Perplexity,
+} from "@lobehub/icons";
 
 export const AI_MODELS = {
   google: {
     name: "Google",
-    icon: Sparkles,
+    icon: Gemini,
     description: "Fast reasoning",
     color: "#0B57D0",
     premium: false,
@@ -37,7 +37,7 @@ export const AI_MODELS = {
   },
   llama: {
     name: "Meta",
-    icon: Target,
+    icon: Ollama,
     description: "Open research",
     color: "#0082FB",
     premium: false,
@@ -62,7 +62,7 @@ export const AI_MODELS = {
   },
   deepseek: {
     name: "DeepSeek",
-    icon: Cpu,
+    icon: DeepSeek,
     description: "Advanced reasoning",
     color: "#4861DA",
     premium: false,
@@ -87,7 +87,7 @@ export const AI_MODELS = {
   },
   alibaba: {
     name: "Alibaba",
-    icon: Zap,
+    icon: AlibabaCloud,
     description: "Efficient processing",
     color: "#FF6A00",
     premium: false,
@@ -112,7 +112,7 @@ export const AI_MODELS = {
   },
   mistral: {
     name: "Mistral",
-    icon: Flame,
+    icon: Mistral,
     description: "Open-source power",
     color: "#FA6325",
     premium: false,
@@ -137,7 +137,7 @@ export const AI_MODELS = {
   },
   openai: {
     name: "OpenAI",
-    icon: Bot,
+    icon: OpenAI,
     description: "Reliable & versatile",
     color: "#10A37F",
     premium: false,
@@ -158,7 +158,7 @@ export const AI_MODELS = {
   },
   anthropic: {
     name: "Anthropic",
-    icon: Brain,
+    icon: Anthropic,
     description: "Creative & safe",
     color: "#D97757",
     premium: false,
@@ -183,7 +183,7 @@ export const AI_MODELS = {
   },
   perplexity: {
     name: "Perplexity",
-    icon: Search,
+    icon: Perplexity,
     description: "Real-time search",
     color: "#2D9AA5",
     premium: false,

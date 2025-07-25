@@ -58,16 +58,13 @@ export function AIModelSelector({
 
   return (
     <div
-      className={`group relative overflow-hidden rounded-xl border transition-all duration-200 ${
+      className={`group relative overflow-hidden rounded-xl border-2 transition-all duration-200 ${
         isDisabled
           ? "border-muted bg-muted/30 opacity-60"
           : selectedModel
           ? "border-primary shadow-md bg-primary/5 hover:shadow-lg"
           : "border-border bg-card hover:border-primary/50 hover:shadow-lg"
       }`}
-      style={{
-        backgroundImage: `radial-gradient(circle at center, ${data.color}22 0%, transparent 70%)`,
-      }}
     >
       {/* Overlay for coming soon or premium */}
       {isDisabled && (
@@ -96,14 +93,8 @@ export function AIModelSelector({
         {/* Header */}
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
-            <div
-              className="p-2 rounded-lg"
-              style={{ backgroundColor: `${data.color}15` }}
-            >
-              <IconComponent
-                className="w-4 h-4"
-                style={{ color: data.color }}
-              />
+            <div className="p-2 rounded-lg bg-[#09090b]">
+              <IconComponent className="w-4 h-4" color="white" />
             </div>
             <div className="flex-1">
               <div className="flex items-center gap-2">
@@ -173,7 +164,7 @@ export function AIModelSelector({
           <SelectContent>
             {data.models.map((model) => (
               <SelectItem key={model.id} value={model.id}>
-                <div className="flex flex-col">
+                <div className="flex flex-col items-start">
                   <span className="font-medium">{model.name}</span>
                   {model.description && (
                     <span className="text-xs text-muted-foreground">

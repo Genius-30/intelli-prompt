@@ -48,7 +48,30 @@ export default function TestPromptClient() {
       isFavorite?: boolean;
       error?: string;
     }[]
-  >([]);
+  >([
+    {
+      provider: "openai",
+      model: "gpt-4",
+      temperature: 1,
+      response: "This is a mock response from GPT-4. It worked perfectly.",
+      _id: "mock-id-1",
+    },
+    {
+      provider: "anthropic",
+      model: "claude-3-opus",
+      temperature: 1.2,
+      response: "Claude's mock reply with a more verbose answer.",
+      _id: "mock-id-2",
+    },
+    {
+      provider: "mistral",
+      model: "mistral-7b",
+      temperature: 1.5,
+      response: "Error: Something went wrong on the model's side.",
+      _id: "mock-id-3",
+      error: "Mocked error: model not responding",
+    },
+  ]);
 
   const handleTestPrompt = () => {
     if (!versionId || selectedModels.length === 0) {
@@ -124,7 +147,7 @@ export default function TestPromptClient() {
       {/* Model Selection Grid */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold">Select Models</h2>
+          <h2 className="text-lg font-semibold">Select Models</h2>
           <Badge variant="secondary" className="text-sm">
             {selectedModels.length} selected
           </Badge>
@@ -221,8 +244,8 @@ export default function TestPromptClient() {
       {(isTesting || responses.length > 0) && (
         <div className="space-y-4">
           <div className="flex items-center gap-2">
-            <Eye className="w-5 h-5" />
-            <h2 className="text-xl font-semibold">Results</h2>
+            <Eye className="w-4 h-4" />
+            <h2 className="text-lg font-semibold">Results</h2>
           </div>
 
           <div className="grid gap-4">
@@ -262,7 +285,6 @@ export default function TestPromptClient() {
                           temperature={res.temperature}
                           response={res.response}
                           modelId={res._id || ""}
-                          isFavorite={res.isFavorite}
                           onDeleteLocally={handleDeleteLocalResponse}
                         />
                       )}

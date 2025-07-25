@@ -1,28 +1,31 @@
 "use client";
 
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import {
+  Bookmark,
+  BookmarkCheck,
   ChevronDown,
   ChevronUp,
   Copy,
-  Star,
-  StarOff,
+  CopyCheck,
   ThermometerSun,
   Trash2,
 } from "lucide-react";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import {
-  useDeleteResponse,
-  useSetFavoriteResponse,
-} from "@/lib/queries/response";
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { useEffect, useState } from "react";
 
 import { AI_MODELS } from "@/lib/constants";
 import { Badge } from "../ui/badge";
 import { Button } from "@/components/ui/button";
 import ReactMarkdown from "react-markdown";
-import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { useDeleteResponse } from "@/lib/queries/response";
 import { useParams } from "next/navigation";
-import { useState } from "react";
 
 type ProviderKey = keyof typeof AI_MODELS;
 
@@ -32,7 +35,6 @@ interface ModelResponseCardProps {
   readonly temperature: number;
   readonly response: string;
   readonly modelId: string;
-  readonly isFavorite?: boolean;
   readonly onDeleteLocally?: (id: string) => void;
 }
 
@@ -42,15 +44,12 @@ export function ModelResponseCard({
   temperature,
   response,
   modelId,
-  isFavorite = false,
   onDeleteLocally,
 }: ModelResponseCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
-  const [favorite, setFavorite] = useState(isFavorite);
+  const [isCopied, setIsCopied] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
   const { versionId } = useParams();
-
-  const { mutate: toggleFavorite, isPending: isTogglingFavorite } =
-    useSetFavoriteResponse(versionId as string);
   const { mutate: deleteResponse, isPending: isDeletingResponse } =
     useDeleteResponse(versionId as string);
 
@@ -62,18 +61,25 @@ export function ModelResponseCard({
   const isTruncated = response.length > MAX_CHARS;
   const previewText = isTruncated ? response.slice(0, MAX_CHARS) : response;
 
-  const handleToggleFavorite = () => {
-    toggleFavorite(modelId, {
-      onSuccess: () => {
-        const newState = !favorite;
-        setFavorite(newState);
-        toast.success(
-          newState ? "Marked as favorite" : "Removed from favorites"
-        );
-      },
-      onError: () => toast.error("Failed to toggle favorite"),
-    });
-  };
+  // Reset copy state after 2 seconds
+  useEffect(() => {
+    if (isCopied) {
+      const timer = setTimeout(() => {
+        setIsCopied(false);
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [isCopied]);
+
+  // Reset save state after 2 seconds
+  useEffect(() => {
+    if (isSaved) {
+      const timer = setTimeout(() => {
+        setIsSaved(false);
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [isSaved]);
 
   const handleDelete = () => {
     deleteResponse(modelId, {
@@ -88,9 +94,21 @@ export function ModelResponseCard({
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(response);
-      toast.success("Response copied to clipboard");
+      setIsCopied(true);
     } catch (error) {
       toast.error("Failed to copy response");
+    }
+  };
+
+  const handleSave = async () => {
+    try {
+      // Simulate API call
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
+      setIsSaved(true);
+      toast.success("Response saved successfully!");
+    } catch (error) {
+      toast.error("Failed to save response");
     }
   };
 
@@ -131,51 +149,86 @@ export function ModelResponseCard({
           </div>
 
           <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-            <Button
-              size="icon"
-              variant="ghost"
-              className="h-8 w-8"
-              onClick={handleCopy}
-            >
-              <Copy className="w-3 h-3" />
-            </Button>
-            <Button
-              size="icon"
-              variant="ghost"
-              className={cn(
-                "h-8 w-8 hover:text-yellow-500",
-                favorite && "text-yellow-500"
-              )}
-              onClick={handleToggleFavorite}
-              disabled={isTogglingFavorite}
-            >
-              {favorite ? (
-                <Star className="w-3 h-3 fill-current" />
-              ) : (
-                <StarOff className="w-3 h-3" />
-              )}
-            </Button>
-            <Button
-              size="icon"
-              variant="ghost"
-              className="h-8 w-8 hover:text-destructive"
-              onClick={handleDelete}
-              disabled={isDeletingResponse}
-            >
-              <Trash2 className="w-3 h-3" />
-            </Button>
-            <Button
-              size="icon"
-              variant="ghost"
-              className="h-8 w-8"
-              onClick={() => setIsExpanded(!isExpanded)}
-            >
-              {isExpanded ? (
-                <ChevronUp className="w-3 h-3" />
-              ) : (
-                <ChevronDown className="w-3 h-3" />
-              )}
-            </Button>
+            <TooltipProvider>
+              {/* Copy Button */}
+              <Tooltip open={isCopied}>
+                <TooltipTrigger asChild>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="h-8 w-8"
+                    onClick={handleCopy}
+                  >
+                    {isCopied ? (
+                      <CopyCheck className="w-3 h-3" />
+                    ) : (
+                      <Copy className="w-3 h-3" />
+                    )}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  {isCopied ? "Copied!" : "Copy response"}
+                </TooltipContent>
+              </Tooltip>
+
+              {/* Save Button */}
+              <Tooltip open={isSaved}>
+                <TooltipTrigger asChild>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="h-8 w-8"
+                    onClick={handleSave}
+                  >
+                    {isSaved ? (
+                      <BookmarkCheck className="w-3 h-3" />
+                    ) : (
+                      <Bookmark className="w-3 h-3" />
+                    )}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  {isSaved ? "Saved!" : "Save response"}
+                </TooltipContent>
+              </Tooltip>
+
+              {/* Delete Button */}
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="h-8 w-8 hover:text-destructive"
+                    onClick={handleDelete}
+                    disabled={isDeletingResponse}
+                  >
+                    <Trash2 className="w-3 h-3" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Delete response</TooltipContent>
+              </Tooltip>
+
+              {/* Expand/Collapse Button */}
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="h-8 w-8"
+                    onClick={() => setIsExpanded(!isExpanded)}
+                  >
+                    {isExpanded ? (
+                      <ChevronUp className="w-3 h-3" />
+                    ) : (
+                      <ChevronDown className="w-3 h-3" />
+                    )}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  {isExpanded ? "Collapse" : "Expand"}
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
         </div>
       </CardHeader>

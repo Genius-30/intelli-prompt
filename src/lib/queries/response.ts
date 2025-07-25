@@ -93,23 +93,19 @@ export function useDeleteResponse(versionId?: string) {
   });
 }
 
-// Mutation to set a response as favorite
-export function useSetFavoriteResponse(versionId?: string) {
-  const queryClient = useQueryClient();
+type SaveModelResponsePayload = {
+  provider: string;
+  model: string;
+  temperature: number;
+  prompt: string;
+  response: string;
+};
 
+export const useSaveModelResponse = () => {
   return useMutation({
-    mutationFn: async (modelResponseId: string) => {
-      const res = await axiosInstance.patch(
-        `/prompt/testModel/${modelResponseId}/favorite`
-      );
+    mutationFn: async (payload: SaveModelResponsePayload) => {
+      const res = await axiosInstance.post("/testModel", payload);
       return res.data;
     },
-    onSuccess: () => {
-      if (versionId) {
-        queryClient.invalidateQueries({
-          queryKey: ["all-responses", versionId],
-        });
-      }
-    },
   });
-}
+};

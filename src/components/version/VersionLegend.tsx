@@ -19,7 +19,10 @@ export function VersionLegend() {
             Guide
           </button>
         </TooltipTrigger>
-        <TooltipContent side="bottom" className="max-w-xs bg-muted">
+        <TooltipContent
+          side="bottom"
+          className="max-w-xs bg-muted border-muted"
+        >
           <div className="space-y-2 text-xs">
             <div className="space-y-1">
               <div className="flex items-center gap-2">
