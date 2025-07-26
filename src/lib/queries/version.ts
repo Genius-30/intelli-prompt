@@ -1,48 +1,30 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+
 import axiosInstance from "../axios";
+import { toast } from "sonner";
 
-type CreateVersionPayload = {
-  content: string;
-  folderId: string;
-};
+export const useGetAllVersions = (promptId: string) => {
+  return useQuery({
+    queryKey: ["versions", promptId],
+    queryFn: async () => {
+      if (!promptId) return toast.error("Prompt ID is required");
 
-export const useCreateVersion = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async ({ content, folderId }: CreateVersionPayload) => {
-      console.log(content, folderId);
-
-      const res = await axiosInstance.post("/prompt", { content, folderId });
-      return res.data.newPrompt;
+      const res = await axiosInstance.get(`/prompt/${promptId}/allVersions`);
+      return res.data.versions;
     },
-    onSuccess: (_, { folderId }) => {
-      queryClient.invalidateQueries({ queryKey: ["promptMeta", folderId] });
-      queryClient.invalidateQueries({ queryKey: ["versions", folderId] });
-      queryClient.invalidateQueries({ queryKey: ["prompts"] }); // for main list
-    },
+    enabled: !!promptId,
   });
 };
 
-type UpdateVersionPayload = {
-  versionId: string;
-  content: string;
-};
-
-export const useUpdateVersion = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async ({ versionId, content }: UpdateVersionPayload) => {
-      const res = await axiosInstance.patch(`/prompt/${versionId}/save`, {
-        content,
-      });
-      return res.data.updatedPrompt;
+export const useGetVersion = (versionId: string | undefined) => {
+  return useQuery({
+    queryKey: ["version", versionId],
+    queryFn: async () => {
+      if (!versionId) throw new Error("Version ID is required");
+      const res = await axiosInstance.get(`/version/${versionId}`);
+      return res.data.version;
     },
-    onSuccess: (_, { versionId }) => {
-      queryClient.invalidateQueries({ queryKey: ["versions"] });
-      queryClient.invalidateQueries({ queryKey: ["promptMeta", versionId] });
-    },
+    enabled: !!versionId,
   });
 };
 
@@ -57,16 +39,36 @@ export const useAddVersion = () => {
   return useMutation({
     mutationFn: async ({ promptId, content }: AddVersionPayload) => {
       const res = await axiosInstance.patch(
-        `/prompt/${promptId}/addToHistory`,
-        {
-          content,
-        }
+        `/version/${promptId}/addToHistory`,
+        { content }
       );
-      return res.data.newPrompt;
+      return res.data.newVersion;
     },
     onSuccess: (_, { promptId }) => {
+      queryClient.invalidateQueries({ queryKey: ["versions", promptId] });
+      queryClient.invalidateQueries({ queryKey: ["prompt", promptId] });
+    },
+  });
+};
+
+type UpdateVersionPayload = {
+  versionId: string;
+  content: string;
+};
+
+export const useUpdateVersion = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ versionId, content }: UpdateVersionPayload) => {
+      const res = await axiosInstance.patch(`/version/${versionId}/save`, {
+        content,
+      });
+      return res.data.updatedVersion;
+    },
+    onSuccess: (_, { versionId }) => {
       queryClient.invalidateQueries({ queryKey: ["versions"] });
-      queryClient.invalidateQueries({ queryKey: ["promptMeta", promptId] });
+      queryClient.invalidateQueries({ queryKey: ["version", versionId] });
     },
   });
 };
@@ -76,54 +78,27 @@ export function useDeleteVersion(promptId: string) {
 
   return useMutation({
     mutationFn: async (versionId: string) => {
-      const res = await axiosInstance.delete(`/prompt/${versionId}`);
+      const res = await axiosInstance.delete(`/version/${versionId}`);
       return res.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["promptVersions", promptId],
+        queryKey: ["versions", promptId],
       });
     },
   });
 }
 
-export const useGetAllVersions = (promptId: string) => {
-  return useQuery({
-    queryKey: ["promptVersions", promptId],
-    queryFn: async () => {
-      if (!promptId) throw new Error("Prompt ID is required");
-
-      const res = await axiosInstance.post(`/prompt/fetchPrompts`, {
-        folderId: promptId,
-      });
-      return res.data.prompts;
-    },
-    enabled: !!promptId,
-  });
-};
-
-export const useGetVersion = (versionId: string | undefined) => {
-  return useQuery({
-    queryKey: ["version", versionId],
-    queryFn: async () => {
-      if (!versionId) throw new Error("Version ID is required");
-      const res = await axiosInstance.get(`/prompt/${versionId}`);
-      return res.data.prompt;
-    },
-    enabled: !!versionId,
-  });
-};
-
-export const useToggleFavorite = () => {
+export const useToggleFavoriteVersion = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const res = await axiosInstance.patch(`/prompt/${id}/favorite`);
+      const res = await axiosInstance.patch(`/version/${id}/favorite`);
       return res.data;
     },
     onSuccess: (_, id) => {
-      queryClient.invalidateQueries({ queryKey: ["prompts"] });
+      queryClient.invalidateQueries({ queryKey: ["versions"] });
       queryClient.invalidateQueries({ queryKey: ["version", id] });
     },
   });
@@ -132,49 +107,54 @@ export const useToggleFavorite = () => {
 type EnhancePromptArgs = {
   content: string;
   tokenEstimated: number;
+  signal?: AbortSignal;
 };
 
 export function useEnhancePrompt() {
   return useMutation({
-    mutationFn: async ({ content, tokenEstimated }: EnhancePromptArgs) => {
-      const res = await axiosInstance.post(`/prompt/enhance`, {
-        content,
-        tokenEstimated,
-      });
-
-      if (!res.data?.response) {
-        throw new Error("No enhancement returned.");
+    mutationFn: async ({
+      content,
+      tokenEstimated,
+      signal,
+    }: EnhancePromptArgs) => {
+      try {
+        const res = await axiosInstance.post(
+          `/version/enhance`,
+          { content, tokenEstimated },
+          { signal }
+        );
+        return res.data.response as string;
+      } catch (err: any) {
+        console.error("Enhance API error:", err);
+        throw err;
       }
-
-      return res.data.response as string;
     },
   });
 }
 
-export function useSetActiveVersion(promptFolderId: string, versionId: string) {
+export function useSetActiveVersion() {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async ({
       versionId,
-      folderId,
+      promptId,
     }: {
       versionId: string;
-      folderId: string;
+      promptId: string;
     }) => {
-      const res = await axiosInstance.patch(`/prompt/${versionId}`, {
-        folderId,
+      const res = await axiosInstance.patch(`/version/${versionId}/active`, {
+        promptId,
       });
 
       return res.data;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["promptVersions", promptFolderId],
-      });
-      queryClient.invalidateQueries({
-        queryKey: ["version", versionId],
-      });
+    onSuccess: (_, { promptId }) => {
+      queryClient.invalidateQueries({ queryKey: ["versions"] });
+      queryClient.invalidateQueries({ queryKey: ["prompt", promptId] });
+    },
+    onError: () => {
+      console.error("Error setting active version");
     },
   });
 }

@@ -1,42 +1,42 @@
-import { IModelCallProps } from '@/utils/models';
-import { IModelResponse } from '@/utils/models';
-import axios from 'axios';
+import { IModelCallProps } from "@/utils/models";
+import { IModelResponse } from "@/utils/models";
+import axios from "axios";
 
 async function callGemini({
-  model = 'gemini-2.0-flash',
+  model = "gemini-2.0-flash",
   messages,
-  temperature = 1.5
+  temperature = 1.5,
 }: IModelCallProps): Promise<IModelResponse> {
   try {
-    const formattedMessages = messages.map(msg => ({
-      role: msg.role === 'assistant'? 'model': 'user',
-      parts: [{ text: msg.content }]
-    }))
-  
+    const formattedMessages = messages.map((msg) => ({
+      role: msg.role === "assistant" ? "model" : "user",
+      parts: [{ text: msg.content }],
+    }));
+
     const res = await axios.post(
       `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${process.env.GEMINI_API_KEY}`,
-      { 
-        contents: formattedMessages, 
-        generationConfig: { temperature } 
+      {
+        contents: formattedMessages,
+        generationConfig: { temperature },
       },
-      { 
+      {
         headers: {
-          'Content-Type': 'application/json',
-        }
+          "Content-Type": "application/json",
+        },
       }
     );
-  
-    return { 
+
+    return {
       temperature: temperature || 0,
       tokensUsed: res.data.usageMetadata?.totalTokenCount || 0,
-      response: res.data.candidates?.[0]?.content?.parts?.[0]?.text || ''
-    }
+      response: res.data.candidates?.[0]?.content?.parts?.[0]?.text || "",
+    };
   } catch (err) {
-    console.error('Error in callGemini:', err);
+    console.error("Error in callGemini:", err);
     return {
       temperature,
       tokensUsed: 0,
-      response: '',
+      response: "",
       error: err,
     };
   }
@@ -54,28 +54,28 @@ export async function enhancedPrompt(content: string): Promise<IModelResponse> {
   const userPrompt = `Original Prompt: ${content.trim()}`;
 
   try {
-    const response = await callGemini({
+    const response = (await callGemini({
       messages: [
         { role: "system", content: systemPrompt },
         { role: "user", content: userPrompt },
       ],
       model: "gemini-2.0-flash",
       temperature: 1.5,
-    }) as IModelResponse;
+    })) as IModelResponse;
 
-    return { 
+    return {
       temperature: response.temperature,
       tokensUsed: response.tokensUsed,
       response: response.response,
-      error:response.error
+      error: response.error,
     };
   } catch (err) {
     console.log("Error in enhancePrompt: ", err);
-    return { 
+    return {
       tokensUsed: 0,
       temperature: 0,
       response: "",
-      error: err
+      error: err,
     };
   }
 }

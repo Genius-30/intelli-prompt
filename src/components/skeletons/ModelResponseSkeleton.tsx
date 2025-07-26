@@ -1,10 +1,12 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+
+import { AI_MODELS } from "@/lib/constants/AI_MODELS";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Badge } from "@/components/ui/badge";
-import { AI_MODELS } from "@/lib/constants";
+
+type ProviderKey = keyof typeof AI_MODELS;
 
 interface ModelResponseSkeletonProps {
-  provider: keyof typeof AI_MODELS;
+  provider: ProviderKey;
   model: string;
 }
 
@@ -12,33 +14,50 @@ export function ModelResponseSkeleton({
   provider,
   model,
 }: ModelResponseSkeletonProps) {
-  const color = AI_MODELS[provider]?.color || "#ccc";
+  const providerData = AI_MODELS[provider];
+  const IconComponent = providerData?.icon;
+  const color = providerData?.color || "#6b7280";
 
   return (
-    <Card className="overflow-hidden border" style={{ borderColor: color }}>
-      <CardHeader className="flex justify-between items-center bg-muted px-4 py-2">
-        <div className="flex flex-col gap-1">
-          <h4 className="font-semibold text-sm capitalize flex items-center gap-2">
-            <Badge style={{ backgroundColor: color }}>
-              {provider.toUpperCase()}
-            </Badge>
-            <span className="text-foreground">{model}</span>
-          </h4>
-          <p className="text-xs text-muted-foreground">
-            Temperature:{" "}
-            <Skeleton className="inline-block w-8 h-3 align-middle ml-1" />
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Skeleton className="h-6 w-6 rounded-full" />
-          <Skeleton className="h-6 w-6 rounded-full" />
-          <Skeleton className="h-6 w-6 rounded-full" />
+    <Card
+      className="border-l-4 animate-pulse"
+      style={{ borderLeftColor: color }}
+    >
+      <CardHeader className="pb-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div
+              className="p-2 rounded-lg"
+              style={{ backgroundColor: `${color}15` }}
+            >
+              {IconComponent && (
+                <IconComponent
+                  className="w-4 h-4 opacity-50"
+                  style={{ color: color }}
+                />
+              )}
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Skeleton className="h-5 w-16" />
+                <Skeleton className="h-4 w-24" />
+              </div>
+              <Skeleton className="h-3 w-20" />
+            </div>
+          </div>
+          <div className="flex gap-1">
+            <Skeleton className="h-8 w-8 rounded" />
+            <Skeleton className="h-8 w-8 rounded" />
+            <Skeleton className="h-8 w-8 rounded" />
+          </div>
         </div>
       </CardHeader>
-      <CardContent className="space-y-2">
+      <CardContent className="pt-0 space-y-2">
         <Skeleton className="h-4 w-full" />
-        <Skeleton className="h-4 w-[90%]" />
-        <Skeleton className="h-4 w-[85%]" />
+        <Skeleton className="h-4 w-4/5" />
+        <Skeleton className="h-4 w-3/4" />
+        <Skeleton className="h-4 w-full" />
+        <Skeleton className="h-4 w-2/3" />
       </CardContent>
     </Card>
   );

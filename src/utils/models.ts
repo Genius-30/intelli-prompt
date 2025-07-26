@@ -25,8 +25,10 @@ const isQuotaOrRateLimitError = (err: any) => {
   const status = err?.response?.status || 0;
 
   return (
-    status === 402 || status === 429 ||
-    msg.includes("insufficient credits") || msg.includes("rate limit")
+    status === 402 ||
+    status === 429 ||
+    msg.includes("insufficient credits") ||
+    msg.includes("rate limit")
   );
 };
 
@@ -55,25 +57,35 @@ export async function callOpenRouter({
   temperature = 1.5,
   max_tokens = 300,
 }: IModelCallProps): Promise<IModelResponse> {
-  const keys = [process.env.OPENROUTER_API_KEY!, process.env.OPENROUTER_API_KEY_2!, process.env.OPENROUTER_API_KEY_3!].filter(Boolean);
+  const keys = [
+    process.env.OPENROUTER_API_KEY!,
+    process.env.OPENROUTER_API_KEY_2!,
+    process.env.OPENROUTER_API_KEY_3!,
+  ].filter(Boolean);
 
-  for(const key of keys){
+  for (const key of keys) {
     try {
-      const res = await callWithKey(key, model, messages, temperature, max_tokens);
-      const content = res.data.choices?.[0]?.message.content?.trim() || ''
-      if(!content){
+      const res = await callWithKey(
+        key,
+        model,
+        messages,
+        temperature,
+        max_tokens
+      );
+      const content = res.data.choices?.[0]?.message.content?.trim() || "";
+      if (!content) {
         return {
           temperature,
           tokensUsed: 0,
           response: "",
           error: `No response from ${model}`,
-        }
+        };
       }
 
       return {
         temperature: temperature || 0,
         tokensUsed: res.data.usage?.total_tokens || 0,
-        response: content
+        response: content,
       };
     } catch (err) {
       if (isQuotaOrRateLimitError(err)) {
@@ -81,13 +93,13 @@ export async function callOpenRouter({
         continue; // Try next key
       }
 
-      console.error('Error calling OpenRouter:', err);
+      console.error("Error calling OpenRouter:", err);
       return {
         temperature,
         tokensUsed: 0,
         response: "",
         error: err,
-      }
+      };
     }
   }
 
@@ -95,6 +107,6 @@ export async function callOpenRouter({
     temperature: 0,
     tokensUsed: 0,
     response: "",
-    error: 'All api keys are either exhausted or rate limited'
-  }
+    error: "All api keys are either exhausted or rate limited",
+  };
 }

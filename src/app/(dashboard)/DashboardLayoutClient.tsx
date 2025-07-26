@@ -32,7 +32,7 @@ import {
 import { SignOutButton, useClerk, useUser } from "@clerk/nextjs";
 
 import { Badge } from "@/components/ui/badge";
-import { BreadcrumbResponsive } from "../../components/BreadCrumbResponsive";
+import { BreadcrumbResponsive } from "../../components/dashboardLayout/BreadCrumbResponsive";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import Logo from "../../components/Logo";
@@ -152,7 +152,7 @@ export default function DashboardLayoutClient({
           </div>
         </header>
 
-        <main className="flex-1 p-6">{children}</main>
+        <main className="flex-1 p-4 md:p-8">{children}</main>
       </SidebarInset>
     </SidebarProvider>
   );

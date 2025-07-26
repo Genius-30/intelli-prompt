@@ -1,245 +1,229 @@
 "use client";
 
-import {
-  CheckIcon,
-  GitBranchIcon,
-  MoreVertical,
-  PlusIcon,
-  SquarePenIcon,
-  Star,
-  TrashIcon,
-  Zap,
-} from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { GitBranch, PlusIcon } from "lucide-react";
 import {
   useDeleteVersion,
   useGetAllVersions,
   useSetActiveVersion,
 } from "@/lib/queries/version";
 import { useEffect, useRef } from "react";
+import { useParams, usePathname, useRouter } from "next/navigation";
 
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
-import { Skeleton } from "@/components/ui/skeleton";
-import { VersionsSkeleton } from "@/components/skeletons/VersionsSkeleton";
-import { formatDistanceToNow } from "date-fns";
+import { PromptVersionsSkeleton } from "@/components/skeletons/PromptVersionsSkeleton";
+import { VersionCard } from "@/components/version/VersionCard";
+import { VersionLegend } from "@/components/version/VersionLegend";
 import { toast } from "sonner";
-import { useGetPromptMeta } from "@/lib/queries/folder";
-import { useParams } from "next/navigation";
 
 interface Version {
   _id: string;
-  version: string;
-  updatedAt: string | Date;
-  isCurrent: boolean;
-  isFavorite: boolean;
+  ownerId: string;
+  promptId: string;
+  versionNumber: number;
   content: string;
+  isActive: boolean;
+  isFavorite: boolean;
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
 }
 
 export function PromptVersionsClient() {
-  const { promptId } = useParams();
+  const { folderId, promptId } = useParams();
+  const pathname = usePathname();
+  const router = useRouter();
   const activeVersionRef = useRef<HTMLDivElement | null>(null);
+  const versionRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
 
-  const { data: promptMeta, isLoading } = useGetPromptMeta(promptId as string);
-  const { data: versions = [], isLoading: versionsLoading } = useGetAllVersions(
+  const { data: versions, isLoading: versionsLoading } = useGetAllVersions(
     promptId as string
   );
+
   const { mutate: deleteVersion, isPending: isDeleting } = useDeleteVersion(
     promptId as string
   );
   const { mutate: setActiveVersion, isPending: isActivating } =
-    useSetActiveVersion(promptId as string);
+    useSetActiveVersion();
+
+  const activeVersion = versions?.find((v: Version) => v.isActive);
+  const activeVersionId = activeVersion?._id;
+
+  const latestVersion = versions?.reduce(
+    (latest: Version, current: Version) => {
+      return new Date(current.createdAt) > new Date(latest.createdAt)
+        ? current
+        : latest;
+    }
+  );
 
   useEffect(() => {
-    if (activeVersionRef.current) {
-      activeVersionRef.current.scrollIntoView({
+    if (activeVersionRef.current && !versionsLoading) {
+      setTimeout(() => {
+        activeVersionRef.current?.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
+      }, 100);
+    }
+  }, [versionsLoading]);
+
+  const getVersionNumber = (index: number) => versions.length - index;
+
+  const handleSetActive = (versionId: string) => {
+    setActiveVersion(
+      {
+        versionId,
+        promptId: promptId as string,
+      },
+      {
+        onSuccess: () => toast.success("Version set as active"),
+        onError: () => toast.error("Failed to set as active"),
+      }
+    );
+  };
+
+  const handleDelete = (versionId: string) => {
+    deleteVersion(versionId, {
+      onSuccess: () => toast.success("Version deleted"),
+      onError: () => toast.error("Failed to delete version"),
+    });
+  };
+
+  const scrollToVersion = (versionId: string) => {
+    const versionElement = versionRefs.current[versionId];
+    if (versionElement) {
+      versionElement.scrollIntoView({
         behavior: "smooth",
         block: "center",
       });
     }
-  }, [versionsLoading]);
+  };
+
+  if (versionsLoading) {
+    return <PromptVersionsSkeleton />;
+  }
+
+  if (!versions || versions.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 px-4">
+        <div className="w-12 h-12 bg-muted rounded-lg flex items-center justify-center mb-4">
+          <GitBranch className="w-6 h-6 text-muted-foreground" />
+        </div>
+        <h3 className="text-lg font-medium mb-2">No versions yet</h3>
+        <p className="text-sm text-muted-foreground text-center mb-6 max-w-md">
+          You haven't created a prompt yet. Create your first prompt to start
+          managing versions.
+        </p>
+        <Button onClick={() => router.push(`/folders/${folderId}/prompts/new`)}>
+          <PlusIcon className="w-4 h-4 mr-2" />
+          Create Prompt
+        </Button>
+      </div>
+    );
+  }
 
   return (
-    <div className="sm:p-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-2">
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
         <div>
-          {isLoading ? (
-            <div className="space-y-2">
-              <Skeleton className="h-6 w-[180px]" />
-              <Skeleton className="h-4 w-[240px]" />
-            </div>
-          ) : (
-            <>
-              <h1 className="text-2xl font-semibold">
-                {promptMeta?.title ?? "Prompt Versions"}
-              </h1>
-              <p className="text-muted-foreground text-sm">
-                View and manage all versions of this prompt
-              </p>
-            </>
+          <h2 className="text-lg font-medium">Version History</h2>
+          <p className="text-sm text-muted-foreground">
+            Manage all versions of this prompt
+          </p>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <VersionLegend />
+          {activeVersionId && (
+            <Button
+              size="sm"
+              onClick={() => router.push(`${pathname}/${activeVersionId}`)}
+            >
+              <PlusIcon className="w-4 h-4 mr-2" />
+              New Version
+            </Button>
           )}
         </div>
       </div>
 
-      {/* Timeline */}
-      {(() => {
-        if (versionsLoading) {
-          return (
-            <>
-              <VersionsSkeleton />
-              <VersionsSkeleton />
-              <VersionsSkeleton />
-            </>
-          );
-        }
+      <div className="border rounded-lg">
+        <div className="flex items-center gap-2 px-3 py-2 border-b bg-muted/30">
+          <GitBranch className="w-3 h-3 text-muted-foreground" />
+          <span className="text-xs text-muted-foreground">Timeline</span>
+        </div>
 
-        if (versions.length === 0) {
+        <div className="p-3">
+          <div className="relative">
+            <div className="absolute inset-x-0 top-1/2 h-px bg-border" />
+            <div className="overflow-x-auto">
+              <div className="flex items-center gap-3 min-w-max">
+                {versions.map((version: Version, index: number) => {
+                  const versionNumber = getVersionNumber(index);
+                  const isActive = version.isActive;
+                  const isFavorite = version.isFavorite;
+                  const isLatest = latestVersion?._id === version._id;
+
+                  const getNodeColor = () => {
+                    if (isLatest) return "border-emerald-500 text-white";
+                    if (isActive) return "border-blue-500 text-white";
+                    if (isFavorite) return "border-amber-500 text-white";
+                    return "border-border text-muted-foreground hover:border-muted-foreground";
+                  };
+
+                  return (
+                    <button
+                      key={version._id}
+                      onClick={() => scrollToVersion(version._id)}
+                      className="relative flex-shrink-0 focus:outline-none focus:ring-2 focus:ring-primary/50 rounded-full transition-colors"
+                      aria-label={`Jump to version ${versionNumber}`}
+                    >
+                      <div
+                        className={`relative z-10 flex items-center justify-center w-6 h-6 bg-background rounded-full border text-xs font-medium transition-colors ${getNodeColor()}`}
+                      >
+                        {versionNumber}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="px-3 py-2 border-t bg-muted/30">
+          <div className="text-xs text-muted-foreground text-center">
+            {versions.length} version{versions.length !== 1 ? "s" : ""}
+          </div>
+        </div>
+      </div>
+
+      <div className="space-y-3">
+        {versions.map((version: Version, index: number) => {
+          const isActive = version.isActive;
+          const isLatest = latestVersion?._id === version._id;
+
           return (
-            <div className="text-center py-10">
-              <p className="text-muted-foreground text-sm mb-4">
-                No versions available yet.
-              </p>
-              <Button asChild>
-                <Link href={`/prompts/${promptId}/versions/new`}>
-                  <PlusIcon className="w-4 h-4" /> Create Version
-                </Link>
-              </Button>
+            <div
+              key={version._id}
+              ref={(el) => {
+                versionRefs.current[version._id] = el;
+                if (isActive) {
+                  activeVersionRef.current = el;
+                }
+              }}
+            >
+              <VersionCard
+                version={version}
+                onSetActive={handleSetActive}
+                onDelete={handleDelete}
+                isActivating={isActivating}
+                isDeleting={isDeleting}
+                isLatest={isLatest}
+              />
             </div>
           );
-        }
-
-        return (
-          <div className="relative border-l border-muted pl-6 max-h-[calc(100vh-150px)] overflow-y-auto sm:pr-4">
-            {versions.map((version: Version, index: number) => (
-              <div
-                key={version._id}
-                ref={version.isCurrent ? activeVersionRef : null}
-                className="relative pb-10 group"
-              >
-                {index < versions.length - 1 && (
-                  <span className="absolute left-[-1px] top-6 h-full w-px bg-muted z-0" />
-                )}
-                <span className="absolute -left-[8px] top-[8px] z-10">
-                  {version.isCurrent && (
-                    <span className="absolute inset-0 rounded-full bg-primary opacity-75 animate-ping" />
-                  )}
-                  <span
-                    className={`relative block w-4 h-4 ${
-                      version.isCurrent ? "bg-primary" : "bg-background"
-                    } border-2 border-primary rounded-full`}
-                  />
-                </span>
-
-                <div className="pl-6 pr-4 pt-2 pb-3 bg-background rounded-lg shadow-sm border border-muted relative z-10 ml-4 sm:ml-8">
-                  <div className="flex justify-between items-center">
-                    <div className="flex items-center gap-2 text-base font-medium">
-                      <GitBranchIcon className="w-4 h-4" />v{version.version}
-                      {version.isCurrent && (
-                        <Badge variant="default" className="text-xs">
-                          Active
-                        </Badge>
-                      )}
-                      {version.isFavorite && (
-                        <Star className="w-4 h-4 text-yellow-500 fill-yellow-400" />
-                      )}
-                    </div>
-
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon">
-                          <MoreVertical className="w-4 h-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent>
-                        {!version.isCurrent && (
-                          <DropdownMenuItem
-                            onClick={() =>
-                              setActiveVersion(
-                                {
-                                  versionId: version._id,
-                                  folderId: promptId as string,
-                                },
-                                {
-                                  onSuccess: () =>
-                                    toast.success("Set as active."),
-                                  onError: () =>
-                                    toast.error("Failed to set active."),
-                                }
-                              )
-                            }
-                            disabled={isActivating}
-                          >
-                            <CheckIcon className="w-4 h-4 mr-1" /> Set as Active
-                          </DropdownMenuItem>
-                        )}
-                        <DropdownMenuItem
-                          onClick={() =>
-                            deleteVersion(version._id, {
-                              onSuccess: () =>
-                                toast.success("Version deleted."),
-                              onError: () =>
-                                toast.error("Failed to delete version."),
-                            })
-                          }
-                          disabled={isDeleting}
-                          className="text-red-600"
-                        >
-                          <TrashIcon className="text-red-600 w-4 h-4 mr-1" />
-                          Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
-
-                  <p className="text-sm text-muted-foreground mt-2 line-clamp-2">
-                    {version.content}
-                  </p>
-
-                  <div className="flex justify-between items-center mt-5">
-                    <p className="text-xs text-muted-foreground">
-                      Updated {formatDistanceToNow(new Date(version.updatedAt))}{" "}
-                      ago
-                    </p>
-                    <div className="flex gap-2">
-                      <Button
-                        asChild
-                        size="sm"
-                        variant="outline"
-                        className="px-3"
-                      >
-                        <Link
-                          href={`/prompts/${promptId}/versions/${version._id}`}
-                        >
-                          <SquarePenIcon className="w-4 h-4 mr-1" /> Edit
-                        </Link>
-                      </Button>
-                      <Button
-                        asChild
-                        size="sm"
-                        variant="default"
-                        className="px-3"
-                      >
-                        <Link
-                          href={`/prompts/${promptId}/versions/${version._id}/test`}
-                        >
-                          <Zap className="w-4 h-4" /> Test
-                        </Link>
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        );
-      })()}
+        })}
+      </div>
     </div>
   );
 }

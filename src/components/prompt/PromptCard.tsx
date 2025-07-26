@@ -1,132 +1,172 @@
+"use client";
+
 import {
   Card,
   CardContent,
   CardFooter,
   CardHeader,
 } from "@/components/ui/card";
-import {
-  GitBranchIcon,
-  PlusIcon,
-  SquarePenIcon,
-  Star,
-  StarOff,
-  Zap,
-} from "lucide-react";
+import { Clock, ExternalLink, GitBranch, Loader2, Trash2 } from "lucide-react";
+import { useDeletePrompt, useToggleFavoritePrompt } from "@/lib/queries/prompt";
+import { usePathname, useRouter } from "next/navigation";
 
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
-import { cn } from "@/lib/utils";
+import { Badge } from "../ui/badge";
+import { Button } from "../ui/button";
+import FavoriteButton from "../common/FavoriteButton";
+import type React from "react";
 import { formatDistanceToNow } from "date-fns";
-import { useRouter } from "next/navigation";
-import { useToggleFavorite } from "@/lib/queries/folder";
 
-type PromptCardProps = {
-  prompt: {
-    _id: string;
-    title: string;
-    isFavorite: boolean;
-    totalVersions: number;
-    updatedAt: string;
-    activeVersion: string;
-  };
-};
+interface ActiveVersion {
+  _id: string;
+  content: string;
+  versionNumber: number;
+  isActive: boolean;
+  createdAt?: string;
+}
 
-export function PromptCard({
-  prompt,
-}: {
-  readonly prompt: Readonly<PromptCardProps["prompt"]>;
-}) {
+interface PromptCardProps {
+  _id: string;
+  title: string;
+  totalVersions: number;
+  isFavorite?: boolean;
+  createdAt: string;
+  updatedAt?: string;
+  activeVersion?: ActiveVersion;
+}
+
+export default function PromptCard({
+  _id,
+  title,
+  totalVersions,
+  isFavorite,
+  createdAt,
+  updatedAt,
+  activeVersion,
+}: PromptCardProps) {
+  const displayDate = updatedAt ? updatedAt : createdAt;
   const router = useRouter();
-  const { mutate: toggleFavorite, isPending } = useToggleFavorite();
+  const pathname = usePathname();
+  const { mutate: deleteMutate, isPending: isDeleting } = useDeletePrompt(_id);
+  const { mutate: favoriteMutate, isPending } = useToggleFavoritePrompt(_id);
 
-  const handleCardClick = () => {
-    router.push(`/prompts/${prompt._id}/versions`);
+  const handleFavorite = () => {
+    favoriteMutate();
   };
 
-  const handleToggleFavorite = (e: React.MouseEvent) => {
+  const handleDelete = () => {
+    deleteMutate();
+  };
+
+  const handleViewActiveVersion = (e: React.MouseEvent) => {
     e.stopPropagation();
-    toggleFavorite(prompt._id);
+    if (activeVersion?._id) {
+      router.push(`${pathname}/${_id}/versions/${activeVersion._id}`);
+    }
+  };
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return formatDistanceToNow(date, { addSuffix: true });
+  };
+
+  const truncateContent = (content: string, maxLength = 120) => {
+    if (content.length <= maxLength) return content;
+    return content.substring(0, maxLength).trim() + "...";
   };
 
   return (
-    <Card
-      onClick={handleCardClick}
-      className="hover:shadow-md transition cursor-pointer"
-    >
-      <CardHeader className="flex flex-row justify-between items-center">
-        <h3 className="text-lg font-semibold truncate">{prompt.title}</h3>
-        <Button
-          size="icon"
-          variant="ghost"
-          className={cn(
-            "hover:text-yellow-500",
-            prompt.isFavorite && "text-yellow-500"
-          )}
-          onClick={handleToggleFavorite}
-          disabled={isPending}
-        >
-          {prompt.isFavorite ? (
-            <Star className="w-4 h-4 fill-yellow-400" />
-          ) : (
-            <StarOff className="w-4 h-4" />
-          )}
-        </Button>
+    <Card className="w-full max-w-sm hover:shadow-lg transition-all duration-200 border-border/50 hover:border-border">
+      <CardHeader className="flex items-center justify-between gap-2">
+        <div className="flex-1 min-w-0">
+          <h3 className="font-semibold text-lg leading-tight line-clamp-2">
+            {title}
+          </h3>
+        </div>
+        <div className="flex items-center gap-1 flex-shrink-0">
+          <FavoriteButton
+            isFavorite={isFavorite ?? false}
+            isPending={isPending}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleFavorite();
+            }}
+          />
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDelete();
+            }}
+            disabled={isDeleting}
+          >
+            {isDeleting ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Trash2 className="h-4 w-4" />
+            )}
+          </Button>
+        </div>
       </CardHeader>
 
-      <CardContent>
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <GitBranchIcon className="w-4 h-4" />
-          <span>
-            {prompt.totalVersions} version{prompt.totalVersions > 1 ? "s" : ""}
-          </span>
+      <CardContent className="pt-0 space-y-4">
+        {/* Active Version Content Preview */}
+        {activeVersion?.content && (
+          <div className="bg-muted/30 rounded-lg p-3 border border-border/30">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-xs font-medium text-muted-foreground">
+                #v{activeVersion.versionNumber}
+              </span>
+              <Badge variant="secondary" className="text-xs">
+                Active
+              </Badge>
+            </div>
+            <p className="text-sm text-foreground/80 line-clamp-3 leading-relaxed">
+              {truncateContent(activeVersion.content)}
+            </p>
+          </div>
+        )}
+
+        {/* Metadata */}
+        <div className="flex items-center gap-4 text-xs text-muted-foreground">
+          <div className="flex items-center gap-1.5">
+            <GitBranch className="h-4 w-4" />
+            <span>
+              {totalVersions} version{totalVersions !== 1 ? "s" : ""}
+            </span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <Clock className="h-4 w-4" />
+            <span>{formatDate(displayDate)}</span>
+          </div>
         </div>
       </CardContent>
 
-      <CardFooter className="flex flex-col items-start gap-3 text-xs">
-        <span className="text-muted-foreground">
-          Updated {formatDistanceToNow(new Date(prompt.updatedAt))} ago
-        </span>
+      {/* Action Buttons */}
+      <CardFooter className="flex gap-2">
+        <Button
+          variant="outline"
+          size="sm"
+          className="flex-1 text-xs bg-transparent"
+          onClick={(e) => {
+            e.stopPropagation();
+            router.push(`${pathname}/${_id}/versions`);
+          }}
+        >
+          <GitBranch className="h-3 w-3 mr-1" />
+          All Versions
+        </Button>
 
-        {prompt.activeVersion ? (
-          <div className="flex items-center gap-2">
-            <Button
-              asChild
-              size="sm"
-              variant="outline"
-              className="px-3"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <Link
-                href={`/prompts/${prompt._id}/versions/${prompt.activeVersion}`}
-              >
-                <SquarePenIcon className="w-4 h-4 mr-1" /> Edit
-              </Link>
-            </Button>
-            <Button
-              asChild
-              size="sm"
-              variant="default"
-              className="px-3"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <Link
-                href={`/prompts/${prompt._id}/versions/${prompt.activeVersion}/test`}
-              >
-                <Zap className="w-4 h-4" /> Test Prompt
-              </Link>
-            </Button>
-          </div>
-        ) : (
+        {activeVersion?._id && (
           <Button
-            asChild
+            variant="default"
             size="sm"
-            className="text-xs"
-            variant="secondary"
-            onClick={(e) => e.stopPropagation()}
+            className="flex-1 text-xs"
+            onClick={handleViewActiveVersion}
           >
-            <Link href={`/prompts/${prompt._id}/versions/new`}>
-              <PlusIcon className="w-4 h-4" /> Create Version
-            </Link>
+            <ExternalLink className="h-3 w-3 mr-1" />
+            View Active
           </Button>
         )}
       </CardFooter>

@@ -1,6 +1,7 @@
-import { ReactNode } from "react";
 import { RedirectToSignIn, SignedIn, SignedOut } from "@clerk/nextjs";
+
 import DashboardLayoutClient from "@/app/(dashboard)/DashboardLayoutClient";
+import { ReactNode } from "react";
 
 export default function DashboardLayout({
   children,

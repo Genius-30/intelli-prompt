@@ -13,7 +13,8 @@ import {
 import { useParams, usePathname } from "next/navigation";
 
 import Link from "next/link";
-import { useGetFolderMeta } from "@/lib/queries/folder";
+import { useGetFolder } from "@/lib/queries/folder";
+import { useGetPrompt } from "@/lib/queries/prompt";
 import { useGetVersion } from "@/lib/queries/version";
 
 const segmentLabelMap: Record<string, string> = {
@@ -46,10 +47,11 @@ function formatLabel(segment: string) {
 export function BreadcrumbResponsive() {
   const pathname = usePathname();
   const { folderId, promptId, versionId } = useParams();
-  const { data: folder } = useGetFolderMeta(folderId as string);
+
+  const { data: folder } = useGetFolder(folderId as string);
+  const { data: prompt } = useGetPrompt(promptId as string);
   const { data: version } = useGetVersion(versionId as string);
 
-  // Show fallback "Main" for suppressed routes
   if (suppressPaths.includes(pathname)) {
     return <BreadcrumbPage className="capitalize">Main</BreadcrumbPage>;
   }
@@ -60,16 +62,18 @@ export function BreadcrumbResponsive() {
     const href = "/" + segments.slice(0, index + 1).join("/");
 
     let label = formatLabel(segment);
+
     if (segment === folderId) label = folder?.title ?? "...";
-    if (segment === versionId)
-      label = version?.version ? `v${version.version}` : "...";
+    else if (segment === promptId) label = prompt?.title ?? "...";
+    else if (segment === versionId)
+      label = version?.versionNumber ? `v${version.versionNumber}` : "...";
 
     return { label, href };
   });
 
   return (
     <Breadcrumb>
-      <BreadcrumbList>
+      <BreadcrumbList className="flex items-center gap-y-0 sm:gap-y-0">
         {crumbs.map((crumb, index) => {
           const isLast = index === crumbs.length - 1;
           return (

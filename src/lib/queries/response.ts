@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+
 import axiosInstance from "@/lib/axios";
 import { toast } from "sonner";
 
@@ -9,14 +10,12 @@ interface ModelOption {
   temperature: number;
 }
 
-// Input shape for the POST API
 interface TestPromptInput {
   versionId: string;
   models: ModelOption[];
   tokenEstimated?: number;
 }
 
-// Mutation for testing a single prompt
 export function useGetResponse() {
   return useMutation({
     mutationFn: async ({
@@ -24,22 +23,19 @@ export function useGetResponse() {
       models,
       tokenEstimated = 100,
     }: TestPromptInput) => {
-      const res = await axiosInstance.post(`/prompt/${versionId}/testModel`, {
+      const res = await axiosInstance.post(`/version/${versionId}/testModel`, {
         models,
         tokenEstimated,
       });
       return res.data.results;
     },
+
     onError: (error: any) => {
       toast.error(error?.response?.data?.message || "Failed to test prompt");
-    },
-    onSuccess: () => {
-      toast.success("Prompt tested successfully");
     },
   });
 }
 
-// Response shape (raw text response)
 export type ModelResponse = {
   isFavorite: boolean | undefined;
   _id: string;
@@ -51,18 +47,24 @@ export type ModelResponse = {
   updatedAt: string;
 };
 
-// Query to fetch all saved responses for a version
+// Query hook to fetch all responses for a given version
 export function useGetAllResponsesForVersion(versionId: string) {
   return useQuery<ModelResponse[]>({
     queryKey: ["all-responses", versionId],
-    queryFn: async () => {
-      const { data } = await axiosInstance.get(
-        `/prompt/${versionId}/allResponses`
-      );
-
-      return data.responses as ModelResponse[];
-    },
     enabled: !!versionId,
+    queryFn: async () => {
+      try {
+        const res = await axiosInstance.get(
+          `/version/${versionId}/allResponses`
+        );
+        return res.data.responses as ModelResponse[];
+      } catch (error: any) {
+        toast.error(
+          error?.response?.data?.message || "Failed to fetch model responses"
+        );
+        throw error;
+      }
+    },
   });
 }
 
@@ -72,9 +74,7 @@ export function useDeleteResponse(versionId?: string) {
 
   return useMutation({
     mutationFn: async (modelResponseId: string) => {
-      const res = await axiosInstance.delete(
-        `/prompt/testModel/${modelResponseId}`
-      );
+      const res = await axiosInstance.delete(`/testModel/${modelResponseId}`);
       return res.data;
     },
     onSuccess: () => {
@@ -87,23 +87,18 @@ export function useDeleteResponse(versionId?: string) {
   });
 }
 
-// Mutation to set a response as favorite
-export function useSetFavoriteResponse(versionId?: string) {
-  const queryClient = useQueryClient();
+type SaveModelResponsePayload = {
+  versionId: string;
+  model: string;
+  temperature: number;
+  response: string;
+};
 
+export const useSaveModelResponse = () => {
   return useMutation({
-    mutationFn: async (modelResponseId: string) => {
-      const res = await axiosInstance.patch(
-        `/prompt/testModel/${modelResponseId}/favorite`
-      );
-      return res.data;
-    },
-    onSuccess: () => {
-      if (versionId) {
-        queryClient.invalidateQueries({
-          queryKey: ["all-responses", versionId],
-        });
-      }
+    mutationFn: async (payload: SaveModelResponsePayload) => {
+      const { data } = await axiosInstance.post("/testModel", payload);
+      return data.modelResponse;
     },
   });
-}
+};

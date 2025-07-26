@@ -213,8 +213,8 @@ export default function LeaderboardClient() {
             </TabsList>
 
             <TabsContent value="overall">
-              <Card className="border-0 shadow-sm">
-                <CardHeader className="p-0">
+              <Card className="border-0 shadow-sm gap-2">
+                <CardHeader className="py-0">
                   <CardTitle className="text-lg">Top Contributors</CardTitle>
                   <CardDescription className="text-sm">
                     All-time leaderboard based on community contributions

@@ -1,40 +1,36 @@
 "use client";
 
-import { useParams } from "next/navigation";
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { useGetResponse } from "@/lib/queries/response";
-import { AI_MODELS } from "@/lib/constants";
-import Image from "next/image";
-import { toast } from "sonner";
-import {
-  Select,
-  SelectTrigger,
-  SelectContent,
-  SelectItem,
-  SelectValue,
-} from "@/components/ui/select";
-import { PromptVersionViewer } from "@/components/version/prompt-version-viewer";
-import { ModelResponseCard } from "@/components/version/model-response-card";
-import { Slider } from "@/components/ui/slider";
+import { Eye, Loader2, Play, ThermometerSun } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
+  TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Loader2 } from "lucide-react";
-import { ModelResponseSkeleton } from "@/components/skeletons/ModelResponseSkeleton";
 
-export default function TestPromptPage() {
+import { AIModelSelector } from "@/components/version/AiModelSelector";
+import { AI_MODELS } from "@/lib/constants/AI_MODELS";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { ModelResponseCard } from "@/components/response/ModelResponseCard";
+import { ModelResponseSkeleton } from "@/components/skeletons/ModelResponseSkeleton";
+import { PromptVersionTestCard } from "@/components/response/PromptVersionTestCard";
+import { Slider } from "@/components/ui/slider";
+import { toast } from "sonner";
+import { useGetResponse } from "@/lib/queries/response";
+import { useParams } from "next/navigation";
+import { useState } from "react";
+
+const isUserPremium = false;
+
+export default function TestPromptClient() {
   const { versionId } = useParams();
   const [tokenEstimated, setTokenEstimated] = useState(0);
-
+  const [globalTemperature, setGlobalTemperature] = useState(1.5);
   const { mutate: testPrompt, isPending: isTesting } = useGetResponse();
-
   const [selectedModels, setSelectedModels] = useState<
     { provider: string; model: string; temperature: number }[]
   >([]);
-
   const [responses, setResponses] = useState<
     {
       provider: string;
@@ -53,10 +49,16 @@ export default function TestPromptPage() {
       return;
     }
 
+    // Update all selected models with current global temperature
+    const modelsWithCurrentTemp = selectedModels.map((model) => ({
+      ...model,
+      temperature: globalTemperature,
+    }));
+
     testPrompt(
       {
         versionId: versionId as string,
-        models: selectedModels,
+        models: modelsWithCurrentTemp,
         tokenEstimated,
       },
       {
@@ -67,187 +69,215 @@ export default function TestPromptPage() {
     );
   };
 
-  const handleModelSelect = (
-    provider: string,
-    modelId: string,
-    temperature: number
-  ) => {
+  const handleModelSelect = (provider: string, modelId: string) => {
+    const providerData = AI_MODELS[provider as keyof typeof AI_MODELS];
+
+    // Check if model requires premium and user is not premium
+    if (providerData?.premium && !isUserPremium) {
+      toast.error(
+        "This model is only available for premium users. Please upgrade your plan."
+      );
+      return;
+    }
+
     setSelectedModels((prev) => {
       const others = prev.filter((m) => m.provider !== provider);
-      return [...others, { provider, model: modelId, temperature }];
+      return [
+        ...others,
+        { provider, model: modelId, temperature: globalTemperature },
+      ];
     });
-  };
-
-  const handleTemperatureChange = (provider: string, temperature: number) => {
-    setSelectedModels((prev) =>
-      prev.map((m) => (m.provider === provider ? { ...m, temperature } : m))
-    );
   };
 
   const handleDeselectModel = (provider: string) => {
     setSelectedModels((prev) => prev.filter((m) => m.provider !== provider));
   };
 
-  const handleDeleteLocalResponse = (id: string) => {
-    setResponses((prev) => prev.filter((res) => res._id !== id));
+  const handleRemoveResponse = (id: string) => {
+    setResponses((prev) => prev.filter((res) => res.model !== id));
   };
 
   return (
-    <div className="p-0 sm:p-6 space-y-6">
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="text-start">
+        <h1 className="text-2xl font-bold tracking-tight">AI Model Testing</h1>
+        <p className="text-sm text-muted-foreground">
+          Test your prompts across multiple AI models and compare responses
+        </p>
+      </div>
+
       {/* Prompt Viewer */}
-      <PromptVersionViewer
+      <PromptVersionTestCard
         versionId={versionId as string}
         showTokenEstimate={true}
         onTokenEstimated={(value) => setTokenEstimated(value)}
       />
 
-      {/* Model Selectors */}
-      <section className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {Object.entries(AI_MODELS).map(([provider, data]) => {
-          const selected = selectedModels.find((m) => m.provider === provider);
+      {/* Model Selection Grid */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-semibold">Select Models</h2>
+          <Badge variant="secondary" className="text-sm">
+            {selectedModels.length} selected
+          </Badge>
+        </div>
 
-          return (
-            <div
-              key={provider}
-              className={`p-4 border rounded-md bg-muted/30 space-y-3`}
-            >
+        <div className="grid gap-4 grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {Object.keys(AI_MODELS).map((provider) => {
+            const selected = selectedModels.find(
+              (m) => m.provider === provider
+            );
+            return (
+              <AIModelSelector
+                key={provider}
+                provider={provider}
+                selectedModel={selected?.model}
+                isUserPremium={isUserPremium}
+                onSelect={handleModelSelect}
+                onDeselect={handleDeselectModel}
+              />
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Temperature Control & Test Button */}
+      <div className="border rounded-lg">
+        <div className="flex items-center gap-2 px-3 py-2 border-b bg-muted/30">
+          <ThermometerSun className="w-3 h-3 text-muted-foreground" />
+          <span className="text-xs text-muted-foreground">
+            Temperature & Test
+          </span>
+        </div>
+        <div className="p-3">
+          <div className="flex items-center justify-around gap-4">
+            {/* Temperature Control */}
+            <div className="w-full max-w-[400px] space-y-2">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Image
-                    src={data.logo}
-                    alt={`${provider} logo`}
-                    width={24}
-                    height={24}
-                    className="rounded"
-                  />
-                  <div>
-                    <span className="text-sm font-semibold flex items-center gap-2">
-                      {provider.toUpperCase()}
-                      <span
-                        className="inline-block w-2 h-2 rounded-full"
-                        style={{ backgroundColor: data.color }}
-                        title={data.description}
-                      ></span>
-                    </span>
-                    <p className="text-xs text-muted-foreground">
-                      {data.description}
-                    </p>
-                  </div>
-                </div>
-
-                {selected && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-xs text-red-500"
-                    onClick={() => handleDeselectModel(provider)}
-                  >
-                    Deselect
-                  </Button>
-                )}
+                <span className="text-sm font-medium">Temperature</span>
+                <span className="text-xs font-mono bg-muted px-2 py-1 rounded">
+                  {globalTemperature.toFixed(1)}
+                </span>
               </div>
-
-              <div className="space-y-3">
-                <Select
-                  value={selected?.model || ""}
-                  onValueChange={(value) =>
-                    handleModelSelect(
-                      provider,
-                      value,
-                      selected?.temperature ?? 1.5
-                    )
-                  }
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select a model" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {data.models.map((model) => (
-                      <SelectItem key={model.id} value={model.id}>
-                        {model.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-
-                {selected && (
-                  <div>
-                    <label className="text-xs text-muted-foreground block mb-1">
-                      Temperature: {selected.temperature.toFixed(1)}
-                    </label>
-                    <Slider
-                      min={0}
-                      max={2}
-                      step={0.1}
-                      value={[selected.temperature]}
-                      onValueChange={([value]) =>
-                        handleTemperatureChange(provider, value)
-                      }
-                      className="w-full"
-                    />
-                  </div>
-                )}
+              <Slider
+                min={0}
+                max={2}
+                step={0.1}
+                value={[globalTemperature]}
+                onValueChange={([value]) => setGlobalTemperature(value)}
+                className="w-full"
+                disabled={isTesting || selectedModels.length === 0}
+              />
+              <div className="flex justify-between text-xs text-muted-foreground">
+                <span>Focused</span>
+                <span>Creative</span>
               </div>
             </div>
-          );
-        })}
-      </section>
 
-      {/* Test + View All Button */}
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Button onClick={handleTestPrompt} disabled={isTesting}>
-            {isTesting ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : (
-              "Run Test"
-            )}
-          </Button>
-        </TooltipTrigger>
-        <TooltipContent>
-          {isTesting ? "Testing in progress..." : "Run your selected models"}
-        </TooltipContent>
-      </Tooltip>
+            {/* Test Button */}
+            <div className="flex-shrink-0">
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      onClick={handleTestPrompt}
+                      disabled={isTesting || selectedModels.length === 0}
+                      size="lg"
+                      className="px-6"
+                    >
+                      {isTesting ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Testing...
+                        </>
+                      ) : (
+                        <>
+                          <Play className="w-4 h-4 mr-2" />
+                          Run Test
+                        </>
+                      )}
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent
+                    className="bg-muted"
+                    arrowClassName="bg-muted fill-muted"
+                  >
+                    {selectedModels.length === 0
+                      ? "Select at least one model to test"
+                      : `Test ${selectedModels.length} models at temperature ${globalTemperature}`}
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+          </div>
+        </div>
+      </div>
 
-      {/* AI Responses (as plain text) */}
-      <section className="space-y-4">
-        {isTesting
-          ? selectedModels.map((m, i) => (
-              <ModelResponseSkeleton
-                key={i}
-                provider={m.provider as keyof typeof AI_MODELS}
-                model={m.model}
-              />
-            ))
-          : responses.map((res) => {
-              const hasError =
-                !!res.error || res.response?.toLowerCase().includes("error");
+      {/* Results Section */}
+      {(isTesting || responses.length > 0) && (
+        <div className="space-y-4">
+          <div className="flex items-center gap-2">
+            <Eye className="w-4 h-4" />
+            <h2 className="text-lg font-semibold">Results</h2>
+          </div>
 
-              return (
-                <div key={`${res.model}-${res.provider}`} className="relative">
-                  {hasError ? (
-                    <div className="border border-red-500 p-4 rounded-md bg-muted text-sm text-red-600">
-                      <strong>
-                        {res.provider.toUpperCase()} - {res.model}
-                      </strong>
-                      <br />
-                      {res.error || res.response || "Unknown error!"}
+          <div className="grid gap-4">
+            {isTesting
+              ? selectedModels.map((m) => (
+                  <ModelResponseSkeleton
+                    key={`${m.provider}-${m.model}`}
+                    provider={m.provider as keyof typeof AI_MODELS}
+                    model={m.model}
+                  />
+                ))
+              : responses.map((res) => {
+                  const hasError =
+                    !!res.error ||
+                    res.response?.toLowerCase().includes("error");
+
+                  return (
+                    <div key={`${res.model}-${res.provider}`}>
+                      {hasError ? (
+                        <div className="border border-destructive/50 bg-destructive/5 p-4 rounded-lg">
+                          <div className="flex items-center gap-2 mb-2">
+                            <div className="w-2 h-2 rounded-full bg-destructive" />
+                            <span className="font-semibold text-sm">
+                              {res.provider.toUpperCase()} - {res.model}
+                            </span>
+                          </div>
+                          <p className="text-sm text-destructive">
+                            {(() => {
+                              if (typeof res.error === "string") {
+                                return res.error;
+                              }
+                              if (typeof res.response === "string") {
+                                return res.response;
+                              }
+                              return JSON.stringify(
+                                res.error ?? res.response ?? "No response",
+                                null,
+                                2
+                              );
+                            })()}
+                          </p>
+                        </div>
+                      ) : (
+                        <ModelResponseCard
+                          provider={res.provider as keyof typeof AI_MODELS}
+                          model={res.model}
+                          temperature={res.temperature}
+                          response={res.response}
+                          onRemove={handleRemoveResponse}
+                          showRemoveButton
+                        />
+                      )}
                     </div>
-                  ) : (
-                    <ModelResponseCard
-                      provider={res.provider as keyof typeof AI_MODELS}
-                      model={res.model}
-                      temperature={res.temperature}
-                      response={res.response}
-                      modelId={res._id || ""}
-                      isFavorite={res.isFavorite}
-                      onDeleteLocally={handleDeleteLocalResponse}
-                    />
-                  )}
-                </div>
-              );
-            })}
-      </section>
+                  );
+                })}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

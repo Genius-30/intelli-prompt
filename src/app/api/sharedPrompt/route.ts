@@ -1,9 +1,10 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { SharedPrompt } from '@/models/sharedPrompt.model';
-import { getAuthenticatedUser } from '@/utils/getAuthenticatedUser';
-import connectDb from '@/lib/db';
-import { rateLimit } from '@/lib/rateLimit';
-import { getSetCache } from '@/lib/redisCache';
+import { NextRequest, NextResponse } from "next/server";
+
+import { SharedPrompt } from "@/models/sharedPrompt.model";
+import connectDb from "@/lib/db";
+import { getAuthenticatedUser } from "@/utils/getAuthenticatedUser";
+import { getSetCache } from "@/lib/redisCache";
+import { rateLimit } from "@/lib/rateLimit";
 
 // create a sharedPrompt
 export async function POST(req: Request) {
@@ -13,7 +14,10 @@ export async function POST(req: Request) {
 
     const { title, content, tags, modelUsed } = await req.json();
     if (!title || !content || !modelUsed) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        { status: 400 }
+      );
     }
 
     const newSharedPrompt = await SharedPrompt.create({
@@ -24,9 +28,15 @@ export async function POST(req: Request) {
       modelUsed,
     });
 
-    return NextResponse.json({ message: 'Prompt shared successfully', newSharedPrompt }, { status: 201 });
+    return NextResponse.json(
+      { message: "Prompt shared successfully", newSharedPrompt },
+      { status: 201 }
+    );
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to share prompt' }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to share prompt" },
+      { status: 500 }
+    );
   }
 }
 
@@ -38,14 +48,20 @@ export async function GET(req: NextRequest) {
 
     await connectDb();
 
-    const data = await getSetCache('allSharedPrompts', 60, getAllSharedPrompts);
+    const data = await getSetCache("allSharedPrompts", 60, getAllSharedPrompts);
 
-    return NextResponse.json({ message:'all sharedPrompt fetched', data }, { status: 200 });
+    return NextResponse.json(
+      { message: "all sharedPrompt fetched", data },
+      { status: 200 }
+    );
   } catch (error) {
-    return NextResponse.json({ error: 'Failed fetching all sharedPrompts' }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed fetching all sharedPrompts" },
+      { status: 500 }
+    );
   }
 }
 
 export async function getAllSharedPrompts() {
-  return await SharedPrompt.find()
+  return await SharedPrompt.find();
 }

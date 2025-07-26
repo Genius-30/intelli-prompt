@@ -1,17 +1,14 @@
 import "./globals.css";
 
 import { AppShell } from "@/components/AppShell";
-import { ClerkProvider } from "@clerk/nextjs";
 import { Inter } from "next/font/google";
 import type { Metadata } from "next";
 import Providers from "./providers";
-import { ThemeProvider } from "@/components/theme-provider";
-import { Toaster } from "sonner";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "IntelliStack - Enhance Prompts, Compare Outputs, Unlock Precision",
+  title: "IntelliPrompt - Enhance Prompts, Compare Outputs, Unlock Precision",
   description:
     "A powerful prompt engineering workspace to enhance, version, and test prompts across leading AI models like GPT-4, Claude, Gemini, and Mistral.",
 };
@@ -22,47 +19,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider
-      publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
-      signInUrl="/sign-in"
-      signUpUrl="/sign-up"
-    >
-      <html lang="en">
-        <head>
-          <script
-            dangerouslySetInnerHTML={{
-              __html: `
-                try {
-                  if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-                    document.documentElement.classList.add('dark')
-                    document.documentElement.style.colorScheme = 'dark'
-                  } else {
-                    document.documentElement.classList.remove('dark')
-                    document.documentElement.style.colorScheme = 'light'
-                  }
-                } catch (_) {}
-              `,
-            }}
-          />
-          <script
-            src="https://checkout.razorpay.com/v1/checkout.js"
-            async
-          ></script>
-        </head>
-        <body className={`scrollbar-thin  ${inter.className}`}>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
-            <Providers>
-              <AppShell>{children}</AppShell>
-            </Providers>
-            <Toaster theme="system" />
-          </ThemeProvider>
-        </body>
-      </html>
-    </ClerkProvider>
+    <html lang="en" suppressHydrationWarning>
+      <body
+        className={`scrollbar-thin  ${inter.className}`}
+        cz-shortcut-listen="true"
+      >
+        <Providers>
+          <AppShell>{children}</AppShell>
+        </Providers>
+      </body>
+    </html>
   );
 }

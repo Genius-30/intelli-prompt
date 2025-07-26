@@ -12,9 +12,9 @@ export const useGetAllFolders = () => {
   });
 };
 
-export const useGetFolderMeta = (folderId: string) => {
+export const useGetFolder = (folderId: string) => {
   return useQuery({
-    queryKey: ["folderMeta", folderId],
+    queryKey: ["folder", folderId],
     queryFn: async () => {
       if (!folderId) throw new Error("Folder ID is required");
 
@@ -22,18 +22,6 @@ export const useGetFolderMeta = (folderId: string) => {
       return res.data.folder;
     },
     enabled: !!folderId,
-  });
-};
-
-export const useGetFolder = (id: string | undefined) => {
-  return useQuery({
-    queryKey: ["folder", id],
-    queryFn: async () => {
-      if (!id) throw new Error("Folder ID is required");
-      const res = await axiosInstance.get(`user/getFolder/${id}`);
-      return res.data;
-    },
-    enabled: !!id, // prevent firing on undefined
   });
 };
 
@@ -92,7 +80,7 @@ export const useToggleFavorite = () => {
     },
     onSuccess: (_, id) => {
       queryClient.invalidateQueries({ queryKey: ["folders"] });
-      queryClient.invalidateQueries({ queryKey: ["folderMeta", id] });
+      queryClient.invalidateQueries({ queryKey: ["folder", id] });
     },
   });
 };
