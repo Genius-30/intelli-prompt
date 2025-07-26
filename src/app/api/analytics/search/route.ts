@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
+
 import { SharedPrompt } from "@/models/sharedPrompt.model";
 import { User } from "@/models/user.model";
 import connectDb from "@/lib/db";
-import { rateLimit } from "@/lib/rateLimit";
+import { getAllSharedPrompts } from "@/lib/queries/community";
 import { getSetCache } from "@/lib/redisCache";
-import { getAllSharedPrompts } from "@/lib/queries/sharedPrompt";
+import { rateLimit } from "@/lib/rateLimit";
 
 // Search sharedPrompts by title, username, or tags
 export async function GET(request: NextRequest) {

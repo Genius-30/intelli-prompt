@@ -2,7 +2,6 @@
 
 import {
   Bookmark,
-  BookmarkCheck,
   ChevronDown,
   ChevronUp,
   CircleX,
@@ -18,41 +17,56 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import {
+  useDeleteResponse,
+  useSaveModelResponse,
+} from "@/lib/queries/response";
 import { useEffect, useState } from "react";
 
-import { AI_MODELS } from "@/lib/constants";
+import { AI_MODELS } from "@/lib/constants/AI_MODELS";
 import { Badge } from "../ui/badge";
 import { Button } from "@/components/ui/button";
 import ReactMarkdown from "react-markdown";
 import { toast } from "sonner";
 import { useParams } from "next/navigation";
-import { useSaveModelResponse } from "@/lib/queries/response";
 
 type ProviderKey = keyof typeof AI_MODELS;
 
 interface ModelResponseCardProps {
+  readonly responseId?: string;
   readonly provider: ProviderKey;
   readonly model: string;
   readonly temperature: number;
   readonly response: string;
-  readonly modelId: string;
   readonly onRemove?: (id: string) => void;
+  readonly showRemoveButton?: boolean;
+  readonly initiallySaved?: boolean;
 }
 
 export function ModelResponseCard({
+  responseId,
   provider,
   model,
   temperature,
   response,
-  modelId,
   onRemove,
+  showRemoveButton = false,
+  initiallySaved = false,
 }: ModelResponseCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
-  const [isSaved, setIsSaved] = useState(false);
+  const [isSaved, setIsSaved] = useState(initiallySaved ?? false);
+  const [savedResponseId, setSavedResponseId] = useState<string | null>(
+    responseId || null
+  );
+
   const { versionId } = useParams();
+
   const { mutate: saveModelResponse, isPending: isSaving } =
     useSaveModelResponse();
+  const { mutate: deleteResponse, isPending: isDeleting } = useDeleteResponse(
+    versionId as string
+  );
 
   const providerData = AI_MODELS[provider];
   const IconComponent = providerData?.icon;
@@ -73,7 +87,7 @@ export function ModelResponseCard({
   }, [isCopied]);
 
   const handleRemove = () => {
-    onRemove?.(modelId);
+    onRemove?.(model || "");
   };
 
   const handleCopy = async () => {
@@ -99,14 +113,37 @@ export function ModelResponseCard({
         response,
       },
       {
-        onSuccess: () => {
+        onSuccess: (data) => {
           setIsSaved(true);
+          setSavedResponseId(data?._id ?? null);
+          toast.success("Response saved");
         },
         onError: () => {
           toast.error("Failed to save response");
         },
       }
     );
+  };
+
+  const handleDelete = () => {
+    if (!savedResponseId) {
+      toast.error("No saved response to delete");
+      return;
+    }
+
+    deleteResponse(savedResponseId, {
+      onSuccess: () => {
+        setIsSaved(false);
+        setSavedResponseId(null);
+        if (onRemove) {
+          onRemove(model || "");
+        }
+        toast.success("Response deleted");
+      },
+      onError: () => {
+        toast.error("Failed to delete response");
+      },
+    });
   };
 
   return (
@@ -171,50 +208,70 @@ export function ModelResponseCard({
                 </TooltipContent>
               </Tooltip>
 
-              {/* Save Button */}
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    className="h-8 w-8"
-                    onClick={handleSave}
-                    disabled={isSaving}
+              {/* Save/Delete Button */}
+              {isSaved ? (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="h-8 w-8 hover:text-destructive"
+                      onClick={handleDelete}
+                      disabled={isDeleting}
+                    >
+                      <Trash2 className="w-3 h-3" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent
+                    className="bg-muted"
+                    arrowClassName="bg-muted fill-muted"
                   >
-                    {isSaved ? (
-                      <BookmarkCheck className="w-3 h-3" />
-                    ) : (
+                    Delete response
+                  </TooltipContent>
+                </Tooltip>
+              ) : (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="h-8 w-8"
+                      onClick={handleSave}
+                      disabled={isSaving}
+                    >
                       <Bookmark className="w-3 h-3" />
-                    )}
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent
-                  className="bg-muted"
-                  arrowClassName="bg-muted fill-muted"
-                >
-                  {isSaved ? "Saved!" : "Save response"}
-                </TooltipContent>
-              </Tooltip>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent
+                    className="bg-muted"
+                    arrowClassName="bg-muted fill-muted"
+                  >
+                    Save response
+                  </TooltipContent>
+                </Tooltip>
+              )}
 
               {/* Remove Button */}
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    className="h-8 w-8 hover:text-destructive"
-                    onClick={handleRemove}
+              {showRemoveButton && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="h-8 w-8 hover:text-destructive"
+                      onClick={handleRemove}
+                    >
+                      <CircleX className="w-3 h-3" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent
+                    className="bg-muted"
+                    arrowClassName="bg-muted fill-muted"
                   >
-                    <CircleX className="w-3 h-3" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent
-                  className="bg-muted"
-                  arrowClassName="bg-muted fill-muted"
-                >
-                  Remove response
-                </TooltipContent>
-              </Tooltip>
+                    Remove response
+                  </TooltipContent>
+                </Tooltip>
+              )}
 
               {/* Expand/Collapse Button */}
               <Tooltip>

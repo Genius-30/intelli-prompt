@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/tooltip";
 
 import { AIModelSelector } from "@/components/version/AiModelSelector";
-import { AI_MODELS } from "@/lib/constants";
+import { AI_MODELS } from "@/lib/constants/AI_MODELS";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ModelResponseCard } from "@/components/response/ModelResponseCard";
@@ -94,7 +94,7 @@ export default function TestPromptClient() {
   };
 
   const handleRemoveResponse = (id: string) => {
-    setResponses((prev) => prev.filter((res) => res._id !== id));
+    setResponses((prev) => prev.filter((res) => res.model !== id));
   };
 
   return (
@@ -268,8 +268,8 @@ export default function TestPromptClient() {
                           model={res.model}
                           temperature={res.temperature}
                           response={res.response}
-                          modelId={res._id || ""}
                           onRemove={handleRemoveResponse}
+                          showRemoveButton
                         />
                       )}
                     </div>

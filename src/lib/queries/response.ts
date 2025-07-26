@@ -74,9 +74,7 @@ export function useDeleteResponse(versionId?: string) {
 
   return useMutation({
     mutationFn: async (modelResponseId: string) => {
-      const res = await axiosInstance.delete(
-        `/version/${versionId}/testModel/${modelResponseId}`
-      );
+      const res = await axiosInstance.delete(`/testModel/${modelResponseId}`);
       return res.data;
     },
     onSuccess: () => {
@@ -100,7 +98,7 @@ export const useSaveModelResponse = () => {
   return useMutation({
     mutationFn: async (payload: SaveModelResponsePayload) => {
       const { data } = await axiosInstance.post("/testModel", payload);
-      return data;
+      return data.modelResponse;
     },
   });
 };

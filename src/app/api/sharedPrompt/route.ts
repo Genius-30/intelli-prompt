@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
+
 import { SharedPrompt } from "@/models/sharedPrompt.model";
-import { getAuthenticatedUser } from "@/utils/getAuthenticatedUser";
 import connectDb from "@/lib/db";
-import { rateLimit } from "@/lib/rateLimit";
+import { getAuthenticatedUser } from "@/utils/getAuthenticatedUser";
 import { getSetCache } from "@/lib/redisCache";
-import { getAllSharedPrompts } from "@/lib/queries/sharedPrompt";
+import { rateLimit } from "@/lib/rateLimit";
 
 // create a sharedPrompt
 export async function POST(req: Request) {
@@ -60,4 +60,8 @@ export async function GET(req: NextRequest) {
       { status: 500 }
     );
   }
+}
+
+export async function getAllSharedPrompts() {
+  return await SharedPrompt.find();
 }

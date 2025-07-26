@@ -1,9 +1,10 @@
 "use client";
 
-import { AlertTriangle, Plus, Redo2Icon, Zap } from "lucide-react";
+import { AlertTriangle, Plus, Redo2Icon, Share, Zap } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
+  TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import {
@@ -21,7 +22,9 @@ import FavoriteButton from "@/components/common/FavoriteButton";
 import { Loader } from "@/components/ui/loader";
 import { PromptContentInput } from "@/components/version/PromptContentInput";
 import { PromptEnhancer } from "@/components/prompt/PromptEnhancer";
+import type React from "react";
 import { SetActiveVersionButton } from "@/components/common/SetActiveVersionButton";
+import { SharePromptModal } from "@/components/community/SharePromptModal";
 import { estimateTokens } from "@/utils/tokeEstimate";
 import { toast } from "sonner";
 
@@ -52,8 +55,9 @@ export default function EditVersionClient() {
 
   const [content, setContent] = useState("");
   const [tokenEstimated, setTokenEstimated] = useState(100);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
-  const { mutateAsync: updatePrompt, isPending: isUpdating } =
+  const { mutateAsync: updateVersion, isPending: isUpdating } =
     useUpdateVersion();
   const { mutateAsync: addPromptVersion, isPending: isAdding } =
     useAddVersion();
@@ -78,13 +82,12 @@ export default function EditVersionClient() {
       toast.error("Prompt cannot be empty.");
       return;
     }
-
     try {
-      await updatePrompt({ versionId: versionId as string, content });
+      await updateVersion({ versionId: versionId as string, content });
       toast.success("Prompt updated successfully!");
       router.back();
     } catch (error) {
-      console.error("Update Prompt Error:", error);
+      console.error("Update Version Error:", error);
       toast.error("Something went wrong.");
     }
   };
@@ -117,135 +120,150 @@ export default function EditVersionClient() {
   }
 
   return (
-    <div className="space-y-8">
-      {/* Version Header */}
-      <div className="flex flex-col md:flex-row items-start justify-between gap-4">
-        <div>
-          <p className="text-xl font-semibold">Version {initialData.version}</p>
-          {!initialData.isActive && (
-            <p className="text-sm text-muted-foreground">
-              This is not the active version.
+    <TooltipProvider>
+      <div className="space-y-8">
+        {/* Version Header */}
+        <div className="flex flex-col md:flex-row items-start justify-between gap-4">
+          <div>
+            <p className="text-xl font-semibold">
+              Version {initialData.version}
             </p>
-          )}
-        </div>
-
-        <div className="flex flex-wrap items-center gap-2">
-          <SetActiveVersionButton
-            versionId={initialData._id}
-            promptId={initialData.promptId}
-            isActive={initialData.isActive}
-          />
-
-          <FavoriteButton
-            isFavorite={initialData.isFavorite}
-            isPending={isToggling}
-            onClick={() => toggleFavorite(initialData._id)}
-          />
-
-          <Button
-            variant="default"
-            type="button"
-            onClick={() => router.push(`${pathname}/test`)}
-            className="ml-2"
-          >
-            <Zap className="w-4 h-4" /> Test
-          </Button>
-        </div>
-      </div>
-
-      {/* Content + Enhancer */}
-      <div className="grid gap-6 grid-cols-1 md:grid-cols-2 items-stretch">
-        <div className="h-full min-h-[300px]">
-          <PromptContentInput
-            value={content}
-            onChange={(val) => setContent(val)}
-            tokenEstimated={tokenEstimated}
-            setTokenEstimated={setTokenEstimated}
-          />
-          {/* Actions */}
-          <div className="flex flex-wrap items-center gap-2 mt-6">
-            {disableSaveButton ? (
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <span className="inline-block">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      disabled
-                      className="pointer-events-none"
-                    >
-                      Save
-                    </Button>
-                  </span>
-                </TooltipTrigger>
-                <TooltipContent>
-                  {!isPromptValid
-                    ? "Prompt cannot be empty."
-                    : "No changes made."}
-                </TooltipContent>
-              </Tooltip>
-            ) : (
-              <Button
-                type="button"
-                onClick={handleSubmit}
-                disabled={disableSaveButton || isUpdating}
-                variant={disableSaveButton ? "outline" : "default"}
-              >
-                {isUpdating ? (
-                  <>
-                    <Loader className="w-4 h-4 mr-2 animate-spin" />
-                    Saving...
-                  </>
-                ) : (
-                  "Save"
-                )}
-              </Button>
+            {!initialData.isActive && (
+              <p className="text-sm text-muted-foreground">
+                This is not the active version.
+              </p>
             )}
-
-            {!!initialData._id && (
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={async () => {
-                  try {
-                    await addPromptVersion({
-                      promptId: initialData._id,
-                      content,
-                    });
-                    toast.success("New version added!");
-                    router.back();
-                  } catch (error) {
-                    console.error("Add Version Error:", error);
-                    toast.error("Failed to add version.");
-                  }
-                }}
-                disabled={isAdding}
-              >
-                {isAdding ? (
-                  <>
-                    <Loader className="w-4 h-4" />
-                    Creating...
-                  </>
-                ) : (
-                  <>
-                    <Plus className="w-4 h-4" />
-                    Create Version
-                  </>
-                )}
-              </Button>
-            )}
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <SetActiveVersionButton
+              versionId={initialData._id}
+              promptId={initialData.promptId}
+              isActive={initialData.isActive}
+            />
+            <FavoriteButton
+              isFavorite={initialData.isFavorite}
+              isPending={isToggling}
+              onClick={() => toggleFavorite(initialData._id)}
+            />
+            <Button
+              variant="secondary"
+              onClick={() => setIsShareModalOpen(true)}
+              className="gap-2"
+            >
+              Share
+              <Share className="w-3 h-3" />
+            </Button>
+            <Button
+              type="button"
+              variant="default"
+              onClick={() => router.push(`${pathname}/test`)}
+            >
+              Test
+              <Zap className="w-4 h-4" />
+            </Button>
           </div>
         </div>
 
-        <div className="h-full min-h-[300px]">
-          <PromptEnhancer
-            content={content}
-            onReplace={handleReplacePrompt}
-            onDiscard={() => toast.info("Enhancement discarded")}
-            tokenEstimated={tokenEstimated}
-          />
+        {/* Content + Enhancer */}
+        <div className="grid gap-6 grid-cols-1 md:grid-cols-2 items-stretch">
+          <div className="h-full min-h-[300px]">
+            <PromptContentInput
+              value={content}
+              onChange={(val) => setContent(val)}
+              tokenEstimated={tokenEstimated}
+              setTokenEstimated={setTokenEstimated}
+            />
+            {/* Actions */}
+            <div className="flex flex-wrap items-center gap-2 mt-6">
+              {disableSaveButton ? (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span className="inline-block">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        disabled
+                        className="pointer-events-none bg-transparent"
+                      >
+                        Save
+                      </Button>
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    {!isPromptValid
+                      ? "Prompt cannot be empty."
+                      : "No changes made."}
+                  </TooltipContent>
+                </Tooltip>
+              ) : (
+                <Button
+                  type="button"
+                  onClick={handleSubmit}
+                  disabled={disableSaveButton || isUpdating}
+                  variant={disableSaveButton ? "outline" : "default"}
+                >
+                  {isUpdating ? (
+                    <>
+                      <Loader className="w-4 h-4 mr-2 animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    "Save"
+                  )}
+                </Button>
+              )}
+              {!!initialData._id && (
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={async () => {
+                    try {
+                      await addPromptVersion({
+                        promptId: initialData._id,
+                        content,
+                      });
+                      toast.success("New version added!");
+                      router.back();
+                    } catch (error) {
+                      console.error("Add Version Error:", error);
+                      toast.error("Failed to add version.");
+                    }
+                  }}
+                  disabled={isAdding}
+                >
+                  {isAdding ? (
+                    <>
+                      <Loader className="w-4 h-4" />
+                      Creating...
+                    </>
+                  ) : (
+                    <>
+                      <Plus className="w-4 h-4" />
+                      Create Version
+                    </>
+                  )}
+                </Button>
+              )}
+            </div>
+          </div>
+          <div className="h-full min-h-[300px]">
+            <PromptEnhancer
+              content={content}
+              onReplace={handleReplacePrompt}
+              onDiscard={() => toast.info("Enhancement discarded")}
+              tokenEstimated={tokenEstimated}
+            />
+          </div>
         </div>
+
+        {/* Share Prompt Modal */}
+        <SharePromptModal
+          isOpen={isShareModalOpen}
+          onClose={() => setIsShareModalOpen(false)}
+          promptContent={content}
+          versionId={initialData._id}
+        />
       </div>
-    </div>
+    </TooltipProvider>
   );
 }

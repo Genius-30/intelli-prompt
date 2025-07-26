@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
-import { AI_MODELS } from "@/lib/constants";
+import { AI_MODELS } from "@/lib/constants/AI_MODELS";
 import { Skeleton } from "@/components/ui/skeleton";
 
 type ProviderKey = keyof typeof AI_MODELS;

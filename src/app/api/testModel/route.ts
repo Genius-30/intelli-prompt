@@ -10,14 +10,14 @@ export async function POST(req: NextRequest) {
     if (error) return error;
 
     const { versionId, model, temperature, response } = await req.json();
-    if (!versionId || !model || !temperature || !response) {
+    if (!versionId || !model || temperature == null || !response) {
       return NextResponse.json(
         { message: "missing required fields" },
         { status: 400 }
       );
     }
 
-    await ModelResponse.create({
+    const modelResponse = await ModelResponse.create({
       versionId,
       ownerId: userId,
       model,
@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json(
-      { message: "modelResponse saved" },
+      { message: "modelResponse saved", modelResponse },
       { status: 201 }
     );
   } catch (err) {

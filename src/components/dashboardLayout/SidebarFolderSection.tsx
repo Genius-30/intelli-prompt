@@ -145,8 +145,6 @@ export function SidebarFolderSection() {
               </SidebarMenuSubButton>
             </SidebarMenuSubItem>
           ))}
-        </SidebarMenuSub>
-        <SidebarMenuSub>
           <SidebarMenuSubItem>
             <Link
               href={`/folders/${folderId}/prompts/new`}

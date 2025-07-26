@@ -15,7 +15,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-import { AI_MODELS } from "@/lib/constants";
+import { AI_MODELS } from "@/lib/constants/AI_MODELS";
 import { Button } from "../ui/button";
 import { toast } from "sonner";
 

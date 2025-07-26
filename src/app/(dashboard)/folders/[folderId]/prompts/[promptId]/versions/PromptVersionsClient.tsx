@@ -10,7 +10,6 @@ import { useEffect, useRef } from "react";
 import { useParams, usePathname, useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
 import { PromptVersionsSkeleton } from "@/components/skeletons/PromptVersionsSkeleton";
 import { VersionCard } from "@/components/version/VersionCard";
 import { VersionLegend } from "@/components/version/VersionLegend";
@@ -20,6 +19,7 @@ interface Version {
   _id: string;
   ownerId: string;
   promptId: string;
+  versionNumber: number;
   content: string;
   isActive: boolean;
   isFavorite: boolean;
@@ -199,7 +199,6 @@ export function PromptVersionsClient() {
 
       <div className="space-y-3">
         {versions.map((version: Version, index: number) => {
-          const versionNumber = getVersionNumber(index);
           const isActive = version.isActive;
           const isLatest = latestVersion?._id === version._id;
 
@@ -215,7 +214,6 @@ export function PromptVersionsClient() {
             >
               <VersionCard
                 version={version}
-                versionNumber={versionNumber}
                 onSetActive={handleSetActive}
                 onDelete={handleDelete}
                 isActivating={isActivating}

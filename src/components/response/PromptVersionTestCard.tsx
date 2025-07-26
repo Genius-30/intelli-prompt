@@ -1,17 +1,17 @@
 "use client";
 
-import { Eye, FileText, Pencil, Zap } from "lucide-react";
+import { Eye, FileText, Pencil, Share, Zap } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useGetVersion, useToggleFavoriteVersion } from "@/lib/queries/version";
 import { usePathname, useRouter } from "next/navigation";
 
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import FavoriteButton from "../common/FavoriteButton";
 import { SetActiveVersionButton } from "../common/SetActiveVersionButton";
+import { SharePromptModal } from "../community/SharePromptModal";
 import { Skeleton } from "@/components/ui/skeleton";
 import { estimateTokens } from "@/utils/tokeEstimate";
 import { toast } from "sonner";
-import { useEffect } from "react";
 
 interface PromptVersionViewerProps {
   readonly versionId: string;
@@ -26,6 +26,9 @@ export function PromptVersionTestCard({
 }: Readonly<PromptVersionViewerProps>) {
   const router = useRouter();
   const pathname = usePathname();
+
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+
   const { data: version, isLoading } = useGetVersion(versionId);
   const { mutate: toggleFavorite, isPending } = useToggleFavoriteVersion();
 
@@ -79,6 +82,14 @@ export function PromptVersionTestCard({
           >
             <Pencil className="w-5 h-5" />
           </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setIsShareModalOpen(true)}
+            title="Share Prompt"
+          >
+            <Share className="w-5 h-5" />
+          </Button>
         </div>
       </div>
 
@@ -130,6 +141,14 @@ export function PromptVersionTestCard({
           )}
         </div>
       </div>
+
+      {/* Share Prompt Modal */}
+      <SharePromptModal
+        isOpen={isShareModalOpen}
+        onClose={() => setIsShareModalOpen(false)}
+        promptContent={version.content}
+        versionId={version._id}
+      />
     </div>
   );
 }

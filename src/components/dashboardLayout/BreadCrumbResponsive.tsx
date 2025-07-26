@@ -73,7 +73,7 @@ export function BreadcrumbResponsive() {
 
   return (
     <Breadcrumb>
-      <BreadcrumbList>
+      <BreadcrumbList className="flex items-center gap-y-0 sm:gap-y-0">
         {crumbs.map((crumb, index) => {
           const isLast = index === crumbs.length - 1;
           return (
