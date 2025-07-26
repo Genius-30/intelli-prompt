@@ -7,6 +7,7 @@ import {
   ChevronUp,
   FileText,
   Loader2,
+  Share,
   Share2,
   Sparkles,
   Tag,
@@ -52,7 +53,6 @@ export function SharePromptModal({
   isOpen,
   onClose,
   promptContent,
-  versionId,
 }: SharePromptModalProps) {
   const [title, setTitle] = useState("");
   const [selectedModel, setSelectedModel] = useState("");
@@ -159,7 +159,7 @@ export function SharePromptModal({
               <CardContent className="py-2 px-4 flex items-center gap-3">
                 <Avatar className="h-8 w-8 ring-2 ring-primary/20">
                   <AvatarImage
-                    src={currentUser.profilePicture || ""}
+                    src={currentUser.avatar}
                     alt={currentUser.username}
                   />
                   <AvatarFallback>
@@ -352,7 +352,7 @@ export function SharePromptModal({
                 </>
               ) : (
                 <>
-                  <Share2 className="h-3 w-3" /> Share Prompt
+                  <Share className="h-3 w-3" /> Share Prompt
                 </>
               )}
             </Button>

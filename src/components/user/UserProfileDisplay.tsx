@@ -22,8 +22,8 @@ import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { useCurrentUser } from "@/lib/queries/user";
 
+// Mock data - In a real app, these would come from API calls
 const mockSharedPrompts = [
   {
     id: "1",
@@ -98,13 +98,34 @@ const mockFollowing = [
   },
 ];
 
-interface ProfilePageProps {
-  userId: string; // The profile user's ID
-  profileUser?: any; // The profile user's data (if viewing someone else's profile)
+// Define a type for the user data to be displayed
+interface DisplayUser {
+  _id: string;
+  fullname: string;
+  username: string;
+  bio: string;
+  avatar: string;
+  plan: string;
+  rank: string;
+  streak: {
+    current: number;
+    best: number;
+  };
+  followerCount: number;
+  followeeCount: number;
+  createdAt: string;
 }
 
-export default function ProfilePage({ userId, profileUser }: ProfilePageProps) {
-  const [bio, setBio] = useState("");
+interface UserProfileDisplayProps {
+  user: DisplayUser; // The user data to display
+  isOwnProfile: boolean; // True if this is the current user's profile
+}
+
+export function UserProfileDisplay({
+  user,
+  isOwnProfile,
+}: UserProfileDisplayProps) {
+  const [bio, setBio] = useState(user.bio || "");
   const [isEditingBio, setIsEditingBio] = useState(false);
   const [showBioAlert, setShowBioAlert] = useState(false);
   const [followStatus, setFollowStatus] = useState<{
@@ -115,54 +136,46 @@ export default function ProfilePage({ userId, profileUser }: ProfilePageProps) {
     isFollowedBy: false,
   });
 
-  const { data: currentUser, isPending: isUserLoading } = useCurrentUser();
-
-  // Determine if this is the current user's own profile
-  const isOwnProfile = currentUser?._id === userId;
-
-  // Use current user data if it's own profile, otherwise use profileUser data
-  const displayUser = isOwnProfile ? currentUser : profileUser;
-
   useEffect(() => {
-    if (displayUser) {
-      setBio(displayUser.bio || "");
+    setBio(user.bio || ""); // Update bio state if user prop changes
 
-      // Show bio alert if it's own profile and bio is empty
-      if (isOwnProfile && (!displayUser.bio || displayUser.bio.trim() === "")) {
-        setShowBioAlert(true);
-      }
-
-      // If not own profile, fetch follow status
-      if (!isOwnProfile) {
-        // TODO: Replace with actual API call to check follow status
-        // This would check if current user follows this profile user
-        // and if profile user follows current user back
-        fetchFollowStatus();
-      }
+    // Show bio alert if it's own profile and bio is empty
+    if (isOwnProfile && (!user.bio || user.bio.trim() === "")) {
+      setShowBioAlert(true);
+    } else {
+      setShowBioAlert(false); // Hide alert if bio exists or not own profile
     }
-  }, [displayUser, isOwnProfile]);
+
+    // If not own profile, fetch follow status
+    if (!isOwnProfile) {
+      // TODO: Replace with actual API call to check follow status
+      // This would check if current user follows this profile user
+      // and if profile user follows current user back
+      fetchFollowStatus();
+    }
+  }, [user, isOwnProfile]);
 
   const fetchFollowStatus = async () => {
-    // TODO: Replace with actual API call
-    // Example API response structure:
-    // {
-    //   isFollowing: boolean, // current user follows profile user
-    //   isFollowedBy: boolean // profile user follows current user
-    // }
+    // Mock data for demonstration. In a real app, this would be an API call
+    // to check if currentUser follows 'user' and if 'user' follows currentUser.
+    // For example:
+    // const response = await axiosInstance.get(`/api/users/${user._id}/follow-status`);
+    // setFollowStatus(response.data);
 
-    // Mock data for demonstration
+    // Example mock: Assume the profile user (user.id) follows the current user (currentUser.id)
+    // and the current user does NOT follow the profile user initially.
     setFollowStatus({
-      isFollowing: false,
-      isFollowedBy: true, // Profile user follows current user
+      isFollowing: false, // Current user does not follow this profile user
+      isFollowedBy: true, // This profile user follows the current user
     });
   };
 
   const handleSaveBio = async () => {
     try {
       // TODO: API call to update bio
-      // await updateUserBio(bio)
+      // await updateUserBio(user._id, bio)
       setIsEditingBio(false);
-      setShowBioAlert(false);
+      setShowBioAlert(false); // Hide alert after saving bio
     } catch (error) {
       console.error("Failed to update bio:", error);
     }
@@ -171,9 +184,8 @@ export default function ProfilePage({ userId, profileUser }: ProfilePageProps) {
   const handleFollow = async () => {
     try {
       const newFollowingStatus = !followStatus.isFollowing;
-
       // TODO: API call to follow/unfollow
-      // await toggleFollow(userId, newFollowingStatus)
+      // await toggleFollow(user._id, newFollowingStatus)
 
       setFollowStatus((prev) => ({
         ...prev,
@@ -225,12 +237,8 @@ export default function ProfilePage({ userId, profileUser }: ProfilePageProps) {
     return colors[plan as keyof typeof colors] || colors.Free;
   };
 
-  if (isUserLoading || !displayUser) {
-    return <div className="text-center text-muted-foreground">Loading...</div>;
-  }
-
   return (
-    <div className="space-y-6">
+    <div className="max-w-6xl mx-auto p-6 space-y-8">
       {/* Bio Alert for Own Profile */}
       {isOwnProfile && showBioAlert && (
         <Alert className="border-primary/20 bg-primary/5">
@@ -258,11 +266,11 @@ export default function ProfilePage({ userId, profileUser }: ProfilePageProps) {
             <div className="flex flex-col items-center md:items-start">
               <Avatar className="h-24 w-24 ring-4 ring-primary/20">
                 <AvatarImage
-                  src={displayUser.avatar || ""}
-                  alt={displayUser.fullname}
+                  src={user.avatar || "/placeholder.svg"}
+                  alt={user.fullname}
                 />
                 <AvatarFallback className="text-xl font-semibold bg-primary/10 text-primary">
-                  {displayUser.fullname
+                  {user.fullname
                     .split(" ")
                     .map((n) => n[0])
                     .join("")}
@@ -270,16 +278,14 @@ export default function ProfilePage({ userId, profileUser }: ProfilePageProps) {
               </Avatar>
 
               <div className="mt-4 text-center md:text-left">
-                <h1 className="text-2xl font-bold">{displayUser.fullname}</h1>
-                <p className="text-muted-foreground">@{displayUser.username}</p>
+                <h1 className="text-2xl font-bold">{user.fullname}</h1>
+                <p className="text-muted-foreground">@{user.username}</p>
 
                 <div className="flex flex-wrap gap-2 mt-3 justify-center md:justify-start">
-                  <Badge className={getPlanColor(displayUser.plan)}>
-                    {displayUser.plan}
-                  </Badge>
-                  <Badge className={getRankColor(displayUser.rank)}>
+                  <Badge className={getPlanColor(user.plan)}>{user.plan}</Badge>
+                  <Badge className={getRankColor(user.rank)}>
                     <Trophy className="h-3 w-3 mr-1" />
-                    {displayUser.rank}
+                    {user.rank}
                   </Badge>
                 </div>
               </div>
@@ -326,7 +332,7 @@ export default function ProfilePage({ userId, profileUser }: ProfilePageProps) {
                           variant="outline"
                           onClick={() => {
                             setIsEditingBio(false);
-                            setBio(displayUser.bio || "");
+                            setBio(user.bio || ""); // Revert to original bio on cancel
                           }}
                         >
                           Cancel
@@ -359,28 +365,28 @@ export default function ProfilePage({ userId, profileUser }: ProfilePageProps) {
                 <div>
                   <div className="flex items-center gap-1 text-lg font-semibold">
                     <Users className="h-4 w-4 text-primary" />
-                    {displayUser.followerCount?.toLocaleString() || 0}
+                    {user.followerCount?.toLocaleString() || 0}
                   </div>
                   <p className="text-xs text-muted-foreground">Followers</p>
                 </div>
                 <div>
                   <div className="flex items-center gap-1 text-lg font-semibold">
                     <UserPlus className="h-4 w-4 text-primary" />
-                    {displayUser.followeeCount || 0}
+                    {user.followeeCount || 0}
                   </div>
                   <p className="text-xs text-muted-foreground">Following</p>
                 </div>
                 <div>
                   <div className="flex items-center gap-1 text-lg font-semibold">
                     <Flame className="h-4 w-4 text-orange-500" />
-                    {displayUser.streak?.current || 0}
+                    {user.streak?.current || 0}
                   </div>
                   <p className="text-xs text-muted-foreground">Day Streak</p>
                 </div>
                 <div>
                   <div className="flex items-center gap-1 text-lg font-semibold">
                     <Calendar className="h-4 w-4 text-primary" />
-                    {new Date(displayUser.createdAt).getFullYear()}
+                    {new Date(user.createdAt).getFullYear()}
                   </div>
                   <p className="text-xs text-muted-foreground">Joined</p>
                 </div>

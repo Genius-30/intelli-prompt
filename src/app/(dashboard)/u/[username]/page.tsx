@@ -1,8 +1,7 @@
 "use client";
 
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
-  AlertCircle,
   Calendar,
   Edit3,
   ExternalLink,
@@ -14,15 +13,33 @@ import {
   UserPlus,
   Users,
 } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useEffect, useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { useCurrentUser } from "@/lib/queries/user";
+import { useState } from "react";
+
+// Mock data - replace with actual API calls
+const mockUser = {
+  _id: "user123",
+  fullname: "Alex Johnson",
+  username: "alexj_prompts",
+  bio: "AI enthusiast crafting prompts for creative minds. Helping others unlock the potential of AI tools.",
+  avatar: "/placeholder.svg?height=120&width=120",
+  plan: "Premium",
+  rank: "Elite",
+  streak: {
+    current: 15,
+    best: 28,
+  },
+  followerCount: 1247,
+  followeeCount: 89,
+  tokensUsed: 45000,
+  tokenLimit: 100000,
+  createdAt: "2023-06-15T00:00:00Z",
+};
 
 const mockSharedPrompts = [
   {
@@ -98,110 +115,27 @@ const mockFollowing = [
   },
 ];
 
-interface ProfilePageProps {
-  userId: string; // The profile user's ID
-  profileUser?: any; // The profile user's data (if viewing someone else's profile)
+interface PublicProfilePageProps {
+  userId: string;
+  isOwnProfile?: boolean;
 }
 
-export default function ProfilePage({ userId, profileUser }: ProfilePageProps) {
-  const [bio, setBio] = useState("");
+export default function PublicProfilePage({
+  userId,
+  isOwnProfile = false,
+}: PublicProfilePageProps) {
+  const [bio, setBio] = useState(mockUser.bio);
   const [isEditingBio, setIsEditingBio] = useState(false);
-  const [showBioAlert, setShowBioAlert] = useState(false);
-  const [followStatus, setFollowStatus] = useState<{
-    isFollowing: boolean;
-    isFollowedBy: boolean;
-  }>({
-    isFollowing: false,
-    isFollowedBy: false,
-  });
+  const [isFollowing, setIsFollowing] = useState(false);
 
-  const { data: currentUser, isPending: isUserLoading } = useCurrentUser();
-
-  // Determine if this is the current user's own profile
-  const isOwnProfile = currentUser?._id === userId;
-
-  // Use current user data if it's own profile, otherwise use profileUser data
-  const displayUser = isOwnProfile ? currentUser : profileUser;
-
-  useEffect(() => {
-    if (displayUser) {
-      setBio(displayUser.bio || "");
-
-      // Show bio alert if it's own profile and bio is empty
-      if (isOwnProfile && (!displayUser.bio || displayUser.bio.trim() === "")) {
-        setShowBioAlert(true);
-      }
-
-      // If not own profile, fetch follow status
-      if (!isOwnProfile) {
-        // TODO: Replace with actual API call to check follow status
-        // This would check if current user follows this profile user
-        // and if profile user follows current user back
-        fetchFollowStatus();
-      }
-    }
-  }, [displayUser, isOwnProfile]);
-
-  const fetchFollowStatus = async () => {
-    // TODO: Replace with actual API call
-    // Example API response structure:
-    // {
-    //   isFollowing: boolean, // current user follows profile user
-    //   isFollowedBy: boolean // profile user follows current user
-    // }
-
-    // Mock data for demonstration
-    setFollowStatus({
-      isFollowing: false,
-      isFollowedBy: true, // Profile user follows current user
-    });
+  const handleSaveBio = () => {
+    // API call to update bio
+    setIsEditingBio(false);
   };
 
-  const handleSaveBio = async () => {
-    try {
-      // TODO: API call to update bio
-      // await updateUserBio(bio)
-      setIsEditingBio(false);
-      setShowBioAlert(false);
-    } catch (error) {
-      console.error("Failed to update bio:", error);
-    }
-  };
-
-  const handleFollow = async () => {
-    try {
-      const newFollowingStatus = !followStatus.isFollowing;
-
-      // TODO: API call to follow/unfollow
-      // await toggleFollow(userId, newFollowingStatus)
-
-      setFollowStatus((prev) => ({
-        ...prev,
-        isFollowing: newFollowingStatus,
-      }));
-    } catch (error) {
-      console.error("Failed to update follow status:", error);
-    }
-  };
-
-  const getFollowButtonText = () => {
-    if (followStatus.isFollowing) {
-      return "Following";
-    } else if (followStatus.isFollowedBy) {
-      return "Follow Back";
-    } else {
-      return "Follow";
-    }
-  };
-
-  const getFollowButtonVariant = () => {
-    if (followStatus.isFollowing) {
-      return "secondary";
-    } else if (followStatus.isFollowedBy) {
-      return "default"; // Primary style for "Follow Back"
-    } else {
-      return "default";
-    }
+  const handleFollow = () => {
+    setIsFollowing(!isFollowing);
+    // API call to follow/unfollow
   };
 
   const getRankColor = (rank: string) => {
@@ -225,44 +159,21 @@ export default function ProfilePage({ userId, profileUser }: ProfilePageProps) {
     return colors[plan as keyof typeof colors] || colors.Free;
   };
 
-  if (isUserLoading || !displayUser) {
-    return <div className="text-center text-muted-foreground">Loading...</div>;
-  }
-
   return (
-    <div className="space-y-6">
-      {/* Bio Alert for Own Profile */}
-      {isOwnProfile && showBioAlert && (
-        <Alert className="border-primary/20 bg-primary/5">
-          <AlertCircle className="h-4 w-4 text-primary" />
-          <AlertDescription className="text-sm">
-            <span className="font-medium">Complete your profile!</span> Add a
-            bio to help others discover your expertise and interests.
-            <Button
-              variant="link"
-              size="sm"
-              className="h-auto p-0 ml-2 text-primary"
-              onClick={() => setIsEditingBio(true)}
-            >
-              Add bio now
-            </Button>
-          </AlertDescription>
-        </Alert>
-      )}
-
+    <div className="max-w-6xl mx-auto p-6 space-y-8">
       {/* Profile Header */}
       <Card>
-        <CardContent className="px-6">
+        <CardContent className="p-8">
           <div className="flex flex-col md:flex-row gap-6">
             {/* Avatar & Basic Info */}
             <div className="flex flex-col items-center md:items-start">
               <Avatar className="h-24 w-24 ring-4 ring-primary/20">
                 <AvatarImage
-                  src={displayUser.avatar || ""}
-                  alt={displayUser.fullname}
+                  src={mockUser.avatar || "/placeholder.svg"}
+                  alt={mockUser.fullname}
                 />
                 <AvatarFallback className="text-xl font-semibold bg-primary/10 text-primary">
-                  {displayUser.fullname
+                  {mockUser.fullname
                     .split(" ")
                     .map((n) => n[0])
                     .join("")}
@@ -270,16 +181,16 @@ export default function ProfilePage({ userId, profileUser }: ProfilePageProps) {
               </Avatar>
 
               <div className="mt-4 text-center md:text-left">
-                <h1 className="text-2xl font-bold">{displayUser.fullname}</h1>
-                <p className="text-muted-foreground">@{displayUser.username}</p>
+                <h1 className="text-2xl font-bold">{mockUser.fullname}</h1>
+                <p className="text-muted-foreground">@{mockUser.username}</p>
 
                 <div className="flex flex-wrap gap-2 mt-3 justify-center md:justify-start">
-                  <Badge className={getPlanColor(displayUser.plan)}>
-                    {displayUser.plan}
+                  <Badge className={getPlanColor(mockUser.plan)}>
+                    {mockUser.plan}
                   </Badge>
-                  <Badge className={getRankColor(displayUser.rank)}>
+                  <Badge className={getRankColor(mockUser.rank)}>
                     <Trophy className="h-3 w-3 mr-1" />
-                    {displayUser.rank}
+                    {mockUser.rank}
                   </Badge>
                 </div>
               </div>
@@ -301,7 +212,7 @@ export default function ProfilePage({ userId, profileUser }: ProfilePageProps) {
                       className="h-6 px-2 text-xs"
                     >
                       <Edit3 className="h-3 w-3 mr-1" />
-                      {bio.trim() ? "Edit" : "Add"}
+                      Edit
                     </Button>
                   )}
                 </div>
@@ -314,7 +225,6 @@ export default function ProfilePage({ userId, profileUser }: ProfilePageProps) {
                       className="text-sm resize-none"
                       rows={3}
                       maxLength={80}
-                      placeholder="Tell others about yourself, your expertise, and what kind of prompts you create..."
                     />
                     <div className="flex justify-between items-center">
                       <span className="text-xs text-muted-foreground">
@@ -324,10 +234,7 @@ export default function ProfilePage({ userId, profileUser }: ProfilePageProps) {
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => {
-                            setIsEditingBio(false);
-                            setBio(displayUser.bio || "");
-                          }}
+                          onClick={() => setIsEditingBio(false)}
                         >
                           Cancel
                         </Button>
@@ -338,49 +245,42 @@ export default function ProfilePage({ userId, profileUser }: ProfilePageProps) {
                     </div>
                   </div>
                 ) : (
-                  <div>
-                    {bio.trim() ? (
-                      <p className="text-sm text-muted-foreground leading-relaxed">
-                        {bio}
-                      </p>
-                    ) : (
-                      <p className="text-sm text-muted-foreground/60 italic">
-                        {isOwnProfile
-                          ? "Add a bio to tell others about yourself"
-                          : "No bio available"}
-                      </p>
-                    )}
-                  </div>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    {bio}
+                  </p>
                 )}
               </div>
 
               {/* Stats Grid */}
-              <div className="flex items-center flex-wrap gap-6 sm:gap-8 md:gap-10 pt-4">
-                <div>
-                  <div className="flex items-center gap-1 text-lg font-semibold">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4">
+                <div className="text-center">
+                  <div className="flex items-center justify-center gap-1 text-lg font-semibold">
                     <Users className="h-4 w-4 text-primary" />
-                    {displayUser.followerCount?.toLocaleString() || 0}
+                    {mockUser.followerCount.toLocaleString()}
                   </div>
                   <p className="text-xs text-muted-foreground">Followers</p>
                 </div>
-                <div>
-                  <div className="flex items-center gap-1 text-lg font-semibold">
+
+                <div className="text-center">
+                  <div className="flex items-center justify-center gap-1 text-lg font-semibold">
                     <UserPlus className="h-4 w-4 text-primary" />
-                    {displayUser.followeeCount || 0}
+                    {mockUser.followeeCount}
                   </div>
                   <p className="text-xs text-muted-foreground">Following</p>
                 </div>
-                <div>
-                  <div className="flex items-center gap-1 text-lg font-semibold">
+
+                <div className="text-center">
+                  <div className="flex items-center justify-center gap-1 text-lg font-semibold">
                     <Flame className="h-4 w-4 text-orange-500" />
-                    {displayUser.streak?.current || 0}
+                    {mockUser.streak.current}
                   </div>
                   <p className="text-xs text-muted-foreground">Day Streak</p>
                 </div>
-                <div>
-                  <div className="flex items-center gap-1 text-lg font-semibold">
+
+                <div className="text-center">
+                  <div className="flex items-center justify-center gap-1 text-lg font-semibold">
                     <Calendar className="h-4 w-4 text-primary" />
-                    {new Date(displayUser.createdAt).getFullYear()}
+                    {new Date(mockUser.createdAt).getFullYear()}
                   </div>
                   <p className="text-xs text-muted-foreground">Joined</p>
                 </div>
@@ -391,16 +291,13 @@ export default function ProfilePage({ userId, profileUser }: ProfilePageProps) {
                 <div className="pt-4">
                   <Button
                     onClick={handleFollow}
-                    variant={getFollowButtonVariant()}
                     className={
-                      followStatus.isFollowing
+                      isFollowing
                         ? "bg-muted text-muted-foreground hover:bg-muted/80"
-                        : followStatus.isFollowedBy
-                        ? "bg-primary text-primary-foreground hover:bg-primary/90"
                         : ""
                     }
                   >
-                    {getFollowButtonText()}
+                    {isFollowing ? "Following" : "Follow"}
                   </Button>
                 </div>
               )}
@@ -411,7 +308,7 @@ export default function ProfilePage({ userId, profileUser }: ProfilePageProps) {
 
       {/* Content Tabs */}
       <Tabs defaultValue="prompts" className="w-full">
-        <TabsList className="w-auto mr-auto grid grid-cols-3">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="prompts" className="flex items-center gap-2">
             <Share2 className="h-4 w-4" />
             Shared Prompts
@@ -458,6 +355,7 @@ export default function ProfilePage({ userId, profileUser }: ProfilePageProps) {
                         <p className="text-sm text-muted-foreground mb-3">
                           {prompt.description}
                         </p>
+
                         <div className="flex flex-wrap gap-1.5 mb-3">
                           {prompt.tags.map((tag) => (
                             <Badge
@@ -470,10 +368,12 @@ export default function ProfilePage({ userId, profileUser }: ProfilePageProps) {
                           ))}
                         </div>
                       </div>
+
                       <Button variant="ghost" size="sm">
                         <ExternalLink className="h-4 w-4" />
                       </Button>
                     </div>
+
                     <div className="flex items-center justify-between text-sm text-muted-foreground">
                       <div className="flex items-center gap-4">
                         <span className="flex items-center gap-1">

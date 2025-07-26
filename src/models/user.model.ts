@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document, Model } from "mongoose";
+import mongoose, { Document, Model, Schema } from "mongoose";
 
 export interface IUser extends Document {
   _id: string; // clerkId
@@ -8,7 +8,7 @@ export interface IUser extends Document {
   email: string;
   avatar: string;
   plan: "Free" | "Premium" | "Enterprise";
-  rank: 'Rookie' | 'Cadet' | 'Elite' | 'Veteran' | 'Master';
+  rank: "Rookie" | "Cadet" | "Elite" | "Veteran" | "Master";
   subscriptionEnds: Date;
   streak: {
     current: number;
@@ -26,7 +26,7 @@ export interface IUser extends Document {
 
 const UserSchema: Schema<IUser> = new Schema(
   {
-    _id: { type: String, required: true, }, // clerkId
+    _id: { type: String, required: true }, // clerkId
     fullname: { type: String, required: true },
     username: { type: String, required: true, unique: true },
     bio: { type: String, required: true, maxlength: 80 },
@@ -39,7 +39,7 @@ const UserSchema: Schema<IUser> = new Schema(
     },
     rank: {
       type: String,
-      enum: ["Rookie", "Cadet", "Elite","Veteran","Master"],
+      enum: ["Rookie", "Cadet", "Elite", "Veteran", "Master"],
       default: "Rookie",
     },
     subscriptionEnds: {

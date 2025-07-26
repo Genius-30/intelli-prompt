@@ -52,9 +52,9 @@ export default function NewPromptClient() {
       {
         onSuccess: () => {
           // Reset form or redirect as needed
+          router.push(`/folders/${folderId}/prompts/`);
           setTitle("");
           setContent("");
-          router.push(`/folders/${folderId}/prompts/`);
         },
         onError: (error) => {
           console.error("Create prompt failed:", error);
