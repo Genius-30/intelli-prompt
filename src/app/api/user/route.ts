@@ -18,3 +18,27 @@ export async function GET(req: Request) {
     return NextResponse.json({ message: "err fetching user details" }, { status: 500 });
   }
 }
+
+export async function PATCH(req:Request) {
+  try {
+    const { userId, error } = await getAuthenticatedUser();
+    if (error) return error;
+
+    const { bio } = await req.json()
+    if(!bio || bio.trim()===''){
+      return NextResponse.json({ message: "Invalid bio" }, { status: 400 });
+    }
+
+    const updated = await User.updateOne(
+      { _id: userId },
+      { $set: { bio } }
+    )
+    if(!updated){
+      return NextResponse.json({ message: "err updating user details" }, { status: 500 });
+    }
+
+    return NextResponse.json({ message: "user updated" }, { status: 200 })
+  } catch (err) {
+    return NextResponse.json({ message: "err updating user details" }, { status: 500 });
+  }
+}

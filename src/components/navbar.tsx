@@ -38,7 +38,7 @@ export function Navbar() {
                 Playground{" "}
               </a>
               <a
-                href="#pricing"
+                href="/pricing"
                 className="text-gray-300 hover:text-white transition-colors"
               >
                 {" "}
