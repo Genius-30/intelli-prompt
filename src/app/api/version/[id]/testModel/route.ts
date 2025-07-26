@@ -1,15 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import {
-  checkSubscription,
-  deductTokens,
-  isEnoughToken,
-} from "@/utils/manageTokens";
-
+import { checkSubscription, deductTokens, isEnoughToken } from "@/utils/manageTokens";
 import { IModelResponse } from "@/utils/models";
 import { Version } from "@/models/version.model";
 import { callOpenRouter } from "@/utils/models";
 import { getAuthenticatedUser } from "@/utils/getAuthenticatedUser";
 import { rateLimit } from "@/lib/rateLimit";
+import { AI_MODELS } from "@/lib/constants";
 
 // to test prompt on models
 export async function POST(req: NextRequest, { params }: { params: any }) {
@@ -66,6 +62,7 @@ export async function POST(req: NextRequest, { params }: { params: any }) {
 
         return {
           ...modelOption,
+          model: getModelNameById(modelOption.model),
           tokensUsed: result.tokensUsed,
           temperature: result.temperature,
           response: result.response,
@@ -84,4 +81,12 @@ export async function POST(req: NextRequest, { params }: { params: any }) {
       { status: 500 }
     );
   }
+}
+
+function getModelNameById(modelId: string): string | undefined {
+  for (const provider of Object.values(AI_MODELS)) {
+    const found = provider.models.find(m => m.id === modelId);
+    if (found) return found.name;
+  }
+  return undefined;
 }

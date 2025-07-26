@@ -29,7 +29,7 @@ const UserSchema: Schema<IUser> = new Schema(
     _id: { type: String, required: true, }, // clerkId
     fullname: { type: String, required: true },
     username: { type: String, required: true, unique: true },
-    bio: { type: String, required: true, maxlength: 80 },
+    bio: { type: String, default:'', maxlength: 80 },
     email: { type: String, required: true, unique: true },
     avatar: { type: String, default: "" },
     plan: {
