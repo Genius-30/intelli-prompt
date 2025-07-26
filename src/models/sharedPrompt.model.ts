@@ -48,4 +48,4 @@ const SharedPromptSchema: Schema<IShared> = new Schema(
 SharedPromptSchema.index({ tags: 1 })
 SharedPromptSchema.index({ title: 'text' })
 
-export const SharedPrompt: Model<IShared> = mongoose.models.sharedPrompt || mongoose.model<IShared>('sharedPrompt', SharedPromptSchema);
+export const SharedPrompt: Model<IShared> = mongoose.models.SharedPrompt || mongoose.model<IShared>('SharedPrompt', SharedPromptSchema);

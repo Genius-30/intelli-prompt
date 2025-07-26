@@ -3,7 +3,7 @@ import { Folder } from "@/models/folder.model";
 import { Prompt } from "@/models/prompt.model";
 import { Version } from "@/models/version.model";
 import { ModelResponse } from "@/models/modelResponse.model";
-import dbConnect from '@/lib/db' 
+import connectDb from '@/lib/db' 
 import mongoose from "mongoose";
 import { SharedPrompt } from "@/models/sharedPrompt.model";
 
@@ -11,10 +11,10 @@ const TUTORIAL_FOLDER_ID = new mongoose.Types.ObjectId("6882f28409b30abc32e77c46
 
 export async function GET() {
   try {
-    await dbConnect()
+    await connectDb()
 
     const folder = await Folder.findById(TUTORIAL_FOLDER_ID).lean();
-    console.log('folder',folder)
+
     const prompts = await Prompt.find({ folderId: TUTORIAL_FOLDER_ID }).lean();
 
     const promptsWithVersions = await Promise.all(
