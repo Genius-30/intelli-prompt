@@ -5,6 +5,7 @@ import { checkSubscription, deductTokens, isEnoughToken } from "@/utils/manageTo
 import { Version } from "@/models/version.model";
 import { rateLimit } from "@/lib/rateLimit";
 import { IModelResponse } from "@/utils/models";
+import { AI_MODELS } from "@/lib/constants";
 
 // to test prompt on models
 export async function POST(
@@ -52,6 +53,7 @@ export async function POST(
 
         return {
           ...modelOption,
+          model: getModelNameById(modelOption.model),
           tokensUsed: result.tokensUsed,
           temperature: result.temperature,
           response: result.response,
@@ -64,4 +66,12 @@ export async function POST(
   } catch (err) {
     return NextResponse.json({ message: 'error while testing model', err }, { status: 500 });
   }
+}
+
+function getModelNameById(modelId: string): string | undefined {
+  for (const provider of Object.values(AI_MODELS)) {
+    const found = provider.models.find(m => m.id === modelId);
+    if (found) return found.name;
+  }
+  return undefined;
 }
