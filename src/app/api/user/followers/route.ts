@@ -10,7 +10,9 @@ export async function GET(req: Request) {
     const { userId, error } = await getAuthenticatedUser();
     if (error) return error;
 
-    const followersList = await Follow.find({ followeeId: userId });
+    const { personId } = await req.json();
+
+    const followersList = await Follow.find({ followeeId: personId });
     if (!followersList) {
       return NextResponse.json(
         { message: "No followers list found" },

@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-
 import { SharedPrompt } from "@/models/sharedPrompt.model";
 import { User } from "@/models/user.model";
 import connectDb from "@/lib/db";
