@@ -128,33 +128,31 @@ export function SidebarFolderSection() {
     }
 
     return (
-      <>
-        <SidebarMenuSub className="w-full mr-0 pr-3">
-          {prompts.map((prompt: any) => (
-            <SidebarMenuSubItem key={prompt._id}>
-              <SidebarMenuSubButton
-                asChild
-                isActive={promptId === prompt._id}
-                onClick={() => navigateToPrompt(folderId, prompt._id)}
-                className="w-full"
-              >
-                <div className="w-full flex items-center gap-2 cursor-pointer">
-                  <FileText className="h-3 w-3 flex-shrink-0" />
-                  <p className="truncate">{prompt.title}</p>
-                </div>
-              </SidebarMenuSubButton>
-            </SidebarMenuSubItem>
-          ))}
-          <SidebarMenuSubItem>
-            <Link
-              href={`/folders/${folderId}/prompts/new`}
-              className="text-xs px-2 py-1 hover:text-primary text-muted-foreground"
+      <SidebarMenuSub className="w-full mr-0 pr-3">
+        {prompts.map((prompt: any) => (
+          <SidebarMenuSubItem key={prompt._id}>
+            <SidebarMenuSubButton
+              asChild
+              isActive={promptId === prompt._id}
+              onClick={() => navigateToPrompt(folderId, prompt._id)}
+              className="w-full"
             >
-              + Add Prompt
-            </Link>
+              <div className="w-full flex items-center gap-2 cursor-pointer">
+                <FileText className="h-3 w-3 flex-shrink-0" />
+                <p className="truncate">{prompt.title}</p>
+              </div>
+            </SidebarMenuSubButton>
           </SidebarMenuSubItem>
-        </SidebarMenuSub>
-      </>
+        ))}
+        <SidebarMenuSubItem>
+          <Link
+            href={`/folders/${folderId}/prompts/new`}
+            className="text-xs px-2 py-1 hover:text-primary text-muted-foreground"
+          >
+            + Add Prompt
+          </Link>
+        </SidebarMenuSubItem>
+      </SidebarMenuSub>
     );
   };
 

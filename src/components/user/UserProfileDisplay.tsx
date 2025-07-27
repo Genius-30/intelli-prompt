@@ -12,12 +12,13 @@ import {
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
-import { useEffect, useState } from "react";
 import {
-  useFollowStatus,
-  useToggleFollow,
-  useUpdateUserBio,
-} from "@/lib/queries/user";
+  getFollowButtonVariant,
+  getPlanColor,
+  getRankColor,
+} from "@/lib/ui-utils";
+import { useEffect, useState } from "react";
+import { useToggleFollow, useUpdateUserBio } from "@/lib/queries/user";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -26,39 +27,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { UserProfileTabs } from "./UserProfileTabs";
 import { toast } from "sonner";
 
-// Mock data - In a real app, these would come from API calls
-const mockSharedPrompts = [
-  {
-    id: "1",
-    title: "Creative Writing Assistant",
-    description: "Perfect for generating story ideas and character development",
-    tags: ["Writing", "Creativity", "Storytelling"],
-    likes: 234,
-    views: 1520,
-    model: "GPT-4",
-    createdAt: "2024-01-15",
-  },
-  {
-    id: "2",
-    title: "Code Review Helper",
-    description: "Comprehensive code analysis and improvement suggestions",
-    tags: ["Development", "Code Review", "Programming"],
-    likes: 189,
-    views: 892,
-    model: "Claude 3",
-    createdAt: "2024-01-10",
-  },
-  {
-    id: "3",
-    title: "Marketing Copy Generator",
-    description: "Create compelling marketing content for any product",
-    tags: ["Marketing", "Copywriting", "Business"],
-    likes: 156,
-    views: 743,
-    model: "Gemini Pro",
-    createdAt: "2024-01-05",
-  },
-];
 interface DisplayUser {
   _id: string;
   fullname: string;
@@ -79,19 +47,18 @@ interface DisplayUser {
 interface UserProfileDisplayProps {
   readonly user: DisplayUser;
   readonly isOwnProfile: boolean;
+  readonly followStatus?: { isFollowing: boolean; isFollowedBy: boolean };
 }
 
 export function UserProfileDisplay({
   user,
   isOwnProfile,
+  followStatus,
 }: UserProfileDisplayProps) {
   const [bio, setBio] = useState(user.bio || "");
   const [isEditingBio, setIsEditingBio] = useState(false);
   const [showBioAlert, setShowBioAlert] = useState(false);
 
-  const { data: followStatus, isLoading: isFollowLoading } = useFollowStatus(
-    isOwnProfile ? undefined : user._id
-  );
   const { mutate: updateUserBio, isPending: isBioUpdating } =
     useUpdateUserBio();
   const { mutate: toggleFollow, isPending: isFollowMutating } =
@@ -100,7 +67,6 @@ export function UserProfileDisplay({
   useEffect(() => {
     setBio(user.bio || "");
 
-    // Show bio alert if it's own profile and bio is empty
     if (isOwnProfile && (!user.bio || user.bio.trim() === "")) {
       setShowBioAlert(true);
     } else {
@@ -125,7 +91,7 @@ export function UserProfileDisplay({
   };
 
   const handleFollow = () => {
-    if (!user._id || isFollowMutating || isFollowLoading) return;
+    if (!user._id || isFollowMutating) return;
 
     toggleFollow(
       {
@@ -135,7 +101,9 @@ export function UserProfileDisplay({
       {
         onSuccess: () => {
           toast.success(
-            followStatus?.isFollowing ? "Unfollowed user" : "Followed user"
+            followStatus?.isFollowing
+              ? `Unfollowed ${user.username}`
+              : `Followed ${user.username}`
           );
         },
         onError: () => {
@@ -143,37 +111,6 @@ export function UserProfileDisplay({
         },
       }
     );
-  };
-
-  const getFollowButtonVariant = () => {
-    if (followStatus?.isFollowing) {
-      return "secondary";
-    } else if (followStatus?.isFollowedBy) {
-      return "default";
-    } else {
-      return "default";
-    }
-  };
-
-  const getRankColor = (rank: string) => {
-    const colors = {
-      Rookie: "bg-gray-100 text-gray-700",
-      Cadet: "bg-blue-100 text-blue-700",
-      Elite: "bg-purple-100 text-purple-700",
-      Veteran: "bg-orange-100 text-orange-700",
-      Master: "bg-yellow-100 text-yellow-700",
-    };
-    return colors[rank as keyof typeof colors] || colors.Rookie;
-  };
-
-  const getPlanColor = (plan: string) => {
-    const colors = {
-      Free: "bg-gray-100 text-gray-700",
-      Premium: "bg-primary/10 text-primary",
-      Enterprise:
-        "bg-gradient-to-r from-purple-100 to-pink-100 text-purple-700",
-    };
-    return colors[plan as keyof typeof colors] || colors.Free;
   };
 
   return (
@@ -222,7 +159,11 @@ export function UserProfileDisplay({
                 <p className="text-muted-foreground">@{user.username}</p>
 
                 <div className="flex flex-wrap gap-2 mt-3 justify-center md:justify-start">
-                  <Badge className={getPlanColor(user.plan)}>{user.plan}</Badge>
+                  {isOwnProfile && (
+                    <Badge className={getPlanColor(user.plan)}>
+                      {user.plan}
+                    </Badge>
+                  )}
                   <Badge className={getRankColor(user.rank)}>
                     <Trophy className="h-3 w-3 mr-1" />
                     {user.rank}
@@ -347,9 +288,7 @@ export function UserProfileDisplay({
               {!isOwnProfile &&
                 (() => {
                   let followButtonLabel = "Follow";
-                  if (isFollowLoading || isFollowMutating) {
-                    followButtonLabel = "Loading...";
-                  } else if (followStatus?.isFollowing) {
+                  if (followStatus?.isFollowing) {
                     followButtonLabel = "Following";
                   } else if (followStatus?.isFollowedBy) {
                     followButtonLabel = "Follow Back";
@@ -368,8 +307,8 @@ export function UserProfileDisplay({
                     <div className="pt-4">
                       <Button
                         onClick={handleFollow}
-                        variant={getFollowButtonVariant()}
-                        disabled={isFollowLoading || isFollowMutating}
+                        variant={getFollowButtonVariant(followStatus)}
+                        disabled={isFollowMutating}
                         className={followButtonClassName}
                       >
                         {followButtonLabel}
@@ -383,10 +322,7 @@ export function UserProfileDisplay({
       </Card>
 
       {/* Content Tabs */}
-      <UserProfileTabs
-        isOwnProfile={isOwnProfile}
-        getRankColor={getRankColor}
-      />
+      <UserProfileTabs username={user.username} isOwnProfile={isOwnProfile} />
     </div>
   );
 }

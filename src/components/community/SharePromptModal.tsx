@@ -95,13 +95,11 @@ export function SharePromptModal({
       },
       {
         onSuccess: (data) => {
-          const sharedPromptId = data?._id;
-
           toast.success("Prompt shared successfully!", {
             action: {
               label: "View Prompt",
               onClick: () => {
-                router.push(`/shared-prompts/${sharedPromptId}`);
+                router.push(`/profile`);
               },
             },
             duration: 5000,

@@ -62,7 +62,7 @@ export const useToggleFollow = () => {
   return useMutation({
     mutationFn: async ({ userId, isFollowing }: ToggleFollowArgs) => {
       const url = isFollowing
-        ? `/following/unfollow/${userId}`
+        ? `/following/unFollow/${userId}`
         : `/following/follow/${userId}`;
 
       const method = isFollowing ? "delete" : "post";
@@ -76,6 +76,8 @@ export const useToggleFollow = () => {
     },
     onSuccess: (_, { userId }) => {
       queryClient.invalidateQueries({ queryKey: ["followStatus", userId] });
+      queryClient.invalidateQueries({ queryKey: ["followers"] });
+      queryClient.invalidateQueries({ queryKey: ["following"] });
     },
   });
 };

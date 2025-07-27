@@ -1,23 +1,10 @@
-"use client";
-
 import {
   Card,
   CardContent,
   CardFooter,
   CardHeader,
 } from "@/components/ui/card";
-import {
-  Clock,
-  DivideCircle,
-  ExternalLink,
-  GitBranch,
-  Loader2,
-  Trash2,
-} from "lucide-react";
 
-import { Badge } from "../ui/badge";
-import { Button } from "../ui/button";
-import FavoriteButton from "../common/FavoriteButton";
 import { Skeleton } from "../ui/skeleton";
 
 export default function PromptCard() {

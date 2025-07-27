@@ -33,7 +33,6 @@ interface Props {
   readonly submitText?: string;
 }
 
-// Zod schema
 const formSchema = z.object({
   title: z.string().min(1, "Prompt title is required."),
 });
@@ -70,7 +69,7 @@ export function FolderCreateModal({
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{submitText} Prompt</DialogTitle>
+          <DialogTitle>{submitText} Folder</DialogTitle>
         </DialogHeader>
 
         <Form {...form}>
@@ -83,9 +82,9 @@ export function FolderCreateModal({
               name="title"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Prompt Title</FormLabel>
+                  <FormLabel>Folder Title</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter prompt title..." {...field} />
+                    <Input placeholder="Enter folder title..." {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

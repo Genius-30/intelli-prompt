@@ -1,4 +1,3 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   ExternalLink,
@@ -18,25 +17,29 @@ import {
 import { AppUser } from "@/types/user";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Loader } from "@/components/ui/loader";
 import { SharedPrompt } from "@/types/sharedPrompt";
-import { useParams } from "next/navigation";
+import { UserCard } from "./UserCard";
+import { UserCardSkeleton } from "../skeletons/UserCard";
 
 interface UserProfileTabsProps {
+  readonly username?: string;
   readonly isOwnProfile: boolean;
-  readonly getRankColor: (rank: string) => string;
 }
 
 export function UserProfileTabs({
+  username,
   isOwnProfile,
-  getRankColor,
 }: UserProfileTabsProps) {
-  const { username } = useParams();
-
-  const { data: followers, isLoading: isFollowersLoading } = useFollowers();
-  const { data: following, isLoading: isFollowingLoading } = useFollowing();
+  const { data: followers, isLoading: isFollowersLoading } = useFollowers() as {
+    data: AppUser[] | undefined;
+    isLoading: boolean;
+  };
+  const { data: following, isLoading: isFollowingLoading } = useFollowing() as {
+    data: AppUser[] | undefined;
+    isLoading: boolean;
+  };
   const { data: sharedPrompts = [], isLoading: isPromptsLoading } =
-    useUserSharedPrompts(isOwnProfile ? undefined : (username as string));
+    useUserSharedPrompts(username as string);
 
   return (
     <Tabs defaultValue="prompts" className="w-full">
@@ -134,7 +137,13 @@ export function UserProfileTabs({
       {(() => {
         let followersTabContent: React.ReactNode;
         if (isFollowersLoading) {
-          followersTabContent = <Loader />;
+          followersTabContent = (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {Array.from({ length: 5 }).map((_, index) => (
+                <UserCardSkeleton key={index} />
+              ))}
+            </div>
+          );
         } else if (!followers || followers.length === 0) {
           followersTabContent = (
             <Card>
@@ -151,42 +160,9 @@ export function UserProfileTabs({
           );
         } else {
           followersTabContent = (
-            <div className="grid gap-3">
-              {followers.map((follower: AppUser) => (
-                <Card key={follower._id}>
-                  <CardContent className="p-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <Avatar className="h-10 w-10">
-                          <AvatarImage
-                            src={follower.avatar || "/placeholder.svg"}
-                            alt={follower.fullname}
-                          />
-                          <AvatarFallback className="bg-primary/10 text-primary">
-                            {follower.fullname
-                              .split(" ")
-                              .map((n: string) => n[0])
-                              .join("")}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <p className="font-medium">{follower.fullname}</p>
-                          <p className="text-sm text-muted-foreground">
-                            @{follower.username}
-                          </p>
-                        </div>
-                        <Badge
-                          className={getRankColor(follower.rank || "Rookie")}
-                        >
-                          {follower.rank || "Rookie"}
-                        </Badge>
-                      </div>
-                      <Button variant="outline" size="sm">
-                        View Profile
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {followers.map((user: AppUser) => (
+                <UserCard key={user._id} user={user} />
               ))}
             </div>
           );
@@ -202,7 +178,13 @@ export function UserProfileTabs({
       <TabsContent value="following" className="space-y-4">
         {(() => {
           if (isFollowingLoading) {
-            return <Loader />;
+            return (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {Array.from({ length: 5 }).map((_, index) => (
+                  <UserCardSkeleton key={index} />
+                ))}
+              </div>
+            );
           }
           if ((following?.length ?? 0) === 0) {
             return (
@@ -222,40 +204,9 @@ export function UserProfileTabs({
             );
           }
           return (
-            <div className="grid gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {(following ?? []).map((user: AppUser) => (
-                <Card key={user._id}>
-                  <CardContent className="p-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <Avatar className="h-10 w-10">
-                          <AvatarImage
-                            src={user.avatar || "/placeholder.svg"}
-                            alt={user.fullname}
-                          />
-                          <AvatarFallback className="bg-primary/10 text-primary">
-                            {user.fullname
-                              .split(" ")
-                              .map((n) => n[0])
-                              .join("")}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <p className="font-medium">{user.fullname}</p>
-                          <p className="text-sm text-muted-foreground">
-                            @{user.username}
-                          </p>
-                        </div>
-                        <Badge className={getRankColor(user.rank || "Rookie")}>
-                          {user.rank || "Rookie"}
-                        </Badge>
-                      </div>
-                      <Button variant="outline" size="sm">
-                        View Profile
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
+                <UserCard key={user._id} user={user} />
               ))}
             </div>
           );

@@ -115,7 +115,7 @@ export function PromptVersionsClient() {
           managing versions.
         </p>
         <Button onClick={() => router.push(`/folders/${folderId}/prompts/new`)}>
-          <PlusIcon className="w-4 h-4 mr-2" />
+          <PlusIcon className="w-4 h-4" />
           Create Prompt
         </Button>
       </div>
@@ -136,10 +136,9 @@ export function PromptVersionsClient() {
           <VersionLegend />
           {activeVersionId && (
             <Button
-              size="sm"
               onClick={() => router.push(`${pathname}/${activeVersionId}`)}
             >
-              <PlusIcon className="w-4 h-4 mr-2" />
+              <PlusIcon className="w-4 h-4" />
               New Version
             </Button>
           )}
