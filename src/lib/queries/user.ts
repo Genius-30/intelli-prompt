@@ -1,8 +1,7 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import axiosInstance from "@/lib/axios";
 import { toast } from "sonner";
-import { useQuery } from "@tanstack/react-query";
 
 export const useCurrentUser = () => {
   return useQuery({
@@ -12,6 +11,21 @@ export const useCurrentUser = () => {
       return data.mongoUser;
     },
     staleTime: 1000 * 60 * 5,
+  });
+};
+
+export const useUserByUsername = (username?: string) => {
+  return useQuery({
+    queryKey: ["user", username],
+    queryFn: async () => {
+      const { data } = await axiosInstance.get(`/user/${username}`);
+      if (!data.user) {
+        throw new Error("User not found");
+      }
+      return data.user;
+    },
+    enabled: !!username,
+    retry: false,
   });
 };
 
@@ -34,7 +48,7 @@ interface FollowStatusResponse {
   isFollowedBy: boolean;
 }
 
-export const useFollowStatus = (targetUserId?: string) => {
+export const useFollowStatus = (targetUserId?: string, options?: any) => {
   return useQuery<FollowStatusResponse>({
     queryKey: ["followStatus", targetUserId],
     queryFn: async () => {
@@ -48,6 +62,7 @@ export const useFollowStatus = (targetUserId?: string) => {
     },
     enabled: !!targetUserId,
     staleTime: 1000 * 60,
+    ...options,
   });
 };
 
@@ -82,49 +97,43 @@ export const useToggleFollow = () => {
   });
 };
 
-export const useFollowers = () => {
+export const useFollowers = (personId: string) => {
   return useQuery({
-    queryKey: ["followers"],
+    queryKey: ["followers", personId],
     queryFn: async () => {
-      const { data } = await axiosInstance.get("/user/followers");
+      const { data } = await axiosInstance.post("/user/followers", {
+        personId,
+      });
       return data.followers;
     },
+    enabled: !!personId,
   });
 };
 
-export const useFollowing = () => {
+export const useFollowing = (personId: string) => {
   return useQuery({
-    queryKey: ["following"],
+    queryKey: ["following", personId],
     queryFn: async () => {
-      const { data } = await axiosInstance.get("/user/following");
+      const { data } = await axiosInstance.post("/user/following", {
+        personId,
+      });
       return data.followees;
     },
+    enabled: !!personId,
   });
 };
 
-export const useUserByUsername = (username?: string) => {
+export const useUserSharedPrompts = (userId: string | undefined) => {
   return useQuery({
-    queryKey: ["user", username],
+    queryKey: ["userSharedPrompts", userId],
     queryFn: async () => {
-      const { data } = await axiosInstance.get(`/user/${username}`);
-      return data.user;
+      if (!userId) return [];
+
+      const { data } = await axiosInstance.get(
+        `/user/allSharedPrompts/${userId}`
+      );
+      return data.data;
     },
-    enabled: !!username,
-  });
-};
-
-export const useUserSharedPrompts = (username: string | undefined) => {
-  return useQuery({
-    queryKey: ["userSharedPrompts", username],
-    queryFn: async () => {
-      if (!username) return [];
-
-      const { data } = await axiosInstance.get("/analytics/search", {
-        params: { username },
-      });
-
-      return data.results;
-    },
-    enabled: !!username,
+    enabled: !!userId,
   });
 };

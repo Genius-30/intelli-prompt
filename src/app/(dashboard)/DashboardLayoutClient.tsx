@@ -1,14 +1,7 @@
 "use client";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  Bell,
-  ChevronsUpDown,
-  LogOut,
-  Receipt,
-  Settings,
-  User,
-} from "lucide-react";
+import { ChevronsUpDown, LogOut, Receipt, Settings, User } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -132,14 +125,6 @@ export default function DashboardLayoutClient({
             <BreadcrumbResponsive />
 
             <div className="flex items-center space-x-2 ml-auto">
-              <Button asChild variant="outline" size="sm" className="text-xs">
-                <Link href="/pricing">Upgrade</Link>
-              </Button>
-
-              <Button variant="ghost" size="sm">
-                <Bell className="h-4 w-4" />
-              </Button>
-
               <ModeToggle />
 
               <Badge
@@ -148,6 +133,15 @@ export default function DashboardLayoutClient({
               >
                 Pro
               </Badge>
+
+              <Button
+                asChild
+                variant="default"
+                size="sm"
+                className="text-xs bg-gradient-to-r from-[#FFD700] via-[#FFC300] to-[#FFB300] text-black border-0 shadow-sm hover:from-[#FFC300] hover:to-[#FFD700]"
+              >
+                <Link href="/pricing">Upgrade Plan</Link>
+              </Button>
             </div>
           </div>
         </header>

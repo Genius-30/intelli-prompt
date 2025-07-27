@@ -1,11 +1,11 @@
-// Get following list
+// Get followers list
 
 import { Follow } from "@/models/follow.model";
 import { NextResponse } from "next/server";
 import { User } from "@/models/user.model";
 import { getAuthenticatedUser } from "@/utils/getAuthenticatedUser";
 
-export async function GET(req: Request) {
+export async function POST(req: Request) {
   try {
     const { userId, error } = await getAuthenticatedUser();
     if (error) return error;

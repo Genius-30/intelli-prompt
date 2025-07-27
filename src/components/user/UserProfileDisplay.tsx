@@ -322,7 +322,7 @@ export function UserProfileDisplay({
       </Card>
 
       {/* Content Tabs */}
-      <UserProfileTabs username={user.username} isOwnProfile={isOwnProfile} />
+      <UserProfileTabs user={user} isOwnProfile={isOwnProfile} />
     </div>
   );
 }

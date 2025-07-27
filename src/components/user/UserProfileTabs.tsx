@@ -1,12 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
-import {
-  ExternalLink,
-  Eye,
-  Heart,
-  Share2,
-  UserPlus,
-  Users,
-} from "lucide-react";
+import { Share2, UserPlus, Users } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   useFollowers,
@@ -15,31 +8,27 @@ import {
 } from "@/lib/queries/user";
 
 import { AppUser } from "@/types/user";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { SharedPrompt } from "@/types/sharedPrompt";
+import { SharedPromptCard } from "../community/SharedPromptCard";
+import { SharedPromptCardSkeleton } from "../skeletons/SharedPromptCardSkeleton";
 import { UserCard } from "./UserCard";
 import { UserCardSkeleton } from "../skeletons/UserCard";
 
 interface UserProfileTabsProps {
-  readonly username?: string;
+  readonly user: AppUser;
   readonly isOwnProfile: boolean;
 }
 
-export function UserProfileTabs({
-  username,
-  isOwnProfile,
-}: UserProfileTabsProps) {
-  const { data: followers, isLoading: isFollowersLoading } = useFollowers() as {
-    data: AppUser[] | undefined;
-    isLoading: boolean;
-  };
-  const { data: following, isLoading: isFollowingLoading } = useFollowing() as {
-    data: AppUser[] | undefined;
-    isLoading: boolean;
-  };
+export function UserProfileTabs({ user, isOwnProfile }: UserProfileTabsProps) {
+  const { data: followers, isLoading: isFollowersLoading } = useFollowers(
+    user?._id
+  );
+
+  const { data: following, isLoading: isFollowingLoading } = useFollowing(
+    user?._id
+  );
   const { data: sharedPrompts = [], isLoading: isPromptsLoading } =
-    useUserSharedPrompts(username as string);
+    useUserSharedPrompts(user?._id);
 
   return (
     <Tabs defaultValue="prompts" className="w-full">
@@ -60,7 +49,13 @@ export function UserProfileTabs({
 
       {/* shared prompts tab */}
       <TabsContent value="prompts" className="space-y-4">
-        {sharedPrompts.length === 0 ? (
+        {isPromptsLoading ? (
+          <div className="grid gap-4">
+            {Array.from({ length: 5 }).map((_, index) => (
+              <SharedPromptCardSkeleton key={index} />
+            ))}
+          </div>
+        ) : sharedPrompts.length === 0 ? (
           <Card>
             <CardContent className="p-8 text-center">
               <Share2 className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
@@ -77,57 +72,7 @@ export function UserProfileTabs({
         ) : (
           <div className="grid gap-4">
             {sharedPrompts.map((prompt: SharedPrompt) => (
-              <Card
-                key={prompt._id}
-                className="hover:shadow-md transition-shadow"
-              >
-                <CardContent className="p-6">
-                  <div className="flex justify-between items-start mb-3">
-                    <div className="flex-1">
-                      <h3 className="font-semibold text-lg mb-1">
-                        {prompt.title}
-                      </h3>
-                      <p className="text-sm text-muted-foreground mb-3">
-                        {prompt.content.length > 100
-                          ? `${prompt.content.slice(0, 100)}...`
-                          : prompt.content}
-                      </p>
-                      <div className="flex flex-wrap gap-1.5 mb-3">
-                        {prompt.tags.map((tag) => (
-                          <Badge
-                            key={tag}
-                            variant="secondary"
-                            className="text-xs"
-                          >
-                            {tag}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-                    <Button variant="ghost" size="sm">
-                      <ExternalLink className="h-4 w-4" />
-                    </Button>
-                  </div>
-                  <div className="flex items-center justify-between text-sm text-muted-foreground">
-                    <div className="flex items-center gap-4">
-                      <span className="flex items-center gap-1">
-                        <Heart className="h-3 w-3" />
-                        {prompt.likes}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Eye className="h-3 w-3" />
-                        {prompt.shares}
-                      </span>
-                      <Badge variant="outline" className="text-xs">
-                        {prompt.modelUsed}
-                      </Badge>
-                    </div>
-                    <span>
-                      {new Date(prompt.createdAt).toLocaleDateString()}
-                    </span>
-                  </div>
-                </CardContent>
-              </Card>
+              <SharedPromptCard key={prompt._id} prompt={prompt} />
             ))}
           </div>
         )}

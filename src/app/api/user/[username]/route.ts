@@ -8,7 +8,7 @@ export async function GET(req: Request, { params }: { params: any }) {
     const { userId, error } = await getAuthenticatedUser();
     if (error) return error;
 
-    const { username } = (await params).username;
+    const username  = (await params).username;
     if (!username) {
       return NextResponse.json(
         { message: "Invalid username" },
@@ -16,7 +16,7 @@ export async function GET(req: Request, { params }: { params: any }) {
       );
     }
 
-    const user = User.findOne({ username })
+    const user = await User.findOne({ username })
       .select(
         "username fullname bio email avatar rank followerCount followeeCount createdAt"
       )

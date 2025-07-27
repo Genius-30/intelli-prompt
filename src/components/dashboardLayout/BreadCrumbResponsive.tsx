@@ -71,28 +71,42 @@ export function BreadcrumbResponsive() {
     return { label, href };
   });
 
+  const lastCrumb = crumbs[crumbs.length - 1];
+
   return (
     <Breadcrumb>
       <BreadcrumbList className="flex items-center gap-y-0 sm:gap-y-0">
-        {crumbs.map((crumb, index) => {
-          const isLast = index === crumbs.length - 1;
-          return (
-            <React.Fragment key={crumb.href}>
-              {index > 0 && <BreadcrumbSeparator />}
-              <BreadcrumbItem>
-                {isLast ? (
-                  <BreadcrumbPage className="capitalize">
-                    {crumb.label}
-                  </BreadcrumbPage>
-                ) : (
-                  <BreadcrumbLink asChild className="capitalize">
-                    <Link href={crumb.href}>{crumb.label}</Link>
-                  </BreadcrumbLink>
-                )}
-              </BreadcrumbItem>
-            </React.Fragment>
-          );
-        })}
+        {/* Mobile view: only show last crumb */}
+        <div className="block sm:hidden">
+          <BreadcrumbItem>
+            <BreadcrumbPage className="capitalize">
+              {lastCrumb.label}
+            </BreadcrumbPage>
+          </BreadcrumbItem>
+        </div>
+
+        {/* Desktop view: full breadcrumbs */}
+        <div className="hidden sm:flex items-center gap-x-1.5">
+          {crumbs.map((crumb, index) => {
+            const isLast = index === crumbs.length - 1;
+            return (
+              <React.Fragment key={crumb.href}>
+                {index > 0 && <BreadcrumbSeparator />}
+                <BreadcrumbItem>
+                  {isLast ? (
+                    <BreadcrumbPage className="capitalize">
+                      {crumb.label}
+                    </BreadcrumbPage>
+                  ) : (
+                    <BreadcrumbLink asChild className="capitalize">
+                      <Link href={crumb.href}>{crumb.label}</Link>
+                    </BreadcrumbLink>
+                  )}
+                </BreadcrumbItem>
+              </React.Fragment>
+            );
+          })}
+        </div>
       </BreadcrumbList>
     </Breadcrumb>
   );
