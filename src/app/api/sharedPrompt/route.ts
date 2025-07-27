@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-
 import { SharedPrompt } from "@/models/sharedPrompt.model";
 import connectDb from "@/lib/db";
 import { getAuthenticatedUser } from "@/utils/getAuthenticatedUser";
@@ -28,19 +27,13 @@ export async function POST(req: Request) {
       modelUsed,
     });
 
-    return NextResponse.json(
-      { message: "Prompt shared successfully", newSharedPrompt },
-      { status: 201 }
-    );
+    return NextResponse.json({ message: "Prompt shared successfully", newSharedPrompt }, { status: 201 });
   } catch (error) {
-    return NextResponse.json(
-      { error: "Failed to share prompt" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to share prompt" }, { status: 500 });
   }
 }
 
-// get all sharedPrompt
+// get all sharedPrompt for community section 
 export async function GET(req: NextRequest) {
   try {
     const result = await rateLimit(req);
@@ -48,20 +41,17 @@ export async function GET(req: NextRequest) {
 
     await connectDb();
 
-    const data = await getSetCache("allSharedPrompts", 60, getAllSharedPrompts);
+    const data = await getSetCache("allSharedPromptsByCommunity", 60, getAllSharedPrompts);
+    if(!data){
+      return NextResponse.json({ message: 'sharedPrompts not found' }, { status: 404 })
+    }
 
-    return NextResponse.json(
-      { message: "all sharedPrompt fetched", data },
-      { status: 200 }
-    );
+    return NextResponse.json({ message: "all sharedPrompt fetched", data }, { status: 200 });
   } catch (error) {
-    return NextResponse.json(
-      { error: "Failed fetching all sharedPrompts" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed fetching all sharedPrompts" }, { status: 500 });
   }
 }
 
-export async function getAllSharedPrompts() {
-  return await SharedPrompt.find();
+async function getAllSharedPrompts() {
+  return await SharedPrompt.find().lean();
 }

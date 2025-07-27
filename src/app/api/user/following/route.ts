@@ -8,8 +8,10 @@ export async function GET(req: Request) {
   try {
     const { userId, error } = await getAuthenticatedUser();
     if (error) return error;
+    
+    const { personId } = await req.json()
 
-    const followingList = await Follow.find({ followerId: userId });
+    const followingList = await Follow.find({ followerId: personId });
     if (!followingList) {
       return NextResponse.json({ message: 'No following list found' }, { status: 404 });
     }
