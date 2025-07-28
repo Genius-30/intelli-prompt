@@ -4,7 +4,7 @@ import { getAuthenticatedUser } from '@/utils/getAuthenticatedUser';
 import { Follow } from '@/models/follow.model';
 import { User } from '@/models/user.model';
 
-export async function GET(req: Request) {
+export async function POST(req: Request) {
   try {
     const { userId, error } = await getAuthenticatedUser();
     if (error) return error;

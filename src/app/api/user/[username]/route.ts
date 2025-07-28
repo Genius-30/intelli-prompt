@@ -11,7 +11,7 @@ export async function GET(
     const { userId, error } = await getAuthenticatedUser();
     if (error) return error;
 
-    const { username } = (await params).username
+    const username = (await params).username
     if(!username){
       return NextResponse.json({ message: "Invalid username" }, { status: 400 });
     }

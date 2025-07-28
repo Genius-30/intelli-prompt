@@ -11,8 +11,8 @@ export async function POST(req: Request) {
     const { userId, error } = await getAuthenticatedUser();
     if (error) return error;
 
-    const { title, content, tags, modelUsed } = await req.json();
-    if (!title || !content || !modelUsed) {
+    const { title, content, tags, modelUsed, response } = await req.json();
+    if (!title || !content || !modelUsed || !response) {
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 }
@@ -25,6 +25,7 @@ export async function POST(req: Request) {
       content,
       tags: tags || [],
       modelUsed,
+      response
     });
 
     return NextResponse.json({ message: "Prompt shared successfully", newSharedPrompt }, { status: 201 });
@@ -52,6 +53,39 @@ export async function GET(req: NextRequest) {
   }
 }
 
-async function getAllSharedPrompts() {
-  return await SharedPrompt.find().lean();
+function getAllSharedPrompts() {
+  return SharedPrompt.aggregate([
+    { $sort: { createdAt: -1 } },
+    {
+      $lookup: {
+        from: 'users',
+        localField: 'ownerId',
+        foreignField: '_id',
+        as: 'owner' 
+      }
+    },
+    {
+      $unwind: {
+        path: '$owner',
+        preserveNullAndEmptyArrays: true
+      }
+    },
+    {
+      $project: {
+        title: 1,
+        content: 1,
+        tags: 1,
+        modelUsed: 1,
+        createdAt: 1,
+        likeCount: { $size: { $ifNull: ["$likes", []] } },
+        saveCount: { $size: { $ifNull: ["$saves", []] } },
+        shareCount: { $size: { $ifNull: ["$shares", []] } },
+        commentCount: { $size: { $ifNull: ["$comments", []] } },
+        "owner.username": 1,
+        "owner.avatar": 1,
+        "owner._id": 1,
+        "owner.rank": 1
+      }
+    }
+  ])
 }
