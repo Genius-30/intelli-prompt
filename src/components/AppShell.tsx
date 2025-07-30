@@ -1,17 +1,34 @@
+// components/AppShell.tsx
 "use client";
 
-import { useEffect, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
+import { redirect, usePathname } from "next/navigation";
 
-import { CustomToaster } from "./CustomToaster";
-import { Loader } from "./ui/loader";
-import { Navbar } from "./navbar";
-import { usePathname } from "next/navigation";
+import { CustomToaster } from "@/components/other/CustomToaster";
+import DashboardLayout from "@/components/layouts/DashboardLayout";
+import { Loader } from "@/components/ui/loader";
+import PublicLayout from "@/components/layouts/PublicLayout";
 import { useUser } from "@clerk/nextjs";
 
-export function AppShell({ children }: { readonly children: React.ReactNode }) {
-  const pathname = usePathname();
-  const { isSignedIn, isLoaded } = useUser();
+const PUBLIC_PATHS = [
+  "/",
+  "/sign-in",
+  "/sign-up",
+  "/public/",
+  "/explore",
+  "/pricing",
+  "/leaderboard",
+];
 
+const NO_SHELL_PATHS = ["/sign-in", "/sign-up"];
+
+export default function AppShell({
+  children,
+}: {
+  readonly children: ReactNode;
+}) {
+  const { isLoaded, isSignedIn } = useUser();
+  const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -26,15 +43,30 @@ export function AppShell({ children }: { readonly children: React.ReactNode }) {
     );
   }
 
-  // Show navbar only on root page when user is not logged in
-  const shouldShowNavbar = pathname === "/" && !isSignedIn && isLoaded;
+  // 1️⃣ Skip *all* shell & toaster for Clerk pages:
+  if (NO_SHELL_PATHS.includes(pathname)) {
+    return <>{children}</>;
+  }
+
+  let shell: ReactNode;
+
+  // Signed‑in always wins
+  if (isSignedIn) {
+    shell = <DashboardLayout>{children}</DashboardLayout>;
+  }
+  // Otherwise, if in PUBLIC_PATHS, show public
+  else if (PUBLIC_PATHS.includes(pathname)) {
+    shell = <PublicLayout>{children}</PublicLayout>;
+  }
+  // Else force sign‑in
+  else {
+    redirect("/sign-in");
+  }
 
   return (
-    <div className="min-h-screen">
-      {/* ✅ Show Navbar only on root page when user is not logged in */}
-      {shouldShowNavbar && <Navbar />}
-      {children}
+    <>
+      {shell}
       <CustomToaster />
-    </div>
+    </>
   );
 }

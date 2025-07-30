@@ -28,8 +28,8 @@ export default function LeaderboardClient() {
   const topContributors = [
     {
       rank: 1,
-      name: "Sarah Chen",
-      username: "sarahc",
+      name: "Techo Biz",
+      username: "techobiz",
       avatar: "/placeholder.svg?height=40&width=40",
       points: 2450,
       prompts: 28,
@@ -40,8 +40,8 @@ export default function LeaderboardClient() {
     },
     {
       rank: 2,
-      name: "Mike Johnson",
-      username: "mikej",
+      name: "Genius Porwal",
+      username: "thisisgenius",
       avatar: "/placeholder.svg?height=40&width=40",
       points: 2180,
       prompts: 24,
@@ -149,13 +149,13 @@ export default function LeaderboardClient() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6 px-4">
+    <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between w-full">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Leaderboard</h1>
           <p className="text-sm text-muted-foreground">
-            Top contributors in the IntelliStack community
+            Top contributors in the IntelliPrompt community
           </p>
         </div>
 
@@ -164,8 +164,8 @@ export default function LeaderboardClient() {
           className="text-sm"
           onClick={() => {
             const shareData = {
-              title: "My IntelliStack Stats",
-              text: "Check out my leaderboard stats on IntelliStack!",
+              title: "My IntelliPrompt Stats",
+              text: "Check out my leaderboard stats on IntelliPrompt!",
               url: window.location.href,
             };
 

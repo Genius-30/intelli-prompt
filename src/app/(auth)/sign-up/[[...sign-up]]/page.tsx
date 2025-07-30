@@ -1,14 +1,14 @@
 "use client";
 
 import { SignUp } from "@clerk/nextjs";
-import { useTheme } from "next-themes";
 import { dark } from "@clerk/themes";
+import { useTheme } from "next-themes";
 
 export default function SignUpPage() {
   const { resolvedTheme } = useTheme();
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 bg-background">
+    <div className="flex items-center justify-center bg-background">
       <SignUp
         path="/sign-up"
         routing="path"

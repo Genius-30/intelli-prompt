@@ -25,15 +25,15 @@ import {
 import { SignOutButton, useClerk, useUser } from "@clerk/nextjs";
 
 import { Badge } from "@/components/ui/badge";
-import { BreadcrumbResponsive } from "../../components/dashboardLayout/BreadCrumbResponsive";
+import { BreadcrumbResponsive } from "../dashboardLayout/BreadCrumbResponsive";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import Logo from "../../components/Logo";
-import { ModeToggle } from "../../components/ModeToggle";
+import Logo from "../Logo";
+import { ModeToggle } from "../ModeToggle";
 import { SidebarFolderSection } from "@/components/dashboardLayout/SidebarFolderSection";
 import { SidebarMainLinks } from "@/components/dashboardLayout/SidebarMainLinks";
 
-export default function DashboardLayoutClient({
+export default function DashboardLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;

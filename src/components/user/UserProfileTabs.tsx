@@ -9,8 +9,8 @@ import {
 
 import { AppUser } from "@/types/user";
 import { SharedPrompt } from "@/types/sharedPrompt";
-import { SharedPromptCard } from "../community/SharedPromptCard";
-import { SharedPromptCardSkeleton } from "../skeletons/SharedPromptCardSkeleton";
+import { SharedPromptCard } from "./SharedPromptCardUser";
+import { SharedPromptCardSkeleton } from "../skeletons/SharedPromptCardUserSkeleton";
 import { UserCard } from "./UserCard";
 import { UserCardSkeleton } from "../skeletons/UserCard";
 

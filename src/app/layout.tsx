@@ -1,6 +1,6 @@
 import "./globals.css";
 
-import { AppShell } from "@/components/AppShell";
+import AppShell from "@/components/AppShell";
 import { Inter } from "next/font/google";
 import type { Metadata } from "next";
 import Providers from "./providers";
