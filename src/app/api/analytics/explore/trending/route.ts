@@ -21,7 +21,8 @@ export async function GET(req: NextRequest) {
 
     await connectDb();
 
-    const data = await getSetCache('trendingPrompts', 60, getTrendingPosts);
+    const data = await getSetCache('trendingPromptsWeekly', 60, getTrendingPosts);
+    
     return NextResponse.json({ message:'trending prompts fetched', data }, { status: 200 });
   } catch (error) {
     return NextResponse.json({ error: 'Failed to fetch trending prompts' }, { status: 500 });
@@ -29,18 +30,50 @@ export async function GET(req: NextRequest) {
 }
 
 async function getTrendingPosts() {
-    const prompts = await SharedPrompt.find({}, {
-      title: 1,
-      content: 1,
-      tags: 1,
-      modelUsed: 1,
-      likes: 1,
-      saves: 1,
-      shares: 1,
-      comments: 1,
-      ownerId: 1,
-      createdAt: 1
-    }).lean();
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+    const prompts = await SharedPrompt.aggregate([
+    {
+      $match: {
+        createdAt: { $gte: sevenDaysAgo }
+      }
+    },
+    {
+      $sort: { createdAt: -1 }
+    },
+    {
+      $lookup: {
+        from: "users",
+        localField: "ownerId",
+        foreignField: "_id",
+        as: "owner"
+      }
+    },
+    {
+      $unwind: {
+        path: "$owner",
+        preserveNullAndEmptyArrays: true
+      }
+    },
+    {
+      $project: {
+        title: 1,
+        content: 1,
+        tags: 1,
+        modelUsed: 1,
+        createdAt: 1,
+        likeCount: { $size: { $ifNull: ["$likes", []] } },
+        saveCount: { $size: { $ifNull: ["$saves", []] } },
+        shareCount: { $size: { $ifNull: ["$shares", []] } },
+        commentCount: { $size: { $ifNull: ["$comments", []] } },
+        "owner._id": 1,
+        "owner.username": 1,
+        "owner.avatar": 1,
+        "owner.rank": 1
+      }
+    }
+  ]);
 
     // Calculate score for each prompt
     const scoredPrompts = prompts.map(p => ({ ...p, score: getScore(p) }));
@@ -53,6 +86,6 @@ async function getTrendingPosts() {
       return dateB - dateA;
     });
 
-    return scoredPrompts.slice(0, 10);
+    return scoredPrompts.slice(0, 20);
 }
 

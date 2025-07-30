@@ -8,6 +8,7 @@ export interface IShared extends Document {
   content: string;
   tags: string[];
   modelUsed: string;
+  response: string;
   likes: IUser["_id"][];
   saves: IUser["_id"][];
   shares: IUser["_id"][];
@@ -29,6 +30,7 @@ const SharedPromptSchema: Schema<IShared> = new Schema(
     content: { type: String, required: true },
     tags: { type: [String], default: [] },
     modelUsed: { type: String, required: true },
+    response: { type: String, required: true },
     likes: { type: [String], default: [] },
     saves: { type: [String], default: [] },
     shares: { type: [String], default: [] },

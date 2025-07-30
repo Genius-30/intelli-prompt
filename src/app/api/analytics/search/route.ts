@@ -49,7 +49,7 @@ export async function GET(request: NextRequest) {
     );
 
     return NextResponse.json(
-      { message: "searching sharedPrompts successful", results: data },
+      { message: "searching sharedPrompts successful", data },
       { status: 200 }
     );
   } catch (error) {
@@ -61,9 +61,40 @@ export async function GET(request: NextRequest) {
 }
 
 async function getSearchResults(query: any) {
-  return await SharedPrompt.find(query)
-    .select("title content tags modelUsed ownerId createdAt")
-    .sort({ createdAt: -1 })
-    .limit(20)
-    .lean();
+  return await SharedPrompt.aggregate([
+    { $match: query },
+    { $sort: { createdAt: -1 } },
+    { $limit: 20 },
+    {
+      $lookup: {
+        from: "users",             
+        localField: "ownerId",       
+        foreignField: "_id",     
+        as: "owner",
+      }
+    },
+    {
+      $unwind: {
+        path: "$owner",
+        preserveNullAndEmptyArrays: true
+      }
+    },
+    {
+      $project: {
+        title: 1,
+        content: 1,
+        tags: 1,
+        modelUsed: 1,
+        createdAt: 1,
+        likeCount: { $size: { $ifNull: ["$likes", []] } },
+        saveCount: { $size: { $ifNull: ["$saves", []] } },
+        shareCount: { $size: { $ifNull: ["$shares", []] } },
+        commentCount: { $size: { $ifNull: ["$comments", []] } },
+        "owner.username": 1,
+        "owner.avatar": 1,
+        "owner._id": 1,
+        "owner.rank": 1
+      }
+    }
+  ]);
 }
