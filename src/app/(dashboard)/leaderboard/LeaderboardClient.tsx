@@ -155,7 +155,7 @@ export default function LeaderboardClient() {
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Leaderboard</h1>
           <p className="text-sm text-muted-foreground">
-            Top contributors in the IntelliStack community
+            Top contributors in the IntelliPrompt community
           </p>
         </div>
 
@@ -164,8 +164,8 @@ export default function LeaderboardClient() {
           className="text-sm"
           onClick={() => {
             const shareData = {
-              title: "My IntelliStack Stats",
-              text: "Check out my leaderboard stats on IntelliStack!",
+              title: "My IntelliPrompt Stats",
+              text: "Check out my leaderboard stats on IntelliPrompt!",
               url: window.location.href,
             };
 

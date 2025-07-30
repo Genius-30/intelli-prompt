@@ -1,33 +1,33 @@
-import AllResponsesClient from "./AllResponsesClient";
 import { Metadata } from "next";
+import dynamic from "next/dynamic";
 
 export const metadata: Metadata = {
-  title: "Prompt Responses | IntelliPrompt",
-  description:
-    "View all the generated AI model responses for this prompt version.",
+  title: "All Responses | IntelliPrompt",
+  description: "Compare AI-generated responses from multiple models in one view.",
   openGraph: {
-    title: "Prompt Responses | IntelliPrompt",
-    description:
-      "View all the generated AI model responses for this prompt version.",
-    url: "https://yourdomain.com/prompts/[promptId]/versions/[versionId]/responses", // Update domain
+    title: "All Responses | IntelliPrompt",
+    description: "View and analyze responses from top AI models like GPT-4, Claude, and Gemini.",
+    url: "https://intelliprompt.app/responses", // adjust if dynamic
     siteName: "IntelliPrompt",
     images: [
       {
-        url: "https://yourdomain.com/og-image.png",
+        url: "https://intelliprompt.app/og-all-responses.png",
         width: 1200,
         height: 630,
-        alt: "All AI responses to your prompt",
+        alt: "Compare AI Responses – IntelliPrompt",
       },
     ],
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Prompt Responses | IntelliPrompt",
-    description: "All model responses in one place.",
-    images: ["https://yourdomain.com/og-image.png"],
+    title: "All Responses | IntelliPrompt",
+    description: "Easily compare responses from various AI models in one place.",
+    images: ["https://intelliprompt.app/og-all-responses.png"],
   },
 };
+
+const AllResponsesClient = dynamic(() => import('./AllResponsesClient'), { ssr: false })
 
 export default function Page() {
   return <AllResponsesClient />;

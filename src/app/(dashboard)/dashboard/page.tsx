@@ -1,34 +1,22 @@
 import { Metadata } from "next";
-import DashboardClient from "./DashboardClient";
+import dynamic from "next/dynamic";
 
 export const metadata: Metadata = {
-  title: "Dashboard | IntelliStack",
-  description:
-    "Access your personalized dashboard, manage prompts, and track performance on IntelliStack.",
+  title: "Dashboard | IntelliPrompt",
+  description: "Your workspace to manage folders, prompts, and recent activity.",
   openGraph: {
-    title: "Dashboard | IntelliStack",
-    description:
-      "Access your personalized dashboard, manage prompts, and track performance on IntelliStack.",
-    url: "https://yourdomain.com/dashboard", // Replace with your actual domain
-    siteName: "IntelliStack",
-    images: [
-      {
-        url: "https://yourdomain.com/og-image.png", // Optional
-        width: 1200,
-        height: 630,
-        alt: "IntelliStack Dashboard",
-      },
-    ],
-    type: "website",
+    title: "Dashboard | IntelliPrompt",
+    description: "Manage your prompt workspace, explore folders, and stay organized.",
   },
   twitter: {
-    card: "summary_large_image",
-    title: "Dashboard | IntelliStack",
-    description: "Your control center for managing AI prompts on IntelliStack.",
-    images: ["https://yourdomain.com/og-image.png"],
+    card: "summary",
+    title: "Dashboard | IntelliPrompt",
+    description: "Your personal hub for managing prompts on IntelliPrompt.",
   },
 };
 
+// const DashboardClient = dynamic(() => import('./DashboardClient'), { ssr: false });
+import DashboardClient from "./DashboardClient";
 export default function DashboardPage() {
   return <DashboardClient />;
 }

@@ -11,7 +11,7 @@ export default function MarketingLayout({
       <MarketingHeader />
       <main className="flex-1">{children}</main>
       <footer className="text-center text-sm text-gray-400 py-6 border-t backdrop-blur-md bg-gradient-to-l from-gray-900 to-black dark">
-        © {new Date().getFullYear()} IntelliStack. All rights reserved.
+        © {new Date().getFullYear()} IntelliPrompt. All rights reserved.
       </footer>
     </div>
   );

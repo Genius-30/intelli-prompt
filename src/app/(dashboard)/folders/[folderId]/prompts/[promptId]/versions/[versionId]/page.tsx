@@ -1,31 +1,21 @@
-import EditVersionClient from "./EditVersionClient";
 import { Metadata } from "next";
+import dynamic from "next/dynamic";
 
 export const metadata: Metadata = {
-  title: "Edit Version | IntelliStack",
-  description: "Edit your AI version easily with IntelliStack.",
+  title: "Edit Prompt Version | IntelliPrompt",
+  description: "Edit and improve a specific version of your AI prompt in IntelliPrompt.",
   openGraph: {
-    title: "Edit Version | IntelliStack",
-    description: "Edit your prompt version easily with IntelliStack.",
-    url: "https://yourdomain.com/prompts/[promptId]/versions/[versionId]/edit",
-    siteName: "IntelliStack",
-    images: [
-      {
-        url: "https://yourdomain.com/og-image.png",
-        width: 1200,
-        height: 630,
-        alt: "Edit prompt version on IntelliStack",
-      },
-    ],
-    type: "website",
+    title: "Edit Prompt Version | IntelliPrompt",
+    description: "Update and refine a version of your prompt using IntelliPrompt’s editor.",
   },
   twitter: {
-    card: "summary_large_image",
-    title: "Edit Prompt | IntelliStack",
-    description: "Edit your prompt version easily with IntelliStack.",
-    images: ["https://yourdomain.com/og-image.png"],
+    card: "summary",
+    title: "Edit Prompt Version | IntelliPrompt",
+    description: "Edit and refine your prompt with version control and AI testing tools.",
   },
 };
+
+const EditVersionClient = dynamic(() => import('./EditVersionClient'), { ssr: false })
 
 export default function EditPromptPage() {
   return <EditVersionClient />;

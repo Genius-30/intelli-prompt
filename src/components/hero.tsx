@@ -351,10 +351,10 @@ export default function Hero() {
           <div className="flex flex-col md:flex-row items-center justify-between">
             <div className="flex items-center space-x-2 mb-4 md:mb-0">
               <Image className="w-8 mr-2" src={favicon} alt="logo" />
-              <span className="text-xl font-bold">IntelliStack</span>
+              <span className="text-xl font-bold">IntelliPrompt</span>
             </div>
             <div className="text-gray-400 text-center md:text-right">
-              <p>&copy; 2024 IntelliStack. Crafted for the future of AI engineering.</p>
+              <p>&copy; 2024 IntelliPrompt. Crafted for the future of AI engineering.</p>
             </div>
           </div>
         </div>

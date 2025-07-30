@@ -20,6 +20,7 @@ import {
 import { FolderSelectModal } from "@/components/dashboard/FolderSelectModal";
 import GradientProgress from "@/components/ui/gradient-progress";
 import Link from "next/link";
+import StreakCircle from '@/components/dashboard/Streak'
 
 const dashboardStats = [
   {
@@ -85,36 +86,8 @@ export default function DashboardClient() {
     },
   ];
 
-  const currentStreak = 7;
+  const currentStreak = 7; // update this from your logic
   const longestStreak = 25;
-
-  // Generate mock streak data
-  const generateStreakData = () => {
-    const data = [];
-    const today = new Date();
-
-    for (let i = 29; i >= 0; i--) {
-      const date = new Date(today);
-      date.setDate(today.getDate() - i);
-
-      const isActive = Math.random() > (i > 15 ? 0.7 : 0.3);
-      const count = isActive ? Math.floor(Math.random() * 8) + 1 : 0;
-
-      data.push({
-        date: date.toISOString().split("T")[0],
-        day: date.getDate(),
-        month: date.toLocaleDateString("en-US", { month: "short" }),
-        dayName: date.toLocaleDateString("en-US", { weekday: "short" }),
-        count,
-        isActive,
-        isToday: i === 0,
-      });
-    }
-
-    return data;
-  };
-
-  const streakData = generateStreakData();
 
   return (
     <div className="space-y-6">
@@ -128,99 +101,6 @@ export default function DashboardClient() {
         </div>
         <FolderSelectModal />
       </div>
-
-      {/* Streak Summary + Graph */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Prompt Streak</CardTitle>
-          <CardDescription className="text-sm">
-            Track your daily prompt activity
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {/* Stats row */}
-          <div className="flex items-center space-x-6">
-            {/* Current Streak */}
-            <div className="flex items-center space-x-2">
-              <Flame className="w-5 h-5 text-primary" />
-              <div>
-                <div className="text-lg font-bold text-primary">
-                  {currentStreak}
-                </div>
-                <div className="text-xs text-muted-foreground">
-                  Current Streak
-                </div>
-              </div>
-            </div>
-
-            {/* Divider */}
-            <div className="h-8 w-px bg-border" />
-
-            {/* Longest Streak */}
-            <div className="flex items-center space-x-2">
-              <Target className="w-5 h-5 text-primary/80" />
-              <div>
-                <div className="text-lg font-semibold text-primary/80">
-                  {longestStreak}
-                </div>
-                <div className="text-xs text-muted-foreground">
-                  Longest Streak
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Calendar Grid */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-medium">Daily Activity</h3>
-              <div className="flex items-center space-x-2 text-xs text-muted-foreground">
-                <div className="w-3 h-3 rounded bg-muted" />
-                <span>Inactive</span>
-                <div className="w-3 h-3 rounded bg-primary/60" />
-                <span>Active</span>
-              </div>
-            </div>
-
-            <div className="flex flex-wrap gap-1">
-              {streakData.map((day, index) => {
-                const getIntensity = (isActive: boolean) =>
-                  isActive
-                    ? "bg-primary/60 hover:bg-primary/70"
-                    : "bg-muted hover:bg-muted/80";
-
-                return (
-                  <div
-                    key={index}
-                    className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-medium cursor-pointer transition-all duration-200 relative group
-              ${getIntensity(day.isActive)}
-              ${
-                day.isToday
-                  ? "ring-2 ring-primary ring-offset-2 ring-offset-background"
-                  : ""
-              }
-              ${day.count > 0 ? "text-foreground" : "text-muted-foreground"}`}
-                    title={`${day.dayName}, ${day.month} ${day.day}: ${day.count} prompts`}
-                  >
-                    {day.day}
-                    {day.isToday && (
-                      <div className="absolute -top-1 -right-1 w-2 h-2 bg-primary rounded-full" />
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-
-            <div className="flex justify-between text-xs text-muted-foreground mt-2">
-              <span>4w ago</span>
-              <span>3w</span>
-              <span>2w</span>
-              <span>1w</span>
-              <span>Today</span>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -279,6 +159,7 @@ export default function DashboardClient() {
           </div>
         </CardContent>
       </Card>
+      <StreakCircle currentStreak={currentStreak} longestStreak={longestStreak} />
     </div>
   );
 }
