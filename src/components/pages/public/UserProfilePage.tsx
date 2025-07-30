@@ -13,7 +13,7 @@ import { UserProfileSkeleton } from "@/components/skeletons/UserProfileSkeleton"
 import { toast } from "sonner";
 import { useEffect } from "react";
 
-export default function PublicProfileClient() {
+export default function UserProfilePage() {
   const { username } = useParams();
   const router = useRouter();
 

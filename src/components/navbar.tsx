@@ -1,13 +1,14 @@
 "use client";
 
-import Link from "next/link";
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
-import { useTheme } from "next-themes";
-import { dark } from "@clerk/themes";
+
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 import Logo from "./Logo";
+import { dark } from "@clerk/themes";
+import { useState } from "react";
+import { useTheme } from "next-themes";
 
 export function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);

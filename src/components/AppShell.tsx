@@ -4,7 +4,7 @@
 import { ReactNode, useEffect, useState } from "react";
 import { redirect, usePathname } from "next/navigation";
 
-import { CustomToaster } from "@/components/other/CustomToaster";
+import { CustomToaster } from "@/components/common/CustomToaster";
 import DashboardLayout from "@/components/layouts/DashboardLayout";
 import { Loader } from "@/components/ui/loader";
 import PublicLayout from "@/components/layouts/PublicLayout";
@@ -31,6 +31,9 @@ export default function AppShell({
   const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
 
+  const afterSignInRedirectUrl =
+    process.env.NEXT_PUBLIC_CLERK_SIGN_IN_FORCE_REDIRECT_URL || "/explore";
+
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -41,6 +44,11 @@ export default function AppShell({
         <Loader className="h-12 w-12" />
       </div>
     );
+  }
+
+  // ✅ Redirect authenticated users away from `/` to `/explore`
+  if (isSignedIn && pathname === "/") {
+    redirect(afterSignInRedirectUrl);
   }
 
   // 1️⃣ Skip *all* shell & toaster for Clerk pages:

@@ -21,7 +21,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`scrollbar-thin  ${inter.className}`}
+        className={`scrollbar-thin ${inter.className}`}
         cz-shortcut-listen="true"
       >
         <Providers>

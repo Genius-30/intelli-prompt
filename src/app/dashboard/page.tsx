@@ -1,5 +1,5 @@
+import DashboardPage from "../../components/pages/dashboard/DashboardPage";
 import { Metadata } from "next";
-import DashboardClient from "./DashboardClient";
 
 export const metadata: Metadata = {
   title: "Dashboard | IntelliStack",
@@ -29,6 +29,6 @@ export const metadata: Metadata = {
   },
 };
 
-export default function DashboardPage() {
-  return <DashboardClient />;
+export default function page() {
+  return <DashboardPage />;
 }

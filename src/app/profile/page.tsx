@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import ProfilePageClient from "./ProfilePageClient";
+import ProfilePage from "../../components/pages/dashboard/ProfilePage";
 
 export const metadata: Metadata = {
   title: "Profile | IntelliPrompt",
@@ -7,5 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function page() {
-  return <ProfilePageClient />;
+  return <ProfilePage />;
 }

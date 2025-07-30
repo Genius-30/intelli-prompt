@@ -4,7 +4,6 @@ import { BadgeCheck, Check, Sparkle, Zap } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 import { Button } from "@/components/ui/button";
-import Stars from "@/components/stars";
 import { cn } from "@/lib/utils";
 
 const plans = [
@@ -57,11 +56,10 @@ const plans = [
   },
 ];
 
-export default function PlansPage() {
+export default function page() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 flex flex-col">
-      <Stars />
-      <div className="flex-1 max-w-6xl mx-auto px-4 pt-40 pb-14 w-full">
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="w-full max-w-6xl mx-auto px-4">
         <h2 className="text-4xl font-bold text-center text-white mb-2">
           Choose Your Plan
         </h2>
@@ -75,9 +73,9 @@ export default function PlansPage() {
               key={index}
               className={cn(
                 `${
-                  plan.title == "Pro"
-                    ? "bg-gradient-to-r from-blue-600/10 via-black/60 to-blue-500/10 border-primary scale-105"
-                    : "bg-gradient-to-r from-white/5 via-black/90 to-white/5 border-neutral-800 "
+                  plan.highlight
+                    ? "border-primary scale-105"
+                    : "border-neutral-800"
                 } border shadow-md backdrop-blur-xl transition hover:shadow-xl`
               )}
             >

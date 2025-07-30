@@ -29,9 +29,9 @@ import { BreadcrumbResponsive } from "../dashboardLayout/BreadCrumbResponsive";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import Logo from "../Logo";
-import { ModeToggle } from "../ModeToggle";
 import { SidebarFolderSection } from "@/components/dashboardLayout/SidebarFolderSection";
 import { SidebarMainLinks } from "@/components/dashboardLayout/SidebarMainLinks";
+import ThemeToggle from "../ThemeToggle";
 
 export default function DashboardLayout({
   children,
@@ -125,7 +125,7 @@ export default function DashboardLayout({
             <BreadcrumbResponsive />
 
             <div className="flex items-center space-x-2 ml-auto">
-              <ModeToggle />
+              <ThemeToggle />
 
               <Badge
                 variant="outline"

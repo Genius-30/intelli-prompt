@@ -1,3 +1,4 @@
+import PublicFooter from "../public/PublicFooter";
 import PublicNavbar from "@/components/public/PublicNavbar";
 
 export default function PublicLayout({
@@ -8,7 +9,8 @@ export default function PublicLayout({
   return (
     <>
       <PublicNavbar />
-      <main className="p-4 md:p-8 mt-18 md:mt-14">{children}</main>
+      <main className="p-4 md:p-8 mt-18 overflow-hidden">{children}</main>
+      <PublicFooter />
     </>
   );
 }

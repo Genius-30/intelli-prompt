@@ -1,58 +1,105 @@
 "use client";
 
-import { SignInButton, SignUpButton, UserButton, useAuth } from "@clerk/nextjs";
+import {
+  MobileNav,
+  MobileNavHeader,
+  MobileNavMenu,
+  MobileNavToggle,
+  NavBody,
+  NavItems,
+  Navbar,
+  NavbarButton,
+  NavbarLogo,
+} from "@/components/ui/resizable-navbar";
 
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
-import Logo from "@/components/Logo";
-import { dark } from "@clerk/themes";
-import { usePathname } from "next/navigation";
+import { Link } from "lucide-react";
+import ThemeToggle from "../ThemeToggle";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
-export default function PublicLayout() {
-  const pathname = usePathname();
-  const isPricing = pathname.startsWith("/pricing");
-  const { isSignedIn } = useAuth();
+export default function PublicNavbar() {
+  const navItems = [
+    { name: "Explore", link: "/explore" },
+    { name: "Leaderboard", link: "/leaderboard" },
+    { name: "Blog", link: "/blog" },
+    { name: "Pricing", link: "/pricing" },
+  ];
+
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const router = useRouter();
+
+  const route = (path: string) => {
+    setIsMobileMenuOpen(false);
+    router.push(path);
+  };
 
   return (
-    <header className="fixed top-0 z-50 w-full border-b backdrop-blur-md bg-transparent dark">
-      <div className="px-4 md:px-8 py-4 flex items-center justify-between">
-        {/* Logo */}
-        <Logo />
+    <div className="relative w-full">
+      <Navbar>
+        {/* Desktop Navigation */}
+        <NavBody>
+          <NavbarLogo />
+          <NavItems items={navItems} />
+          <div className="flex items-center gap-2">
+            <NavbarButton variant="secondary" className="p-0">
+              <ThemeToggle />
+            </NavbarButton>
+            <NavbarButton variant="secondary" onClick={() => route("/sign-in")}>
+              Login
+            </NavbarButton>
+            <NavbarButton variant="gradient" onClick={() => route("/sign-up")}>
+              Get Started
+            </NavbarButton>
+          </div>
+        </NavBody>
 
-        {/* Right Actions */}
-        <div className="flex items-center gap-4">
-          {!isPricing && (
-            <Button variant="ghost" asChild className="dark">
-              <Link href="/pricing">Pricing</Link>
-            </Button>
-          )}
+        {/* Mobile Navigation */}
+        <MobileNav>
+          <MobileNavHeader>
+            <NavbarLogo />
+            <MobileNavToggle
+              isOpen={isMobileMenuOpen}
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            />
+          </MobileNavHeader>
 
-          {isSignedIn ? (
-            <>
-              <Button variant="outline" asChild className="dark">
-                <Link href="/dashboard">Go to Dashboard</Link>
-              </Button>
-              <UserButton appearance={{ baseTheme: dark }} />
-            </>
-          ) : (
-            <>
-              <SignInButton>
-                <Button variant="ghost" className="dark">
-                  Log in
-                </Button>
-              </SignInButton>
-              <SignUpButton>
-                <Button
-                  variant="default"
-                  className="bg-primary hover:bg-primary/90 dark"
-                >
-                  Sign up
-                </Button>
-              </SignUpButton>
-            </>
-          )}
-        </div>
-      </div>
-    </header>
+          <MobileNavMenu
+            isOpen={isMobileMenuOpen}
+            onClose={() => setIsMobileMenuOpen(false)}
+          >
+            {navItems.map((item, idx) => (
+              <Link
+                key={`mobile-link-${idx}`}
+                href={item.link}
+                onClick={() => route(item.link)}
+                className="relative text-neutral-600 dark:text-neutral-300"
+              >
+                <span className="block">{item.name}</span>
+              </Link>
+            ))}
+            <div className="flex w-full flex-col gap-2">
+              <NavbarButton variant="secondary" className="p-0">
+                <ThemeToggle showLabel />
+              </NavbarButton>
+              <NavbarButton
+                onClick={() => route("/sign-in")}
+                variant="secondary"
+                className="w-full"
+              >
+                Login
+              </NavbarButton>
+              <NavbarButton
+                onClick={() => route("/sign-up")}
+                variant="gradient"
+                className="w-full"
+              >
+                Get Started
+              </NavbarButton>
+            </div>
+          </MobileNavMenu>
+        </MobileNav>
+      </Navbar>
+    </div>
   );
 }

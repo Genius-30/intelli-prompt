@@ -1,9 +1,9 @@
-import ExploreClient from "@/components/pages/ExploreClient";
+import ExplorePage from "@/components/pages/public/ExplorePage";
 
 export default async function page() {
   return (
     <div>
-      <ExploreClient />
+      <ExplorePage />
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import FolderList from "./FolderList";
+import FoldersPage from "@/components/pages/dashboard/FoldersPage";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -19,6 +19,6 @@ export const metadata: Metadata = {
   },
 };
 
-export default function FoldersPage() {
-  return <FolderList />;
+export default function page() {
+  return <FoldersPage />;
 }

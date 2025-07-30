@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { FolderCard } from "@/components/folder/FolderCard";
 import { FolderCardSkeleton } from "@/components/skeletons/FolderCardSkeleton";
 import Link from "next/link";
-import { PlusIcon } from "lucide-react";
 import { useGetAllFolders } from "@/lib/queries/folder";
 import { usePathname } from "next/navigation";
 

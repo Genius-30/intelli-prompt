@@ -1,15 +1,16 @@
 "use client";
 
 import { Moon, Sun } from "lucide-react";
-import { useTheme } from "next-themes";
+
 import { Button } from "@/components/ui/button";
 import { useEffect } from "react";
+import { useTheme } from "next-themes";
 
 type ModeToggleProps = {
   readonly showLabel?: boolean;
 };
 
-export function ModeToggle({ showLabel = false }: ModeToggleProps) {
+export default function ThemeToggle({ showLabel = false }: ModeToggleProps) {
   const { theme, setTheme, resolvedTheme } = useTheme();
 
   useEffect(() => {
@@ -27,7 +28,7 @@ export function ModeToggle({ showLabel = false }: ModeToggleProps) {
       variant="ghost"
       size="sm"
       onClick={toggleTheme}
-      className="gap-2 flex items-center justify-start"
+      className={`gap-2 flex items-center ${showLabel ? "w-full" : ""}`}
     >
       {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
       {showLabel && (isDark ? "Light" : "Dark")}

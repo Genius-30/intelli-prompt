@@ -1,10 +1,11 @@
 import {
   Menubar,
-  MenubarMenu,
-  MenubarTrigger,
   MenubarContent,
   MenubarItem,
+  MenubarMenu,
+  MenubarTrigger,
 } from "@/components/ui/menubar";
+
 import Image from "next/image";
 import { Label } from "./ui/label";
 
