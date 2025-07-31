@@ -2,6 +2,7 @@
 import { NextResponse } from 'next/server';
 import { getAuthenticatedUser } from '@/utils/getAuthenticatedUser';
 import { Follow } from '@/models/follow.model';
+import { User } from '@/models/user.model';
 
 export async function POST(
   req: Request,
@@ -23,6 +24,24 @@ export async function POST(
     if (!followInstance) {
       return NextResponse.json({ message: "couldn't follow user" }, { status: 400 });
     }
+
+    await User.updateOne(
+      { _id: userId },
+      {
+        $inc: {
+          followeeCount: 1
+        }
+      }
+    )
+
+    await User.updateOne(
+      { _id: strangerId },
+      {
+        $inc: {
+          followerCount: 1
+        }
+      }
+    )
 
     return NextResponse.json({ message: 'user followed successfully' }, { status: 201 });
   } catch (err) {

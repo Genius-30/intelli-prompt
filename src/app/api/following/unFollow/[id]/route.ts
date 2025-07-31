@@ -2,6 +2,7 @@
 import { NextResponse } from 'next/server';
 import { getAuthenticatedUser } from '@/utils/getAuthenticatedUser';
 import { Follow } from '@/models/follow.model';
+import { User } from '@/models/user.model';
 
 export async function DELETE(
   req: Request,
@@ -20,6 +21,24 @@ export async function DELETE(
       followerId: userId,
       followeeId: strangerId,
     });
+
+    await User.updateOne(
+      { _id: userId },
+      {
+        $inc: {
+          followeeCount: 1
+        }
+      }
+    )
+
+    await User.updateOne(
+      { _id: strangerId },
+      {
+        $inc: {
+          followerCount: -1
+        }
+      }
+    )
     
     return NextResponse.json({ message: 'user unfollowed successfully' }, { status: 201 });
   } catch (err) {
