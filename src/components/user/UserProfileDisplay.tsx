@@ -1,37 +1,29 @@
 "use client";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import {
-  AlertCircle,
-  Calendar,
-  Edit3,
-  Flame,
-  Trophy,
-  UserPlus,
-  Users,
-} from "lucide-react";
+import { AlertCircle, Calendar, Edit3, Flame, Globe, Trophy, UserPlus, Users } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-  getFollowButtonVariant,
-  getPlanColor,
-  getRankColor,
-} from "@/lib/ui-utils";
-import { useEffect, useState } from "react";
-import { useToggleFollow, useUpdateUserBio } from "@/lib/queries/user";
+import { JSX, useState } from "react";
+import { SiGithub, SiInstagram, SiLinkedin, SiX } from "react-icons/si";
+import { getFollowButtonVariant, getPlanColor, getRankColor, socialColors } from "@/lib/ui-utils";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Loader } from "../ui/loader";
-import { Textarea } from "@/components/ui/textarea";
+import { EditProfileModal } from "./EditProfileModal";
+import Link from "next/link";
+import { SocialLink } from "@/types/user";
 import { UserProfileTabs } from "./UserProfileTabs";
 import { toast } from "sonner";
+import { useAuth } from "@clerk/nextjs";
+import { useToggleFollow } from "@/lib/queries/user";
 
 interface DisplayUser {
   _id: string;
   fullname: string;
   username: string;
   bio: string;
+  socials?: SocialLink[];
   avatar: string;
   plan: string;
   rank: string;
@@ -50,103 +42,94 @@ interface UserProfileDisplayProps {
   readonly followStatus?: { isFollowing: boolean; isFollowedBy: boolean };
 }
 
-export function UserProfileDisplay({
-  user,
-  isOwnProfile,
-  followStatus,
-}: UserProfileDisplayProps) {
-  const [bio, setBio] = useState(user.bio || "");
-  const [isEditingBio, setIsEditingBio] = useState(false);
-  const [showBioAlert, setShowBioAlert] = useState(false);
+const socialIcons: Record<string, JSX.Element> = {
+  github: <SiGithub className="h-4 w-4" />,
+  twitter: <SiX className="h-4 w-4" />,
+  linkedin: <SiLinkedin className="h-4 w-4" />,
+  instagram: <SiInstagram className="h-4 w-4" />,
+};
 
-  const { mutate: updateUserBio, isPending: isBioUpdating } =
-    useUpdateUserBio();
-  const { mutate: toggleFollow, isPending: isFollowMutating } =
-    useToggleFollow();
+const getIcon = (label: string) => {
+  const key = label.toLowerCase();
+  return socialIcons[key] || <Globe className="h-4 w-4" />;
+};
 
-  useEffect(() => {
-    setBio(user.bio || "");
+export function UserProfileDisplay({ user, isOwnProfile, followStatus }: UserProfileDisplayProps) {
+  const [editProfileOpen, setEditProfileOpen] = useState(false);
 
-    if (isOwnProfile && (!user.bio || user.bio.trim() === "")) {
-      setShowBioAlert(true);
-    } else {
-      setShowBioAlert(false);
-    }
-  }, [user, isOwnProfile]);
+  const { isSignedIn } = useAuth();
 
-  const handleSaveBio = () => {
-    updateUserBio(
-      { bio },
-      {
-        onSuccess: () => {
-          setIsEditingBio(false);
-          setShowBioAlert(false);
-        },
-        onError: (err) => {
-          console.error("Bio update failed", err);
-          toast.error("Failed to update bio. Please try again.");
-        },
-      }
-    );
-  };
+  const { mutate: toggleFollow, isPending: isFollowMutating } = useToggleFollow();
 
   const handleFollow = () => {
+    if (!isSignedIn) {
+      toast.info("You must be signed in to follow users.");
+      return;
+    }
+
     if (!user._id || isFollowMutating) return;
 
     toggleFollow(
       {
         userId: user._id,
         isFollowing: followStatus?.isFollowing || false,
+        username: user.username,
       },
       {
         onSuccess: () => {
           toast.success(
-            followStatus?.isFollowing
-              ? `Unfollowed ${user.username}`
-              : `Followed ${user.username}`
+            followStatus?.isFollowing ? `Unfollowed ${user.username}` : `Followed ${user.username}`,
           );
         },
         onError: () => {
           toast.error("Failed to update follow status. Try again.");
         },
-      }
+      },
     );
   };
 
   return (
     <div className="space-y-6">
-      {/* Bio Alert for Own Profile */}
-      {isOwnProfile && showBioAlert && (
-        <Alert className="w-full flex items-center border-primary/20 bg-primary/5">
-          <AlertCircle className="h-4 w-4 text-primary" />
-          <AlertDescription className="w-full flex items-center justify-around text-sm">
+      {/* Bio & Socials Alert for Own Profile */}
+      {isOwnProfile && (!user.bio?.trim() || (user.socials || []).length === 0) && (
+        <Alert className="border-primary/20 bg-primary/5 flex w-full items-center">
+          <AlertCircle className="text-primary h-4 w-4" />
+          <AlertDescription className="flex w-full items-center justify-around text-sm">
             <div className="flex flex-col items-start">
               <span className="font-medium">Complete your profile!</span>
-              <span>
-                Add a bio to help others discover your expertise and interests.
-              </span>
+              {(() => {
+                let alertMessage = "";
+                if (!user.bio?.trim() && (user.socials || []).length === 0) {
+                  alertMessage = "Add a bio and social links to help others connect with you.";
+                } else if (!user.bio?.trim()) {
+                  alertMessage = "Add a bio to showcase your interests and expertise.";
+                } else {
+                  alertMessage = "Add social links so people can connect with you outside the app.";
+                }
+                return <span>{alertMessage}</span>;
+              })()}
             </div>
             <Button
               variant="link"
               size="sm"
-              className="h-auto p-0 text-primary ml-auto"
-              onClick={() => setIsEditingBio(true)}
+              className="text-primary ml-auto h-auto p-0"
+              onClick={() => setEditProfileOpen(true)}
             >
-              Add bio now
+              Complete now
             </Button>
           </AlertDescription>
         </Alert>
       )}
 
       {/* Profile Header */}
-      <Card>
+      <Card className="px-4">
         <CardContent className="px-6">
-          <div className="flex flex-col md:flex-row gap-4 sm:gap-8">
+          <div className="flex flex-col gap-4 sm:gap-12 md:flex-row">
             {/* Avatar & Basic Info */}
-            <div className="flex flex-col items-center md:items-start">
-              <Avatar className="h-20 w-20 ring-4 ring-primary/20">
+            <div className="flex flex-col items-center md:items-center">
+              <Avatar className="ring-primary/20 h-20 w-20 ring-4">
                 <AvatarImage src={user.avatar || ""} alt={user.fullname} />
-                <AvatarFallback className="text-xl font-semibold bg-primary/10 text-primary">
+                <AvatarFallback className="bg-primary/10 text-primary text-xl font-semibold">
                   {user.fullname
                     .split(" ")
                     .map((n) => n[0])
@@ -154,136 +137,99 @@ export function UserProfileDisplay({
                 </AvatarFallback>
               </Avatar>
 
-              <div className="mt-4 text-center md:text-left">
+              <div className="mt-4 text-center md:text-center">
                 <h1 className="text-2xl font-bold">{user.fullname}</h1>
                 <p className="text-muted-foreground">@{user.username}</p>
 
-                <div className="flex flex-wrap gap-2 mt-3 justify-center md:justify-start">
-                  {isOwnProfile && (
-                    <Badge className={getPlanColor(user.plan)}>
-                      {user.plan}
-                    </Badge>
-                  )}
+                <div className="mt-3 flex flex-wrap justify-center gap-2 md:justify-center">
+                  {isOwnProfile && <Badge className={getPlanColor(user.plan)}>{user.plan}</Badge>}
                   <Badge className={getRankColor(user.rank)}>
-                    <Trophy className="h-3 w-3 mr-1" />
+                    <Trophy className="mr-1 h-3 w-3" />
                     {user.rank}
                   </Badge>
                 </div>
               </div>
             </div>
 
-            {/* Bio & Stats */}
+            {/* Bio, Stats and Social links */}
             <div className="flex-1 space-y-4">
-              {/* Bio Section */}
-              <div>
-                <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-medium text-muted-foreground">
-                    About
-                  </h3>
-                  {isOwnProfile && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setIsEditingBio(true)}
-                      className="h-6 px-2 text-xs"
-                    >
-                      <Edit3 className="h-3 w-3 mr-1" />
-                      {bio.trim() ? "Edit" : "Add"}
-                    </Button>
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  {/* User Bio */}
+                  {user.bio?.trim() && (
+                    <div className="text-muted-foreground/70 text-sm whitespace-pre-line">
+                      About: <span className="text-muted-foreground font-medium">{user.bio}</span>
+                    </div>
+                  )}
+
+                  {/* Social Links */}
+                  {user.socials && user.socials.length > 0 && (
+                    <div className="flex flex-wrap gap-2 pt-3">
+                      {user.socials.map((social, idx) => (
+                        <Link
+                          key={idx}
+                          href={social.url}
+                          title={`${social.label}: ${social.url}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="transition-transform hover:scale-[1.02]"
+                        >
+                          <Badge
+                            className={`gap-1 px-2 py-1.5 text-xs font-medium transition-all ${socialColors[social.label.toLowerCase()] || "bg-muted"}`}
+                          >
+                            {getIcon(social.label)}
+                            <span className="capitalize">{social.label}</span>
+                          </Badge>
+                        </Link>
+                      ))}
+                    </div>
                   )}
                 </div>
-
-                {isEditingBio ? (
-                  <div className="space-y-2">
-                    <Textarea
-                      value={bio}
-                      onChange={(e) => setBio(e.target.value)}
-                      className="text-sm resize-none"
-                      rows={3}
-                      maxLength={80}
-                      placeholder="Tell others about yourself, your expertise, and what kind of prompts you create..."
-                    />
-                    <div className="flex justify-between items-center">
-                      <span className="text-xs text-muted-foreground">
-                        {bio.length}/80
-                      </span>
-                      <div className="flex gap-2">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => {
-                            setIsEditingBio(false);
-                            setBio(user.bio || "");
-                          }}
-                        >
-                          Cancel
-                        </Button>
-                        <Button
-                          size="sm"
-                          onClick={handleSaveBio}
-                          disabled={isBioUpdating}
-                        >
-                          {isBioUpdating ? (
-                            <>
-                              <Loader />
-                              Saving...
-                            </>
-                          ) : (
-                            "Save"
-                          )}
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <div>
-                    {bio.trim() ? (
-                      <p className="text-sm text-muted-foreground leading-relaxed">
-                        {bio}
-                      </p>
-                    ) : (
-                      <p className="text-sm text-muted-foreground/60 italic">
-                        {isOwnProfile
-                          ? "Add a bio to tell others about yourself"
-                          : "No bio available"}
-                      </p>
-                    )}
-                  </div>
+                {/* Edit Profile Button */}
+                {isOwnProfile && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setEditProfileOpen(true)}
+                    className="h-6 px-2 text-xs"
+                  >
+                    <Edit3 className="mr-1 h-3 w-3" />
+                    Edit Profile
+                  </Button>
                 )}
               </div>
 
               {/* Stats Grid */}
-              <div className="flex items-center flex-wrap gap-6 sm:gap-8 md:gap-10 pt-4">
+              <div className="flex flex-wrap items-center gap-6 pt-4 sm:gap-8 md:gap-10">
                 <div>
-                  <div className="flex items-center gap-1 text-lg font-semibold">
-                    <Users className="h-4 w-4 text-primary" />
+                  <div className="flex items-center gap-2 text-lg font-semibold">
+                    <Users className="text-primary h-4 w-4" />
                     {user.followerCount?.toLocaleString() || 0}
                   </div>
-                  <p className="text-xs text-muted-foreground">Followers</p>
+                  <p className="text-muted-foreground text-xs">Followers</p>
                 </div>
                 <div>
-                  <div className="flex items-center gap-1 text-lg font-semibold">
-                    <UserPlus className="h-4 w-4 text-primary" />
+                  <div className="flex items-center gap-2 text-lg font-semibold">
+                    <UserPlus className="text-primary h-4 w-4" />
                     {user.followeeCount || 0}
                   </div>
-                  <p className="text-xs text-muted-foreground">Following</p>
+                  <p className="text-muted-foreground text-xs">Following</p>
                 </div>
                 <div>
-                  <div className="flex items-center gap-1 text-lg font-semibold">
+                  <div className="flex items-center gap-2 text-lg font-semibold">
                     <Flame className="h-4 w-4 text-orange-500" />
                     {user.streak?.current || 0}
                   </div>
-                  <p className="text-xs text-muted-foreground">Day Streak</p>
+                  <p className="text-muted-foreground text-xs">Day Streak</p>
                 </div>
                 <div>
-                  <div className="flex items-center gap-1 text-lg font-semibold">
-                    <Calendar className="h-4 w-4 text-primary" />
+                  <div className="flex items-center gap-2 text-lg font-semibold">
+                    <Calendar className="text-primary h-4 w-4" />
                     {new Date(user.createdAt).getFullYear()}
                   </div>
-                  <p className="text-xs text-muted-foreground">Joined</p>
+                  <p className="text-muted-foreground text-xs">Joined</p>
                 </div>
               </div>
-
               {/* Action Button */}
               {!isOwnProfile &&
                 (() => {
@@ -296,8 +242,7 @@ export function UserProfileDisplay({
 
                   let followButtonClassName = "";
                   if (followStatus?.isFollowing) {
-                    followButtonClassName =
-                      "bg-muted text-muted-foreground hover:bg-muted/80";
+                    followButtonClassName = "bg-muted text-muted-foreground hover:bg-muted/80";
                   } else if (followStatus?.isFollowedBy) {
                     followButtonClassName =
                       "bg-primary text-primary-foreground hover:bg-primary/90";
@@ -323,6 +268,13 @@ export function UserProfileDisplay({
 
       {/* Content Tabs */}
       <UserProfileTabs user={user} isOwnProfile={isOwnProfile} />
+
+      <EditProfileModal
+        open={editProfileOpen}
+        onClose={() => setEditProfileOpen(false)}
+        initialBio={user.bio}
+        initialLinks={user.socials || []}
+      />
     </div>
   );
 }

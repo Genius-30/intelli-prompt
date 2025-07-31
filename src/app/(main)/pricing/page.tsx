@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import PricingPage from "../../components/pages/public/PricingPage";
+import PricingPage from "@/components/pages/public/PricingPage";
 
 export const metadata: Metadata = {
   title: "Pricing | IntelliPrompt",
@@ -7,8 +7,7 @@ export const metadata: Metadata = {
     "Choose the right IntelliPrompt plan for your workflow. Compare features and get started for free.",
   openGraph: {
     title: "Pricing | IntelliPrompt",
-    description:
-      "Flexible pricing plans tailored for prompt engineers, creators, and teams.",
+    description: "Flexible pricing plans tailored for prompt engineers, creators, and teams.",
     url: "https://intelliprompt.app/pricing",
     siteName: "IntelliPrompt",
     images: [
@@ -24,8 +23,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Pricing | IntelliPrompt",
-    description:
-      "Flexible plans that grow with you. Try IntelliPrompt for free.",
+    description: "Flexible plans that grow with you. Try IntelliPrompt for free.",
     images: ["https://intelliprompt.app/og-pricing.png"],
   },
 };

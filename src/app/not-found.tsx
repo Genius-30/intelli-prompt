@@ -1,22 +1,46 @@
+import { ArrowRight, Sparkles } from "lucide-react";
+
 import Link from "next/link";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Page Not Found",
-  description: "The page you are looking for does not exist.",
+  title: "404 – Page Not Found | IntelliPrompt",
+  description: "This page doesn't exist. Let's get you back on track!",
 };
 
 export default function NotFound() {
   return (
-    <div className="flex h-screen items-center justify-center bg-background px-4 text-center">
-      <div>
-        <h1 className="text-4xl font-bold">404 - Page Not Found</h1>
-        <p className="mt-2 text-muted-foreground">
-          The page you're looking for doesn't exist or has been moved.
+    <div className="flex min-h-screen flex-col items-center justify-center bg-background px-6 text-center">
+      <div className="max-w-md">
+        <div className="flex justify-center text-primary">
+          <Sparkles className="h-12 w-12" />
+        </div>
+        <h1 className="mt-6 text-4xl font-extrabold tracking-tight sm:text-5xl">
+          404 – Not Found
+        </h1>
+        <p className="mt-4 text-muted-foreground">
+          The page you’re looking for doesn’t exist or may have been moved.
         </p>
-        <Link href="/" className="mt-4 inline-block text-primary underline">
-          Go to Homepage
-        </Link>
+
+        <p className="mt-2 text-sm text-muted-foreground">
+          IntelliPrompt helps you craft, version, and test prompts across AI
+          models. Let’s get you back to exploring!
+        </p>
+
+        <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
+          <Link
+            href="/"
+            className="inline-flex items-center justify-center rounded-xl border border-input bg-background px-5 py-2 text-sm font-medium text-foreground hover:bg-muted transition"
+          >
+            Go to Homepage
+          </Link>
+          <Link
+            href="/explore"
+            className="inline-flex items-center justify-center gap-1 rounded-xl bg-primary px-5 py-2 text-sm font-semibold text-white shadow hover:bg-primary/90 transition"
+          >
+            Explore Prompts <ArrowRight className="h-4 w-4" />
+          </Link>
+        </div>
       </div>
     </div>
   );

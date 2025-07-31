@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axiosInstance from "@/lib/axios";
 import { toast } from "sonner";
 
-export const useCurrentUser = () => {
+export const useCurrentUser = ({ enabled }: { enabled: boolean }) => {
   return useQuery({
     queryKey: ["currentUser"],
     queryFn: async () => {
@@ -11,6 +11,7 @@ export const useCurrentUser = () => {
       return data.mongoUser;
     },
     staleTime: 1000 * 60 * 5,
+    enabled,
   });
 };
 
@@ -29,12 +30,18 @@ export const useUserByUsername = (username?: string) => {
   });
 };
 
-export const useUpdateUserBio = () => {
+export const useUpdateUserProfile = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ bio }: { bio: string }) => {
-      const res = await axiosInstance.patch("/user", { bio });
+    mutationFn: async ({
+      bio,
+      socials,
+    }: {
+      bio: string;
+      socials: { label: string; url: string }[];
+    }) => {
+      const res = await axiosInstance.patch("/user", { bio, socials });
       return res.data;
     },
     onSuccess: () => {
@@ -54,10 +61,7 @@ export const useFollowStatus = (targetUserId?: string, options?: any) => {
     queryFn: async () => {
       if (!targetUserId) toast.error("No target userId provided");
 
-      const res = await axiosInstance.post(
-        "/following/followStatus",
-        targetUserId
-      );
+      const res = await axiosInstance.post("/following/followStatus", targetUserId);
       return res.data;
     },
     enabled: !!targetUserId,
@@ -69,6 +73,7 @@ export const useFollowStatus = (targetUserId?: string, options?: any) => {
 interface ToggleFollowArgs {
   userId: string;
   isFollowing: boolean;
+  username: string;
 }
 
 export const useToggleFollow = () => {
@@ -76,9 +81,7 @@ export const useToggleFollow = () => {
 
   return useMutation({
     mutationFn: async ({ userId, isFollowing }: ToggleFollowArgs) => {
-      const url = isFollowing
-        ? `/following/unFollow/${userId}`
-        : `/following/follow/${userId}`;
+      const url = isFollowing ? `/following/unFollow/${userId}` : `/following/follow/${userId}`;
 
       const method = isFollowing ? "delete" : "post";
 
@@ -89,10 +92,11 @@ export const useToggleFollow = () => {
 
       return res.data;
     },
-    onSuccess: (_, { userId }) => {
+    onSuccess: (_, { userId, username }) => {
       queryClient.invalidateQueries({ queryKey: ["followStatus", userId] });
       queryClient.invalidateQueries({ queryKey: ["followers"] });
       queryClient.invalidateQueries({ queryKey: ["following"] });
+      queryClient.invalidateQueries({ queryKey: ["user", username] });
     },
   });
 };
@@ -129,9 +133,7 @@ export const useUserSharedPrompts = (userId: string | undefined) => {
     queryFn: async () => {
       if (!userId) return [];
 
-      const { data } = await axiosInstance.get(
-        `/user/allSharedPrompts/${userId}`
-      );
+      const { data } = await axiosInstance.get(`/user/allSharedPrompts/${userId}`);
       return data.data;
     },
     enabled: !!userId,

@@ -16,7 +16,7 @@ export function UserCard({ user }: UserCardProps) {
   const router = useRouter();
 
   const handleCardClick = () => {
-    router.push(`/profile/${user.username}`);
+    router.push(`/u/${user.username}`);
   };
 
   return (

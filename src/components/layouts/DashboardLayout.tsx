@@ -70,17 +70,12 @@ export default function DashboardLayout({
                         {user.lastName?.[0]}
                       </AvatarFallback>
                     </Avatar>
-                    <span className="truncate max-w-[100px]">
-                      {user.fullName || user.username}
-                    </span>
-                    <ChevronsUpDown className="ml-auto mr-1" />
+                    <span className="max-w-[100px] truncate">{user.fullName || user.username}</span>
+                    <ChevronsUpDown className="mr-1 ml-auto" />
                   </SidebarMenuButton>
                 </DropdownMenuTrigger>
 
-                <DropdownMenuContent
-                  side="top"
-                  className="w-[--radix-popper-anchor-width]"
-                >
+                <DropdownMenuContent side="top" className="w-[--radix-popper-anchor-width]">
                   <DropdownMenuLabel>My Account</DropdownMenuLabel>
                   <DropdownMenuSeparator />
 
@@ -124,12 +119,12 @@ export default function DashboardLayout({
           <div className="flex flex-1 items-center justify-between gap-2">
             <BreadcrumbResponsive />
 
-            <div className="flex items-center space-x-2 ml-auto">
+            <div className="ml-auto flex items-center space-x-2">
               <ThemeToggle />
 
               <Badge
                 variant="outline"
-                className="text-xs border-primary text-primary border-2 mr-3"
+                className="border-primary text-primary mr-3 border-2 text-xs"
               >
                 Pro
               </Badge>
@@ -138,7 +133,7 @@ export default function DashboardLayout({
                 asChild
                 variant="default"
                 size="sm"
-                className="text-xs bg-gradient-to-r from-[#FFD700] via-[#FFC300] to-[#FFB300] text-black border-0 shadow-sm hover:from-[#FFC300] hover:to-[#FFD700]"
+                className="border-0 bg-gradient-to-r from-[#FFD700] via-[#FFC300] to-[#FFB300] text-xs text-black shadow-sm hover:from-[#FFC300] hover:to-[#FFD700]"
               >
                 <Link href="/pricing">Upgrade Plan</Link>
               </Button>

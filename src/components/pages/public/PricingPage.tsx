@@ -2,13 +2,12 @@ import { BadgeCheck, Check, Sparkle, Zap } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 import { Button } from "@/components/ui/button";
-import Stars from "@/components/stars";
 import { cn } from "@/lib/utils";
 
 const plans = [
   {
     title: "Free",
-    icon: <Sparkle className="w-6 h-6 text-primary" />,
+    icon: <Sparkle className="text-primary h-6 w-6" />,
     price: "₹0 /mo",
     features: [
       "3 Enhances/day",
@@ -24,7 +23,7 @@ const plans = [
   },
   {
     title: "Pro",
-    icon: <Zap className="w-6 h-6 text-yellow-500" />,
+    icon: <Zap className="h-6 w-6 text-yellow-500" />,
     price: "₹999 /mo",
     features: [
       "Unlimited prompt tests",
@@ -41,7 +40,7 @@ const plans = [
   },
   {
     title: "Enterprise",
-    icon: <BadgeCheck className="w-6 h-6 text-green-600" />,
+    icon: <BadgeCheck className="h-6 w-6 text-green-600" />,
     price: "₹9,999 /yr",
     features: [
       "Everything in Pro",
@@ -57,13 +56,10 @@ const plans = [
 
 export default function PricingPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 flex flex-col">
-      <Stars />
-      <div className="flex-1 max-w-6xl mx-auto px-4 pt-40 pb-14 w-full">
-        <h2 className="text-4xl font-bold text-center text-white mb-2">
-          Choose Your Plan
-        </h2>
-        <p className="text-gray-400 text-center mb-10">
+    <div className="min-h-screen">
+      <div className="flex-1">
+        <h2 className="mb-2 text-center text-4xl font-bold text-white">Choose Your Plan</h2>
+        <p className="mb-10 text-center text-gray-400">
           Start for free, go monthly, or save with a yearly plan.
         </p>
 
@@ -73,39 +69,27 @@ export default function PricingPage() {
               key={index}
               className={cn(
                 `${
-                  plan.title == "Pro"
-                    ? "bg-gradient-to-r from-blue-600/10 via-black/60 to-blue-500/10 border-primary scale-105"
-                    : "bg-gradient-to-r from-white/5 via-black/90 to-white/5 border-neutral-800 "
-                } border shadow-md backdrop-blur-xl transition hover:shadow-xl`
+                  plan.title == "Pro" ? "border-primary scale-105" : "border-neutral-800"
+                } border shadow-md backdrop-blur-xl transition hover:shadow-xl`,
               )}
             >
               <CardHeader className="text-center">
-                <div className="flex justify-center mb-2 scale-125">
-                  {plan.icon}
-                </div>
-                <CardTitle className="text-2xl text-white font-bold">
-                  {plan.title}
-                </CardTitle>
-                <p className="text-xl text-blue-400 mt-2">{plan.price}</p>
+                <div className="mb-2 flex scale-125 justify-center">{plan.icon}</div>
+                <CardTitle className="text-2xl font-bold text-white">{plan.title}</CardTitle>
+                <p className="mt-2 text-xl text-blue-400">{plan.price}</p>
               </CardHeader>
 
-              <CardContent className="space-y-4 flex flex-col justify-between h-full">
+              <CardContent className="flex h-full flex-col justify-between space-y-4">
                 <ul className="space-y-2 text-sm">
                   {plan.features.map((feature, idx) => (
-                    <li
-                      key={idx}
-                      className="flex items-center gap-2 text-gray-400"
-                    >
-                      <Check className="w-4 h-4 text-green-500" />
+                    <li key={idx} className="flex items-center gap-2 text-gray-400">
+                      <Check className="h-4 w-4 text-green-500" />
                       {feature}
                     </li>
                   ))}
                 </ul>
 
-                <Button
-                  className="w-full mt-4"
-                  variant={plan.highlight ? "default" : "outline"}
-                >
+                <Button className="mt-4 w-full" variant={plan.highlight ? "default" : "outline"}>
                   {plan.cta}
                 </Button>
               </CardContent>

@@ -48,42 +48,54 @@ export function UserProfileTabs({ user, isOwnProfile }: UserProfileTabsProps) {
       </TabsList>
 
       {/* shared prompts tab */}
-      <TabsContent value="prompts" className="space-y-4">
-        {isPromptsLoading ? (
-          <div className="grid gap-4">
-            {Array.from({ length: 5 }).map((_, index) => (
-              <SharedPromptCardSkeleton key={index} />
-            ))}
-          </div>
-        ) : sharedPrompts.length === 0 ? (
-          <Card>
-            <CardContent className="p-8 text-center">
-              <Share2 className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-medium mb-2">
-                No shared prompts yet
-              </h3>
-              <p className="text-muted-foreground text-sm">
-                {isOwnProfile
-                  ? "Start sharing your amazing prompts with the community!"
-                  : "This user hasn't shared any prompts yet."}
-              </p>
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="grid gap-4">
-            {sharedPrompts.map((prompt: SharedPrompt) => (
-              <SharedPromptCard key={prompt._id} prompt={prompt} />
-            ))}
-          </div>
-        )}
-      </TabsContent>
+      {(() => {
+        let promptsTabContent: React.ReactNode;
+        if (isPromptsLoading) {
+          promptsTabContent = (
+            <div className="grid gap-4">
+              {Array.from({ length: 5 }).map((_, index) => (
+                <SharedPromptCardSkeleton key={index} />
+              ))}
+            </div>
+          );
+        } else if (sharedPrompts.length === 0) {
+          promptsTabContent = (
+            <Card>
+              <CardContent className="p-8 text-center">
+                <Share2 className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-medium mb-2">
+                  No shared prompts yet
+                </h3>
+                <p className="text-muted-foreground text-sm">
+                  {isOwnProfile
+                    ? "Start sharing your amazing prompts with the community!"
+                    : "This user hasn't shared any prompts yet."}
+                </p>
+              </CardContent>
+            </Card>
+          );
+        } else {
+          promptsTabContent = (
+            <div className="grid gap-4">
+              {sharedPrompts.map((prompt: SharedPrompt) => (
+                <SharedPromptCard key={prompt._id} prompt={prompt} />
+              ))}
+            </div>
+          );
+        }
+        return (
+          <TabsContent value="prompts" className="space-y-4">
+            {promptsTabContent}
+          </TabsContent>
+        );
+      })()}
 
       {/* followers tab*/}
       {(() => {
         let followersTabContent: React.ReactNode;
         if (isFollowersLoading) {
           followersTabContent = (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
               {Array.from({ length: 5 }).map((_, index) => (
                 <UserCardSkeleton key={index} />
               ))}
@@ -105,7 +117,7 @@ export function UserProfileTabs({ user, isOwnProfile }: UserProfileTabsProps) {
           );
         } else {
           followersTabContent = (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
               {followers.map((user: AppUser) => (
                 <UserCard key={user._id} user={user} />
               ))}
@@ -124,7 +136,7 @@ export function UserProfileTabs({ user, isOwnProfile }: UserProfileTabsProps) {
         {(() => {
           if (isFollowingLoading) {
             return (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                 {Array.from({ length: 5 }).map((_, index) => (
                   <UserCardSkeleton key={index} />
                 ))}
@@ -149,7 +161,7 @@ export function UserProfileTabs({ user, isOwnProfile }: UserProfileTabsProps) {
             );
           }
           return (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
               {(following ?? []).map((user: AppUser) => (
                 <UserCard key={user._id} user={user} />
               ))}

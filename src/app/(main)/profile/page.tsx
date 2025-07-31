@@ -1,15 +1,15 @@
 import { Metadata } from "next";
-import ProfilePage from "../../components/pages/dashboard/ProfilePage";
+import ProfilePage from "@/components/pages/dashboard/ProfilePage";
 
 export const metadata: Metadata = {
-  title: "User Profile | IntelliPrompt",
+  title: "Profile | IntelliPrompt",
   description:
     "Explore prompt collections and activity of top AI builders on IntelliPrompt.",
   openGraph: {
-    title: "User Profile | IntelliPrompt",
+    title: "Profile | IntelliPrompt",
     description:
       "Check out public prompts, stats, and favorites from the IntelliPrompt community.",
-    url: "https://intelliprompt.app/u", // Dynamically append /username if SSR handled
+    url: "https://intelliprompt.app/profile", // Dynamically append /username if SSR handled
     siteName: "IntelliPrompt",
     images: [
       {
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "User Profile | IntelliPrompt",
+    title: "Profile | IntelliPrompt",
     description:
       "Explore AI prompt collections and contributions by top IntelliPrompt users.",
     images: ["https://intelliprompt.app/og-profile.png"],

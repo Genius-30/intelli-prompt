@@ -26,16 +26,10 @@ const segmentLabelMap: Record<string, string> = {
   saved: "Saved",
   leaderboard: "Leaderboard",
   folders: "Folders",
+  u: "User",
 };
 
-const suppressPaths = [
-  "/dashboard",
-  "/explore",
-  "/leaderboard",
-  "/saved",
-  "/billing",
-  "/profile",
-];
+const suppressPaths = ["/dashboard", "/explore", "/leaderboard", "/saved", "/billing", "/profile"];
 
 function formatLabel(segment: string) {
   return (
@@ -79,14 +73,12 @@ export function BreadcrumbResponsive() {
         {/* Mobile view: only show last crumb */}
         <div className="block sm:hidden">
           <BreadcrumbItem>
-            <BreadcrumbPage className="capitalize">
-              {lastCrumb.label}
-            </BreadcrumbPage>
+            <BreadcrumbPage className="capitalize">{lastCrumb.label}</BreadcrumbPage>
           </BreadcrumbItem>
         </div>
 
         {/* Desktop view: full breadcrumbs */}
-        <div className="hidden sm:flex items-center gap-x-1.5">
+        <div className="hidden items-center gap-x-1.5 sm:flex">
           {crumbs.map((crumb, index) => {
             const isLast = index === crumbs.length - 1;
             return (
@@ -94,9 +86,7 @@ export function BreadcrumbResponsive() {
                 {index > 0 && <BreadcrumbSeparator />}
                 <BreadcrumbItem>
                   {isLast ? (
-                    <BreadcrumbPage className="capitalize">
-                      {crumb.label}
-                    </BreadcrumbPage>
+                    <BreadcrumbPage className="capitalize">{crumb.label}</BreadcrumbPage>
                   ) : (
                     <BreadcrumbLink asChild className="capitalize">
                       <Link href={crumb.href}>{crumb.label}</Link>

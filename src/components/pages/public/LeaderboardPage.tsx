@@ -1,23 +1,8 @@
 "use client";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  Award,
-  Crown,
-  Flame,
-  Medal,
-  Share2,
-  Star,
-  TrendingUp,
-  Trophy,
-} from "lucide-react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Award, Crown, Flame, Medal, Share2, Star, TrendingUp, Trophy } from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { Badge } from "@/components/ui/badge";
@@ -134,11 +119,7 @@ export default function LeaderboardClient() {
       case 3:
         return <Award className="h-5 w-5 text-amber-600" />;
       default:
-        return (
-          <span className="text-lg font-bold text-muted-foreground">
-            #{rank}
-          </span>
-        );
+        return <span className="text-muted-foreground text-lg font-bold">#{rank}</span>;
     }
   };
 
@@ -151,10 +132,10 @@ export default function LeaderboardClient() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between w-full">
+      <div className="flex w-full items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Leaderboard</h1>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-muted-foreground text-sm">
             Top contributors in the IntelliPrompt community
           </p>
         </div>
@@ -170,70 +151,57 @@ export default function LeaderboardClient() {
             };
 
             if (navigator.share) {
-              navigator
-                .share(shareData)
-                .catch((err) => console.error("Sharing failed", err));
+              navigator.share(shareData).catch((err) => console.error("Sharing failed", err));
             } else {
               navigator.clipboard.writeText(window.location.href);
               alert("Link copied to clipboard!");
             }
           }}
         >
-          <Share2 className="w-4 h-4 mr-2" />
+          <Share2 className="mr-2 h-4 w-4" />
           Share Stats
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 pt-4">
+      <div className="grid grid-cols-1 gap-6 pt-4 lg:grid-cols-3">
         {/* Main Leaderboard */}
         <div className="lg:col-span-2">
-          <Tabs defaultValue="overall" className="space-y-4">
-            <TabsList className="grid grid-cols-3 gap-4 self-end mb-2">
-              <TabsTrigger
-                value="overall"
-                className="flex items-center gap-1.5 text-sm"
-              >
+          <Tabs defaultValue="overall">
+            <TabsList className="mb-2 grid h-10 w-full grid-cols-3 gap-4">
+              <TabsTrigger value="overall" className="flex items-center gap-1.5 text-sm">
                 <Trophy className="h-4 w-4" />
                 Overall
               </TabsTrigger>
-              <TabsTrigger
-                value="weekly"
-                className="flex items-center gap-1.5 text-sm"
-              >
+              <TabsTrigger value="weekly" className="flex items-center gap-1.5 text-sm">
                 <TrendingUp className="h-4 w-4" />
                 This Week
               </TabsTrigger>
-              <TabsTrigger
-                value="categories"
-                className="flex items-center gap-1.5 text-sm"
-              >
+              <TabsTrigger value="categories" className="flex items-center gap-1.5 text-sm">
                 <Star className="h-4 w-4" />
                 Categories
               </TabsTrigger>
             </TabsList>
 
             <TabsContent value="overall">
-              <Card className="border-0 shadow-sm gap-2">
+              <Card className="gap-2 border-0 shadow-sm">
                 <CardHeader className="py-0">
                   <CardTitle className="text-lg">Top Contributors</CardTitle>
                   <CardDescription className="text-sm">
                     All-time leaderboard based on community contributions
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="p-4 space-y-4">
+                <CardContent className="space-y-4 p-4">
                   {topContributors.map((user) => (
                     <div
                       key={user.rank}
-                      className={`flex items-center justify-between rounded-lg transition-colors hover:bg-muted/50 py-3 px-4 ${
+                      className={`hover:bg-muted/50 flex items-center justify-between rounded-lg px-4 py-3 transition-colors ${
                         user.rank <= 3 ? "bg-muted/30" : "border"
                       }`}
                     >
                       <div className="flex items-center space-x-4">
                         {getRankIcon(user.rank)}
                         <Avatar className="h-10 w-10">
-                          <AvatarImage
-                            src={user.avatar || "/placeholder.svg"}
-                          />
+                          <AvatarImage src={user.avatar || "/placeholder.svg"} />
                           <AvatarFallback>
                             {user.name
                               .split(" ")
@@ -244,7 +212,7 @@ export default function LeaderboardClient() {
                         <div>
                           <div className="flex items-center space-x-2">
                             <Link href={`/profile/${user.username}`}>
-                              <span className="font-semibold hover:text-primary cursor-pointer">
+                              <span className="hover:text-primary cursor-pointer font-semibold">
                                 {user.name}
                               </span>
                             </Link>
@@ -252,7 +220,7 @@ export default function LeaderboardClient() {
                               {user.badge}
                             </Badge>
                           </div>
-                          <div className="flex items-center space-x-4 text-sm text-muted-foreground">
+                          <div className="text-muted-foreground flex items-center space-x-4 text-sm">
                             <span>@{user.username}</span>
                             <span className="flex items-center gap-1">
                               <Flame className="h-3 w-3" />
@@ -263,10 +231,8 @@ export default function LeaderboardClient() {
                       </div>
 
                       <div className="text-right">
-                        <div className="font-bold text-lg">
-                          {user.points.toLocaleString()}
-                        </div>
-                        <div className="flex items-center justify-end space-x-3 text-sm text-muted-foreground">
+                        <div className="text-lg font-bold">{user.points.toLocaleString()}</div>
+                        <div className="text-muted-foreground flex items-center justify-end space-x-3 text-sm">
                           <span>{user.prompts} prompts</span>
                           <span>{user.likes} likes</span>
                           <span className={getChangeColor(user.change)}>
@@ -285,18 +251,16 @@ export default function LeaderboardClient() {
                 <CardHeader className="p-4 pb-0">
                   <CardTitle className="text-lg">Weekly Top</CardTitle>
                 </CardHeader>
-                <CardContent className="p-4 space-y-3">
+                <CardContent className="space-y-3 p-4">
                   {weeklyTop.map((user) => (
                     <div
                       key={user.rank}
-                      className="flex items-center justify-between py-2 px-4 rounded-lg border hover:bg-muted/50"
+                      className="hover:bg-muted/50 flex items-center justify-between rounded-lg border px-4 py-2"
                     >
                       <div className="flex items-center space-x-3">
                         {getRankIcon(user.rank)}
                         <Avatar className="h-6 w-6">
-                          <AvatarImage
-                            src={user.avatar || "/placeholder.svg"}
-                          />
+                          <AvatarImage src={user.avatar || "/placeholder.svg"} />
                           <AvatarFallback>
                             {user.name
                               .split(" ")
@@ -311,16 +275,12 @@ export default function LeaderboardClient() {
                               {user.badge}
                             </Badge>
                           </div>
-                          <span className="text-sm text-muted-foreground">
-                            @{user.username}
-                          </span>
+                          <span className="text-muted-foreground text-sm">@{user.username}</span>
                         </div>
                       </div>
                       <div className="text-right">
                         <div className="font-semibold">{user.points} pts</div>
-                        <div className="text-sm text-muted-foreground">
-                          {user.prompts} prompts
-                        </div>
+                        <div className="text-muted-foreground text-sm">{user.prompts} prompts</div>
                       </div>
                     </div>
                   ))}
@@ -332,24 +292,19 @@ export default function LeaderboardClient() {
               <Card>
                 <CardHeader>
                   <CardTitle>Category Leaders</CardTitle>
-                  <CardDescription>
-                    Top contributors by category
-                  </CardDescription>
+                  <CardDescription>Top contributors by category</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                     {categories.map((category) => (
-                      <div
-                        key={category.name}
-                        className="p-4 border border-border rounded-lg"
-                      >
-                        <div className="flex items-center justify-between mb-2">
+                      <div key={category.name} className="border-border rounded-lg border p-4">
+                        <div className="mb-2 flex items-center justify-between">
                           <h3 className="font-semibold">{category.name}</h3>
                           <Crown className="h-4 w-4 text-yellow-500" />
                         </div>
                         <div className="space-y-1">
                           <div className="font-medium">{category.leader}</div>
-                          <div className="text-sm text-muted-foreground">
+                          <div className="text-muted-foreground text-sm">
                             {category.points} points
                           </div>
                         </div>
@@ -408,9 +363,7 @@ export default function LeaderboardClient() {
                     <div className="text-lg">🏆</div>
                     <div>
                       <div className="text-sm font-medium">Top 25</div>
-                      <div className="text-xs text-muted-foreground">
-                        Reach rank 25
-                      </div>
+                      <div className="text-muted-foreground text-xs">Reach rank 25</div>
                     </div>
                   </div>
                   <Badge variant="outline">22 to go</Badge>
@@ -421,9 +374,7 @@ export default function LeaderboardClient() {
                     <div className="text-lg">🔥</div>
                     <div>
                       <div className="text-sm font-medium">Streak Master</div>
-                      <div className="text-xs text-muted-foreground">
-                        30 day streak
-                      </div>
+                      <div className="text-muted-foreground text-xs">30 day streak</div>
                     </div>
                   </div>
                   <Badge variant="outline">23 days</Badge>
@@ -434,9 +385,7 @@ export default function LeaderboardClient() {
                     <div className="text-lg">⭐</div>
                     <div>
                       <div className="text-sm font-medium">Popular Creator</div>
-                      <div className="text-xs text-muted-foreground">
-                        500 total likes
-                      </div>
+                      <div className="text-muted-foreground text-xs">500 total likes</div>
                     </div>
                   </div>
                   <Badge variant="outline">344 more</Badge>
