@@ -1,118 +1,35 @@
-"use client";
+import { Metadata } from "next";
+import PricingPage from "../../components/pages/public/PricingPage";
 
-import { BadgeCheck, Check, Sparkle, Zap } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-
-const plans = [
-  {
-    title: "Free",
-    icon: <Sparkle className="w-6 h-6 text-primary" />,
-    price: "₹0 /mo",
-    features: [
-      "3 Enhances/day",
-      "5 Prompt tests/day",
-      "Access to 2 AI models",
-      "Up to 10 saved prompts",
-      "2 prompt folders",
-      "limited prompt history",
-      "Community support",
+export const metadata: Metadata = {
+  title: "Pricing | IntelliPrompt",
+  description:
+    "Choose the right IntelliPrompt plan for your workflow. Compare features and get started for free.",
+  openGraph: {
+    title: "Pricing | IntelliPrompt",
+    description:
+      "Flexible pricing plans tailored for prompt engineers, creators, and teams.",
+    url: "https://intelliprompt.app/pricing",
+    siteName: "IntelliPrompt",
+    images: [
+      {
+        url: "https://intelliprompt.app/og-pricing.png", // optional, but good if visually clean
+        width: 1200,
+        height: 630,
+        alt: "Compare IntelliPrompt Plans",
+      },
     ],
-    cta: "Start Free",
-    highlight: false,
+    type: "website",
   },
-  {
-    title: "Pro",
-    icon: <Zap className="w-6 h-6 text-yellow-500" />,
-    price: "₹999 /mo",
-    features: [
-      "Unlimited prompt tests",
-      "Unlimited enhances",
-      "Access to all AI models (GPT, Claude, Gemini, etc.)",
-      "Up to 1,000 saved prompts",
-      "Unlimited folders",
-      "Prompt enhancer with tone/style control",
-      "Prompt history access",
-      "Priority support",
-    ],
-    cta: "Upgrade Now",
-    highlight: true,
+  twitter: {
+    card: "summary_large_image",
+    title: "Pricing | IntelliPrompt",
+    description:
+      "Flexible plans that grow with you. Try IntelliPrompt for free.",
+    images: ["https://intelliprompt.app/og-pricing.png"],
   },
-  {
-    title: "Enterprise",
-    icon: <BadgeCheck className="w-6 h-6 text-green-600" />,
-    price: "₹9,999 /yr",
-    features: [
-      "Everything in Pro",
-      "2 months free (₹2,000 off)",
-      "Early access to new features",
-      "Extended usage limits",
-      "Annual billing convenience",
-    ],
-    cta: "Go Yearly",
-    highlight: false,
-  },
-];
+};
 
-export default function page() {
-  return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="w-full max-w-6xl mx-auto px-4">
-        <h2 className="text-4xl font-bold text-center text-white mb-2">
-          Choose Your Plan
-        </h2>
-        <p className="text-gray-400 text-center mb-10">
-          Start for free, go monthly, or save with a yearly plan.
-        </p>
-
-        <div className="grid gap-8 md:grid-cols-3">
-          {plans.map((plan, index) => (
-            <Card
-              key={index}
-              className={cn(
-                `${
-                  plan.highlight
-                    ? "border-primary scale-105"
-                    : "border-neutral-800"
-                } border shadow-md backdrop-blur-xl transition hover:shadow-xl`
-              )}
-            >
-              <CardHeader className="text-center">
-                <div className="flex justify-center mb-2 scale-125">
-                  {plan.icon}
-                </div>
-                <CardTitle className="text-2xl text-white font-bold">
-                  {plan.title}
-                </CardTitle>
-                <p className="text-xl text-blue-400 mt-2">{plan.price}</p>
-              </CardHeader>
-
-              <CardContent className="space-y-4 flex flex-col justify-between h-full">
-                <ul className="space-y-2 text-sm">
-                  {plan.features.map((feature, idx) => (
-                    <li
-                      key={idx}
-                      className="flex items-center gap-2 text-gray-400"
-                    >
-                      <Check className="w-4 h-4 text-green-500" />
-                      {feature}
-                    </li>
-                  ))}
-                </ul>
-
-                <Button
-                  className="w-full mt-4"
-                  variant={plan.highlight ? "default" : "outline"}
-                >
-                  {plan.cta}
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
+export default function Pricing() {
+  return <PricingPage />;
 }

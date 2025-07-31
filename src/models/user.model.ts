@@ -20,6 +20,10 @@ export interface IUser extends Document {
   tokensUsed: number;
   followerCount: number;
   followeeCount: number;
+  socials: {
+    label: string;
+    url: string;
+  }[];
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -29,7 +33,7 @@ const UserSchema: Schema<IUser> = new Schema(
     _id: { type: String, required: true }, // clerkId
     fullname: { type: String, required: true },
     username: { type: String, required: true, unique: true },
-    bio: { type: String, default: "", maxlength: 80 },
+    bio: { type: String, default: "", maxlength: 120 },
     email: { type: String, required: true, unique: true },
     avatar: { type: String, default: "" },
     plan: {
@@ -57,6 +61,14 @@ const UserSchema: Schema<IUser> = new Schema(
     tokensUsed: { type: Number, default: 0 },
     followerCount: { type: Number, default: 0 },
     followeeCount: { type: Number, default: 0 },
+    socials: {
+      type: [
+        {
+          label: { type: String },
+          url: { type: String },
+        },
+      ],
+    },
   },
   { _id: false, timestamps: true }
 );

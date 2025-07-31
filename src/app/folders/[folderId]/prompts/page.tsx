@@ -1,21 +1,21 @@
 import { Metadata } from "next";
-import PromptsList from "./PromptsList";
+import dynamic from "next/dynamic";
 
 export const metadata: Metadata = {
-  title: "Prompts | IntelliStack",
-  description: "Explore all prompts for a folder, manage favorites, and more.",
+  title: "Prompts | IntelliPrompt",
+  description: "Explore all prompts in this folder, manage favorites, and more.",
   openGraph: {
-    title: "Prompts | IntelliStack",
-    description:
-      "Explore all prompts for a folder, manage favorites, and more.",
+    title: "Prompts | IntelliPrompt",
+    description: "Explore all prompts in this folder, manage favorites, and more.",
   },
   twitter: {
-    card: "summary_large_image",
-    title: "Prompts | IntelliStack",
-    description:
-      "Explore all prompts for a folder, manage favorites, and more.",
+    card: "summary",
+    title: "Prompts | IntelliPrompt",
+    description: "Explore all prompts in this folder, manage favorites, and more.",
   },
 };
+
+const PromptsList = dynamic(() => import('./PromptsList'), { ssr: false })
 
 export default function page() {
   return <PromptsList />;

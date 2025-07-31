@@ -19,21 +19,38 @@ export async function GET(req: Request) {
   }
 }
 
+// updates user profile
 export async function PATCH(req:Request) {
   try {
     const { userId, error } = await getAuthenticatedUser();
     if (error) return error;
 
-    const { bio } = await req.json()
-    if(!bio || bio.trim()===''){
-      return NextResponse.json({ message: "Invalid bio" }, { status: 400 });
+    const { bio, socials } = await req.json()
+    if (typeof bio !== 'string' || bio.length > 120) {
+      return NextResponse.json({ message: "Invalid bio or too lenghty" }, { status: 400 });
+    }
+
+    if (
+      !Array.isArray(socials) ||
+      socials.some(
+        (item) =>
+          typeof item.label !== 'string' ||
+          typeof item.url !== 'string' ||
+          !/^https?:\/\/.+/.test(item.url)
+      )
+    ) {
+      return NextResponse.json({ message: "Invalid socials format" }, { status: 400 });
     }
 
     const updated = await User.updateOne(
       { _id: userId },
-      { $set: { bio } }
+      { $set: {
+          bio,
+          socials
+        }
+      }
     )
-    if(!updated){
+    if(updated.modifiedCount === 0){
       return NextResponse.json({ message: "err updating user details" }, { status: 500 });
     }
 

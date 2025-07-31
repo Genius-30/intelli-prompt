@@ -2,20 +2,29 @@ import FoldersPage from "@/components/pages/dashboard/FoldersPage";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Your Folders | IntelliStack",
-  description: "View and manage all your saved AI folders in one place.",
+  title: "Folder | IntelliPrompt",
+  description: "View and manage AI prompts organized in this folder.",
   openGraph: {
-    title: "Your Folders | IntelliStack",
-    description: "Manage your AI folders efficiently.",
-    url: "https://your-domain.com/folders",
-    siteName: "IntelliStack",
-    locale: "en_US",
+    title: "Folder | IntelliPrompt",
+    description:
+      "Explore and organize AI prompts inside your IntelliPrompt folder.",
+    url: "https://intelliprompt.app/folder", // dynamic ID will update via router
+    siteName: "IntelliPrompt",
+    images: [
+      {
+        url: "https://intelliprompt.app/og-folder.png",
+        width: 1200,
+        height: 630,
+        alt: "Prompt Folder – IntelliPrompt",
+      },
+    ],
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Your Prompts | IntelliStack",
-    description: "Manage your AI prompts efficiently.",
+    title: "Folder | IntelliPrompt",
+    description: "View and manage AI prompts organized in this folder.",
+    images: ["https://intelliprompt.app/og-folder.png"],
   },
 };
 

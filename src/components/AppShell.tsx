@@ -18,6 +18,7 @@ const PUBLIC_PATHS = [
   "/explore",
   "/pricing",
   "/leaderboard",
+  "/blog",
 ];
 
 const NO_SHELL_PATHS = ["/sign-in", "/sign-up"];

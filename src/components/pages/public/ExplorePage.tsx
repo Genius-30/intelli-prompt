@@ -185,7 +185,8 @@ export default function ExploreClient() {
           </p>
         </div>
         <Button
-          className="gap-2 bg-primary hover:bg-primary/90"
+          variant="secondary"
+          className="gap-2"
           onClick={handleSharePrompt}
         >
           <Share className="h-4 w-4" />
