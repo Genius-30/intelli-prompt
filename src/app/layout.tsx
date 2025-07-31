@@ -24,9 +24,7 @@ export default function RootLayout({
         className={`scrollbar-thin ${inter.className}`}
         cz-shortcut-listen="true"
       >
-        <Providers>
-          <AppShell>{children}</AppShell>
-        </Providers>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );
