@@ -11,8 +11,8 @@ export async function POST(req: Request) {
     const { userId, error } = await getAuthenticatedUser();
     if (error) return error;
 
-    const { title, content, tags, modelUsed, response } = await req.json();
-    if (!title || !content || !modelUsed || !response) {
+    const { title, content, tags, modelUsed, responseId } = await req.json();
+    if (!title || !content || !modelUsed || !responseId) {
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 }
@@ -25,7 +25,7 @@ export async function POST(req: Request) {
       content,
       tags: tags || [],
       modelUsed,
-      response
+      responseId
     });
 
     return NextResponse.json({ message: "Prompt shared successfully", newSharedPrompt }, { status: 201 });

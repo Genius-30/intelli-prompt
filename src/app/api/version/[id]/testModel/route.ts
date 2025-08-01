@@ -5,7 +5,7 @@ import { Version } from "@/models/version.model";
 import { callOpenRouter } from "@/utils/models";
 import { getAuthenticatedUser } from "@/utils/getAuthenticatedUser";
 import { rateLimit } from "@/lib/rateLimit";
-import { AI_MODELS } from "@/lib/constants";
+import { AI_MODELS } from "@/lib/constants/AI_MODELS";
 
 // to test prompt on models
 export async function POST(req: NextRequest, { params }: { params: any }) {
