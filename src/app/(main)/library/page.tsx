@@ -1,19 +1,20 @@
 import LibraryPage from "@/components/pages/dashboard/LibraryPage";
 import { Metadata } from "next";
+import { SITE_URL } from "@/lib/constants/SITE_URL";
 
 export const metadata: Metadata = {
-  title: "Library | IntelliPrompt",
+  title: "Library",
   description:
     "View all your favorited prompts, versions, and AI responses in one place for quick access and reuse.",
   openGraph: {
-    title: "Library | IntelliPrompt",
+    title: "Library",
     description:
       "Your personal collection of favorite prompts, versions, and responses on IntelliPrompt.",
-    url: "https://intelliprompt.app/saved",
+    url: `${SITE_URL}/saved`,
     siteName: "IntelliPrompt",
     images: [
       {
-        url: "https://intelliprompt.app/og-saved.png",
+        url: `${SITE_URL}/og-saved.png`,
         width: 1200,
         height: 630,
         alt: "Your Favorite AI Content – IntelliPrompt",
@@ -23,10 +24,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Library | IntelliPrompt",
-    description:
-      "Quickly revisit your top prompts, versions, and AI responses anytime.",
-    images: ["https://intelliprompt.app/og-saved.png"],
+    title: "Library",
+    description: "Quickly revisit your top prompts, versions, and AI responses anytime.",
+    images: [`${SITE_URL}/og-saved.png`],
   },
 };
 

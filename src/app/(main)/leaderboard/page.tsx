@@ -1,19 +1,18 @@
 import LeaderboardPage from "@/components/pages/public/LeaderboardPage";
 import { Metadata } from "next";
+import { SITE_URL } from "@/lib/constants/SITE_URL";
 
 export const metadata: Metadata = {
-  title: "Leaderboard | IntelliPrompt",
-  description:
-    "Discover the top contributors and prompt engineers in the IntelliPrompt community.",
+  title: "Leaderboard",
+  description: "Discover the top contributors and prompt engineers in the IntelliPrompt community.",
   openGraph: {
-    title: "Leaderboard | IntelliPrompt",
-    description:
-      "See who’s leading with the best AI prompts and shared responses.",
-    url: "https://intelliprompt.app/leaderboard",
+    title: "Leaderboard",
+    description: "See who’s leading with the best AI prompts and shared responses.",
+    url: `${SITE_URL}/leaderboard`,
     siteName: "IntelliPrompt",
     images: [
       {
-        url: "https://intelliprompt.app/og-leaderboard.png",
+        url: `${SITE_URL}/og-leaderboard.png`,
         width: 1200,
         height: 630,
         alt: "IntelliPrompt Leaderboard – Top Prompt Engineers",
@@ -23,9 +22,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Leaderboard | IntelliPrompt",
+    title: "Leaderboard",
     description: "Top AI prompt creators ranked by community impact.",
-    images: ["https://intelliprompt.app/og-leaderboard.png"],
+    images: [`${SITE_URL}/og-leaderboard.png`],
   },
 };
 

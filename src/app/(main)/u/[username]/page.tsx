@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { SITE_URL } from "@/lib/constants/SITE_URL";
 import UserProfilePage from "@/components/pages/public/UserProfilePage";
 import { getUserByUsername } from "@/lib/actions/user";
 
@@ -12,7 +13,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   if (!user) {
     return {
-      title: "User Not Found | IntelliPrompt",
+      title: "User Not Found",
       description: `No user found with the username ${username}.`,
     };
   }
@@ -20,16 +21,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const displayName = user.name || user.username;
 
   return {
-    title: `${displayName} | IntelliPrompt`,
+    title: `${displayName}`,
     description: `Explore prompt collections and activity of ${displayName} on IntelliPrompt.`,
     openGraph: {
-      title: `${displayName} | IntelliPrompt`,
+      title: `${displayName}`,
       description: `Check out public prompts, stats, and favorites from ${displayName}.`,
-      url: `https://intelliprompt.app/u/${user.username}`,
+      url: `${SITE_URL}/u/${user.username}`,
       siteName: "IntelliPrompt",
       images: [
         {
-          url: "https://intelliprompt.app/og-profile.png",
+          url: `${SITE_URL}/og-profile.png`,
           width: 1200,
           height: 630,
           alt: `${displayName} – AI Prompt Creator Profile`,
@@ -39,9 +40,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     },
     twitter: {
       card: "summary_large_image",
-      title: `${displayName} | IntelliPrompt`,
+      title: `${displayName}`,
       description: `Explore prompt collections and activity of ${displayName} on IntelliPrompt.`,
-      images: ["https://intelliprompt.app/og-profile.png"],
+      images: [`${SITE_URL}/og-profile.png`],
     },
   };
 }

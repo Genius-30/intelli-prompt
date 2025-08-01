@@ -1,18 +1,18 @@
 import FoldersPage from "@/components/pages/dashboard/FoldersPage";
 import { Metadata } from "next";
+import { SITE_URL } from "@/lib/constants/SITE_URL";
 
 export const metadata: Metadata = {
-  title: "Folder | IntelliPrompt",
+  title: "Folder",
   description: "View and manage AI prompts organized in this folder.",
   openGraph: {
-    title: "Folder | IntelliPrompt",
-    description:
-      "Explore and organize AI prompts inside your IntelliPrompt folder.",
-    url: "https://intelliprompt.app/folder", // dynamic ID will update via router
+    title: "Folder",
+    description: "Explore and organize AI prompts inside your IntelliPrompt folder.",
+    url: `${SITE_URL}/folder`, // dynamic ID will update via router
     siteName: "IntelliPrompt",
     images: [
       {
-        url: "https://intelliprompt.app/og-folder.png",
+        url: `${SITE_URL}/og-folder.png`,
         width: 1200,
         height: 630,
         alt: "Prompt Folder – IntelliPrompt",
@@ -22,9 +22,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Folder | IntelliPrompt",
+    title: "Folder",
     description: "View and manage AI prompts organized in this folder.",
-    images: ["https://intelliprompt.app/og-folder.png"],
+    images: [`${SITE_URL}/og-explore.png`],
   },
 };
 
