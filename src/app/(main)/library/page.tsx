@@ -3,11 +3,11 @@ import { Metadata } from "next";
 import { SITE_URL } from "@/lib/constants/SITE_URL";
 
 export const metadata: Metadata = {
-  title: "Library",
+  title: "My Library",
   description:
     "View all your favorited prompts, versions, and AI responses in one place for quick access and reuse.",
   openGraph: {
-    title: "Library",
+    title: "My Library",
     description:
       "Your personal collection of favorite prompts, versions, and responses on IntelliPrompt.",
     url: `${SITE_URL}/saved`,
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Library",
+    title: "My Library",
     description: "Quickly revisit your top prompts, versions, and AI responses anytime.",
     images: [`${SITE_URL}/og-saved.png`],
   },

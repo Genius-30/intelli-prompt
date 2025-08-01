@@ -92,6 +92,7 @@ export function useToggleFavoritePrompt(promptId: string) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["prompts"] });
       queryClient.invalidateQueries({ queryKey: ["prompt", promptId] });
+      queryClient.invalidateQueries({ queryKey: ["userLibrary"] });
     },
   });
 }

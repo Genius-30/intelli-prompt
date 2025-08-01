@@ -1,28 +1,15 @@
 "use client";
 
 import { GitBranch, PlusIcon } from "lucide-react";
-import { useDeleteVersion, useGetAllVersions, useSetActiveVersion } from "@/lib/queries/version";
 import { useEffect, useRef } from "react";
 import { useParams, usePathname, useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { PromptVersionsSkeleton } from "@/components/skeletons/PromptVersionsSkeleton";
+import { Version } from "@/types/version";
 import { VersionCard } from "@/components/version/VersionCard";
 import { VersionLegend } from "@/components/version/VersionLegend";
-import { toast } from "sonner";
-
-interface Version {
-  _id: string;
-  ownerId: string;
-  promptId: string;
-  versionNumber: number;
-  content: string;
-  isActive: boolean;
-  isFavorite: boolean;
-  createdAt: string;
-  updatedAt: string;
-  __v: number;
-}
+import { useGetAllVersions } from "@/lib/queries/version";
 
 export function PromptVersionsPage() {
   const { folderId, promptId } = useParams();
@@ -32,9 +19,6 @@ export function PromptVersionsPage() {
   const versionRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
 
   const { data: versions, isLoading: versionsLoading } = useGetAllVersions(promptId as string);
-
-  const { mutate: deleteVersion, isPending: isDeleting } = useDeleteVersion(promptId as string);
-  const { mutate: setActiveVersion, isPending: isActivating } = useSetActiveVersion();
 
   const activeVersion = versions?.find((v: Version) => v.isActive);
   const activeVersionId = activeVersion?._id;
@@ -55,26 +39,6 @@ export function PromptVersionsPage() {
   }, [versionsLoading]);
 
   const getVersionNumber = (index: number) => versions.length - index;
-
-  const handleSetActive = (versionId: string) => {
-    setActiveVersion(
-      {
-        versionId,
-        promptId: promptId as string,
-      },
-      {
-        onSuccess: () => toast.success("Version set as active"),
-        onError: () => toast.error("Failed to set as active"),
-      },
-    );
-  };
-
-  const handleDelete = (versionId: string) => {
-    deleteVersion(versionId, {
-      onSuccess: () => toast.success("Version deleted"),
-      onError: () => toast.error("Failed to delete version"),
-    });
-  };
 
   const scrollToVersion = (versionId: string) => {
     const versionElement = versionRefs.current[versionId];
@@ -193,14 +157,7 @@ export function PromptVersionsPage() {
                 }
               }}
             >
-              <VersionCard
-                version={version}
-                onSetActive={handleSetActive}
-                onDelete={handleDelete}
-                isActivating={isActivating}
-                isDeleting={isDeleting}
-                isLatest={isLatest}
-              />
+              <VersionCard version={version} isLatest={isLatest} />
             </div>
           );
         })}

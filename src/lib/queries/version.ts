@@ -38,10 +38,7 @@ export const useAddVersion = () => {
 
   return useMutation({
     mutationFn: async ({ promptId, content }: AddVersionPayload) => {
-      const res = await axiosInstance.patch(
-        `/version/${promptId}/addToHistory`,
-        { content }
-      );
+      const res = await axiosInstance.patch(`/version/${promptId}/addToHistory`, { content });
       return res.data.newVersion;
     },
     onSuccess: (_, { promptId }) => {
@@ -100,6 +97,7 @@ export const useToggleFavoriteVersion = () => {
     onSuccess: (_, id) => {
       queryClient.invalidateQueries({ queryKey: ["versions"] });
       queryClient.invalidateQueries({ queryKey: ["version", id] });
+      queryClient.invalidateQueries({ queryKey: ["userLibrary"] });
     },
   });
 };
@@ -112,16 +110,12 @@ type EnhancePromptArgs = {
 
 export function useEnhancePrompt() {
   return useMutation({
-    mutationFn: async ({
-      content,
-      tokenEstimated,
-      signal,
-    }: EnhancePromptArgs) => {
+    mutationFn: async ({ content, tokenEstimated, signal }: EnhancePromptArgs) => {
       try {
         const res = await axiosInstance.post(
           `/version/enhance`,
           { content, tokenEstimated },
-          { signal }
+          { signal },
         );
         return res.data.response as string;
       } catch (err: any) {
@@ -136,13 +130,7 @@ export function useSetActiveVersion() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({
-      versionId,
-      promptId,
-    }: {
-      versionId: string;
-      promptId: string;
-    }) => {
+    mutationFn: async ({ versionId, promptId }: { versionId: string; promptId: string }) => {
       const res = await axiosInstance.patch(`/version/${versionId}/active`, {
         promptId,
       });

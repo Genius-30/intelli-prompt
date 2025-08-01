@@ -1,9 +1,4 @@
-import {
-  BookmarkIcon,
-  LayoutDashboardIcon,
-  TrophyIcon,
-  UsersIcon,
-} from "lucide-react";
+import { LayoutDashboardIcon, LibraryIcon, TrophyIcon, UsersIcon } from "lucide-react";
 import {
   SidebarGroup,
   SidebarGroupContent,
@@ -24,7 +19,7 @@ export function SidebarMainLinks() {
     { href: "/explore", label: "Explore", icon: UsersIcon },
     { href: "/leaderboard", label: "Leaderboard", icon: TrophyIcon },
     { href: "/dashboard", label: "Dashboard", icon: LayoutDashboardIcon },
-    { href: "/saved", label: "Saved", icon: BookmarkIcon },
+    { href: "/library", label: "My Library", icon: LibraryIcon },
   ];
 
   return (
@@ -38,10 +33,10 @@ export function SidebarMainLinks() {
                 <Link
                   href={href}
                   className={cn(
-                    "text-sm font-medium w-full text-left",
+                    "w-full text-left text-sm font-medium",
                     pathname === href
                       ? "text-primary"
-                      : "text-muted-foreground hover:text-foreground"
+                      : "text-muted-foreground hover:text-foreground",
                   )}
                 >
                   <Icon size={20} /> {label}

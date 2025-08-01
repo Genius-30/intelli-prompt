@@ -23,7 +23,7 @@ const segmentLabelMap: Record<string, string> = {
   versions: "Versions",
   test: "Test",
   explore: "Explore",
-  saved: "Saved",
+  library: "My Library",
   leaderboard: "Leaderboard",
   folders: "Folders",
   u: "User",

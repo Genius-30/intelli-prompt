@@ -9,46 +9,52 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { forwardRef, useState } from "react";
+import {
+  useDeleteVersion,
+  useSetActiveVersion,
+  useToggleFavoriteVersion,
+} from "@/lib/queries/version";
 
 import { Button } from "@/components/ui/button";
 import FavoriteButton from "../common/FavoriteButton";
 import Link from "next/link";
 import { SharePromptModal } from "../community/SharePromptModal";
+import { VersionCardProps } from "@/types/version";
 import { formatDistanceToNow } from "date-fns";
+import { toast } from "sonner";
 import { usePathname } from "next/navigation";
-import { useToggleFavoriteVersion } from "@/lib/queries/version";
-
-interface Version {
-  _id: string;
-  ownerId: string;
-  promptId: string;
-  versionNumber: number;
-  content: string;
-  isActive: boolean;
-  isFavorite: boolean;
-  createdAt: string;
-  updatedAt: string;
-  __v: number;
-}
-
-interface VersionCardProps {
-  version: Version;
-  onSetActive: (versionId: string) => void;
-  onDelete: (versionId: string) => void;
-  isActivating: boolean;
-  isDeleting: boolean;
-  isLatest?: boolean;
-}
 
 export const VersionCard = forwardRef<HTMLDivElement, VersionCardProps>(
-  ({ version, onSetActive, onDelete, isActivating, isDeleting, isLatest = false }, ref) => {
+  ({ version, isLatest = false }, ref) => {
     const isActive = version.isActive;
     const isFavorite = version.isFavorite;
     const pathname = usePathname();
 
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
+    const { mutate: deleteVersion, isPending: isDeleting } = useDeleteVersion(version?.promptId);
+    const { mutate: setActiveVersion, isPending: isActivating } = useSetActiveVersion();
     const { mutate: toggleFavorite, isPending } = useToggleFavoriteVersion();
+
+    const handleSetActive = (versionId: string) => {
+      setActiveVersion(
+        {
+          versionId,
+          promptId: version.promptId,
+        },
+        {
+          onSuccess: () => toast.success("Version set as active"),
+          onError: () => toast.error("Failed to set as active"),
+        },
+      );
+    };
+
+    const handleDelete = (versionId: string) => {
+      deleteVersion(versionId, {
+        onSuccess: () => toast.success("Version deleted"),
+        onError: () => toast.error("Failed to delete version"),
+      });
+    };
 
     return (
       <>
@@ -154,7 +160,7 @@ export const VersionCard = forwardRef<HTMLDivElement, VersionCardProps>(
                       <DropdownMenuContent align="end" className="w-40">
                         {!isActive && (
                           <DropdownMenuItem
-                            onClick={() => onSetActive(version._id)}
+                            onClick={() => handleSetActive(version._id)}
                             disabled={isActivating}
                             className="text-xs"
                           >
@@ -163,7 +169,7 @@ export const VersionCard = forwardRef<HTMLDivElement, VersionCardProps>(
                           </DropdownMenuItem>
                         )}
                         <DropdownMenuItem
-                          onClick={() => onDelete(version._id)}
+                          onClick={() => handleDelete(version._id)}
                           disabled={isDeleting}
                           className="text-destructive focus:text-destructive text-xs"
                         >

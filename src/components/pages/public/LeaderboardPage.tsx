@@ -134,8 +134,8 @@ export default function LeaderboardClient() {
       {/* Header */}
       <div className="flex w-full items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Leaderboard</h1>
-          <p className="text-muted-foreground text-sm">
+          <h1 className="text-foreground text-2xl font-bold tracking-tight">Leaderboard</h1>
+          <p className="text-muted-foreground text-sm mt-1">
             Top contributors in the IntelliPrompt community
           </p>
         </div>

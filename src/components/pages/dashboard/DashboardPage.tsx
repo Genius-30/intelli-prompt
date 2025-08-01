@@ -84,10 +84,8 @@ export default function DashboardClient() {
     <div className="space-y-8">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-3xl font-bold tracking-tight text-transparent dark:from-gray-100 dark:to-gray-400">
-            Dashboard
-          </h1>
-          <p className="text-muted-foreground mt-1">
+          <h1 className="text-foreground text-2xl font-bold tracking-tight">Dashboard</h1>
+          <p className="text-muted-foreground text-sm mt-1">
             Welcome back! Here's your prompt activity overview.
           </p>
         </div>
@@ -95,9 +93,9 @@ export default function DashboardClient() {
       </div>
 
       {/* Main Grid: Streak + Stats */}
-      <div className="grid w-full grid-cols-1 gap-6 md:grid-cols-3">
+      <div className="grid w-full grid-cols-1 gap-6 md:grid-cols-2">
         {/* Left: Streak Graph */}
-        <Card className="gap-1 rounded-2xl border-0 py-4 shadow-lg md:col-span-1">
+        <Card className="min-w-[350px] gap-1 rounded-2xl border-0 py-4 shadow-lg">
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-muted-foreground text-sm font-medium">
               Streak Progress
@@ -112,11 +110,11 @@ export default function DashboardClient() {
         </Card>
 
         {/* Right: Stat Cards */}
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:col-span-2">
+        <div className="grid flex-1 grid-cols-1 gap-4 sm:grid-cols-2">
           {dashboardStats.map((stat, i) => (
             <Card
               key={i}
-              className="rounded-2xl border-0 shadow-md transition-shadow duration-300 hover:shadow-xl"
+              className="gap-1 rounded-2xl border-0 py-4 shadow-md transition-shadow duration-300 hover:shadow-xl"
             >
               <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <CardTitle className="text-muted-foreground text-sm font-semibold">
@@ -126,7 +124,7 @@ export default function DashboardClient() {
               </CardHeader>
               <CardContent>
                 <div className="text-foreground text-2xl font-bold">{stat.value}</div>
-                <p className="text-muted-foreground mt-1 text-sm">{stat.description}</p>
+                {stat.description}
               </CardContent>
             </Card>
           ))}

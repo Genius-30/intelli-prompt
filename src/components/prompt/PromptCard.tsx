@@ -8,27 +8,10 @@ import { usePathname, useRouter } from "next/navigation";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import FavoriteButton from "../common/FavoriteButton";
+import { PromptCardProps } from "@/types/prompt";
 import type React from "react";
 import UpdatePromptTitleModal from "./UpdatePromptModal";
 import { formatDistanceToNow } from "date-fns";
-
-interface ActiveVersion {
-  _id: string;
-  content: string;
-  versionNumber: number;
-  isActive: boolean;
-  createdAt?: string;
-}
-
-interface PromptCardProps {
-  _id: string;
-  title: string;
-  totalVersions: number;
-  isFavorite?: boolean;
-  createdAt: string;
-  updatedAt?: string;
-  activeVersion?: ActiveVersion;
-}
 
 export default function PromptCard({
   _id,
@@ -39,7 +22,7 @@ export default function PromptCard({
   updatedAt,
   activeVersion,
 }: PromptCardProps) {
-  const displayDate = updatedAt ? updatedAt : createdAt;
+  const displayDate = updatedAt || createdAt;
   const router = useRouter();
   const pathname = usePathname();
   const { mutate: deleteMutate, isPending: isDeleting } = useDeletePrompt(_id);

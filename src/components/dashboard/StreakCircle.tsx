@@ -5,7 +5,7 @@ const RADIUS = 120;
 const CENTER = 150;
 
 interface StreakCircleProps {
-  currentStreak: number; // 0 to TOTAL_DAYS
+  currentStreak: number;
   longestStreak: number;
 }
 

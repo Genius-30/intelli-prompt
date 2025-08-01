@@ -140,3 +140,14 @@ export const useUserSharedPrompts = (userId: string | undefined) => {
     enabled: !!userId,
   });
 };
+
+export const useUserLibrary = () => {
+  return useQuery({
+    queryKey: ["userLibrary"],
+    queryFn: async () => {
+      const res = await axiosInstance.get("/user/savedPrompts");
+      return res.data.data;
+    },
+    staleTime: 60 * 1000,
+  });
+};

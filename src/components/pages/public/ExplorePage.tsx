@@ -41,8 +41,7 @@ function useSharedPrompts() {
         {
           id: 2,
           title: "Email Marketing Campaign Generator",
-          description:
-            "Create compelling email campaigns with subject lines, content, and CTAs",
+          description: "Create compelling email campaigns with subject lines, content, and CTAs",
           author: {
             name: "Mike Johnson",
             avatar: "/placeholder.svg?height=32&width=32",
@@ -57,8 +56,7 @@ function useSharedPrompts() {
         {
           id: 3,
           title: "Research Paper Summarizer",
-          description:
-            "Extract key insights and create concise summaries from academic papers",
+          description: "Extract key insights and create concise summaries from academic papers",
           author: {
             name: "Dr. Emily Watson",
             avatar: "/placeholder.svg?height=32&width=32",
@@ -73,8 +71,7 @@ function useSharedPrompts() {
         {
           id: 4,
           title: "Creative Writing Companion",
-          description:
-            "Generate story ideas, character development, and plot suggestions",
+          description: "Generate story ideas, character development, and plot suggestions",
           author: {
             name: "Alex Rivera",
             avatar: "/placeholder.svg?height=32&width=32",
@@ -89,8 +86,7 @@ function useSharedPrompts() {
         {
           id: 5,
           title: "Data Analysis Helper",
-          description:
-            "Analyze datasets and generate insights with statistical summaries",
+          description: "Analyze datasets and generate insights with statistical summaries",
           author: {
             name: "John Smith",
             avatar: "/placeholder.svg?height=32&width=32",
@@ -105,8 +101,7 @@ function useSharedPrompts() {
         {
           id: 6,
           title: "Social Media Content Creator",
-          description:
-            "Generate engaging posts, captions, and hashtags for social platforms",
+          description: "Generate engaging posts, captions, and hashtags for social platforms",
           author: {
             name: "Lisa Park",
             avatar: "/placeholder.svg?height=32&width=32",
@@ -143,15 +138,11 @@ export default function ExploreClient() {
       prompt.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       prompt.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
       prompt.author.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      prompt.tags.some((tag: string) =>
-        tag.toLowerCase().includes(searchQuery.toLowerCase())
-      )
+      prompt.tags.some((tag: string) => tag.toLowerCase().includes(searchQuery.toLowerCase())),
   );
 
   // Get trending prompts (top 4 by likes for demo)
-  const trendingPrompts = [...prompts]
-    .sort((a, b) => b.likes - a.likes)
-    .slice(0, 4);
+  const trendingPrompts = [...prompts].sort((a, b) => b.likes - a.likes).slice(0, 4);
 
   const filteredTrendingPrompts = trendingPrompts.filter(
     (prompt) =>
@@ -159,9 +150,7 @@ export default function ExploreClient() {
       prompt.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       prompt.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
       prompt.author.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      prompt.tags.some((tag: string) =>
-        tag.toLowerCase().includes(searchQuery.toLowerCase())
-      )
+      prompt.tags.some((tag: string) => tag.toLowerCase().includes(searchQuery.toLowerCase())),
   );
 
   const handleSharePrompt = () => {
@@ -177,18 +166,12 @@ export default function ExploreClient() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground">
-            Explore Community
-          </h1>
-          <p className="text-muted-foreground mt-1">
+          <h1 className="text-foreground text-2xl font-bold tracking-tight">Explore Community</h1>
+          <p className="text-muted-foreground mt-1 text-sm">
             Discover and share amazing AI prompts with the community
           </p>
         </div>
-        <Button
-          variant="secondary"
-          className="gap-2"
-          onClick={handleSharePrompt}
-        >
+        <Button variant="secondary" className="gap-2" onClick={handleSharePrompt}>
           <Share className="h-4 w-4" />
           Share Prompt
         </Button>
@@ -197,11 +180,11 @@ export default function ExploreClient() {
       {/* Search and Tabs Row */}
       <div className="flex items-center gap-4">
         {/* Search */}
-        <div className="flex-1 relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <div className="relative flex-1">
+          <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform" />
           <Input
             placeholder="Search prompts, tags, or authors..."
-            className="pl-10 h-10 border-primary/20 focus:border-primary/40"
+            className="border-primary/20 focus:border-primary/40 h-10 pl-10"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
@@ -209,15 +192,12 @@ export default function ExploreClient() {
 
         {/* Tabs */}
         <Tabs defaultValue="all" className="w-auto">
-          <TabsList className="grid grid-cols-2 w-auto">
+          <TabsList className="grid w-auto grid-cols-2">
             <TabsTrigger value="all" className="flex items-center gap-2 px-4">
               <Grid3X3 className="h-4 w-4" />
               All
             </TabsTrigger>
-            <TabsTrigger
-              value="trending"
-              className="flex items-center gap-2 px-4"
-            >
+            <TabsTrigger value="trending" className="flex items-center gap-2 px-4">
               <TrendingUp className="h-4 w-4" />
               Trending
             </TabsTrigger>
@@ -241,17 +221,17 @@ export default function ExploreClient() {
             } else if (filteredPrompts.length === 0) {
               // Empty state
               return (
-                <Card className="border-dashed border-2 border-primary/20">
+                <Card className="border-primary/20 border-2 border-dashed">
                   <CardContent className="flex flex-col items-center justify-center py-16 text-center">
                     {searchQuery ? (
                       <>
-                        <Search className="h-16 w-16 text-muted-foreground/40 mb-4" />
-                        <h3 className="text-xl font-semibold text-foreground mb-2">
+                        <Search className="text-muted-foreground/40 mb-4 h-16 w-16" />
+                        <h3 className="text-foreground mb-2 text-xl font-semibold">
                           No prompts found
                         </h3>
                         <p className="text-muted-foreground max-w-md">
-                          We couldn't find any prompts matching "{searchQuery}".
-                          Try adjusting your search terms or browse all prompts.
+                          We couldn't find any prompts matching "{searchQuery}". Try adjusting your
+                          search terms or browse all prompts.
                         </p>
                         <Button
                           variant="outline"
@@ -263,14 +243,13 @@ export default function ExploreClient() {
                       </>
                     ) : (
                       <>
-                        <FileText className="h-16 w-16 text-muted-foreground/40 mb-4" />
-                        <h3 className="text-xl font-semibold text-foreground mb-2">
+                        <FileText className="text-muted-foreground/40 mb-4 h-16 w-16" />
+                        <h3 className="text-foreground mb-2 text-xl font-semibold">
                           No shared prompts yet
                         </h3>
                         <p className="text-muted-foreground max-w-md">
-                          Be the first to share your amazing prompts with the
-                          community! Start by creating and sharing your first
-                          prompt.
+                          Be the first to share your amazing prompts with the community! Start by
+                          creating and sharing your first prompt.
                         </p>
                         <Link href="/folders">
                           <Button className="mt-4 gap-2">
@@ -288,10 +267,7 @@ export default function ExploreClient() {
               return (
                 <div className="grid gap-4">
                   {filteredPrompts.map((prompt) => (
-                    <SharedPromptCard
-                      key={`all-${prompt.id}`}
-                      prompt={prompt}
-                    />
+                    <SharedPromptCard key={`all-${prompt.id}`} prompt={prompt} />
                   ))}
                 </div>
               );
@@ -305,7 +281,7 @@ export default function ExploreClient() {
             if (isLoading) {
               // Loading skeleton
               return (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   {Array.from({ length: 4 }).map((_, index) => (
                     <SharedPromptCardSkeleton key={index} />
                   ))}
@@ -316,17 +292,17 @@ export default function ExploreClient() {
             if (filteredTrendingPrompts.length === 0) {
               // Empty state
               return (
-                <Card className="border-dashed border-2 border-primary/20">
+                <Card className="border-primary/20 border-2 border-dashed">
                   <CardContent className="flex flex-col items-center justify-center py-16 text-center">
                     {searchQuery ? (
                       <>
-                        <Search className="h-16 w-16 text-muted-foreground/40 mb-4" />
-                        <h3 className="text-xl font-semibold text-foreground mb-2">
+                        <Search className="text-muted-foreground/40 mb-4 h-16 w-16" />
+                        <h3 className="text-foreground mb-2 text-xl font-semibold">
                           No trending prompts found
                         </h3>
                         <p className="text-muted-foreground max-w-md">
-                          We couldn't find any trending prompts matching "
-                          {searchQuery}". Try adjusting your search terms.
+                          We couldn't find any trending prompts matching "{searchQuery}". Try
+                          adjusting your search terms.
                         </p>
                         <Button
                           variant="outline"
@@ -338,13 +314,13 @@ export default function ExploreClient() {
                       </>
                     ) : (
                       <>
-                        <TrendingUp className="h-16 w-16 text-muted-foreground/40 mb-4" />
-                        <h3 className="text-xl font-semibold text-foreground mb-2">
+                        <TrendingUp className="text-muted-foreground/40 mb-4 h-16 w-16" />
+                        <h3 className="text-foreground mb-2 text-xl font-semibold">
                           No trending prompts yet
                         </h3>
                         <p className="text-muted-foreground max-w-md">
-                          Trending prompts will appear here based on community
-                          engagement. Be the first to create viral content!
+                          Trending prompts will appear here based on community engagement. Be the
+                          first to create viral content!
                         </p>
                         <Link href="/folders">
                           <Button className="mt-4 gap-2">
@@ -361,7 +337,7 @@ export default function ExploreClient() {
 
             // Trending prompts list
             return (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 {filteredTrendingPrompts.map((prompt) => (
                   <SharedPromptCard
                     key={`trending-${prompt.id}`}
