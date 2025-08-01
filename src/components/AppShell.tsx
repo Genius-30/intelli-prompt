@@ -1,4 +1,3 @@
-// components/AppShell.tsx
 "use client";
 
 import { ReactNode, useEffect, useState } from "react";
@@ -64,7 +63,7 @@ export default function AppShell({
     shell = <DashboardLayout>{children}</DashboardLayout>;
   }
   // Otherwise, if in PUBLIC_PATHS, show public
-  else if (PUBLIC_PATHS.includes(pathname)) {
+  else if (PUBLIC_PATHS.some((path) => pathname.startsWith(path))) {
     shell = <PublicLayout>{children}</PublicLayout>;
   }
   // Else force sign‑in

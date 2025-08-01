@@ -5,3 +5,10 @@ export interface AppUser {
   avatar?: string;
   rank?: string;
 }
+
+export type SocialPlatform = "twitter" | "instagram" | "linkedin" | "github";
+
+export interface SocialLink {
+  label: SocialPlatform;
+  url: string;
+}

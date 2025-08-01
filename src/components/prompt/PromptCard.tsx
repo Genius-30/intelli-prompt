@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-} from "@/components/ui/card";
+import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Clock, ExternalLink, GitBranch, Loader2, Trash2 } from "lucide-react";
 import { useDeletePrompt, useToggleFavoritePrompt } from "@/lib/queries/prompt";
 import { usePathname, useRouter } from "next/navigation";
@@ -14,6 +9,7 @@ import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import FavoriteButton from "../common/FavoriteButton";
 import type React from "react";
+import UpdatePromptTitleModal from "./UpdatePromptModal";
 import { formatDistanceToNow } from "date-fns";
 
 interface ActiveVersion {
@@ -75,14 +71,12 @@ export default function PromptCard({
   };
 
   return (
-    <Card className="w-full max-w-sm hover:shadow-lg transition-all duration-200 border-border/50 hover:border-border">
+    <Card className="border-border/50 hover:border-border w-full max-w-sm transition-all duration-200 hover:shadow-lg">
       <CardHeader className="flex items-center justify-between gap-2">
-        <div className="flex-1 min-w-0">
-          <h3 className="font-semibold text-lg leading-tight line-clamp-2">
-            {title}
-          </h3>
+        <div className="min-w-0 flex-1">
+          <h3 className="line-clamp-2 text-lg leading-tight font-semibold">{title}</h3>
         </div>
-        <div className="flex items-center gap-1 flex-shrink-0">
+        <div className="flex flex-shrink-0 items-center gap-1">
           <FavoriteButton
             isFavorite={isFavorite ?? false}
             isPending={isPending}
@@ -91,10 +85,13 @@ export default function PromptCard({
               handleFavorite();
             }}
           />
+
+          <UpdatePromptTitleModal promptId={_id} currentTitle={title} />
+
           <Button
             variant="ghost"
             size="sm"
-            className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+            className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 h-8 w-8 p-0 transition-colors"
             onClick={(e) => {
               e.stopPropagation();
               handleDelete();
@@ -110,26 +107,26 @@ export default function PromptCard({
         </div>
       </CardHeader>
 
-      <CardContent className="pt-0 space-y-4">
+      <CardContent className="space-y-4 pt-0">
         {/* Active Version Content Preview */}
         {activeVersion?.content && (
-          <div className="bg-muted/30 rounded-lg p-3 border border-border/30">
-            <div className="flex items-center gap-2 mb-2">
-              <span className="text-xs font-medium text-muted-foreground">
+          <div className="bg-muted/30 border-border/30 rounded-lg border p-3">
+            <div className="mb-2 flex items-center gap-2">
+              <span className="text-muted-foreground text-xs font-medium">
                 #v{activeVersion.versionNumber}
               </span>
               <Badge variant="secondary" className="text-xs">
                 Active
               </Badge>
             </div>
-            <p className="text-sm text-foreground/80 line-clamp-3 leading-relaxed">
+            <p className="text-foreground/80 line-clamp-3 text-sm leading-relaxed">
               {truncateContent(activeVersion.content)}
             </p>
           </div>
         )}
 
         {/* Metadata */}
-        <div className="flex items-center gap-4 text-xs text-muted-foreground">
+        <div className="text-muted-foreground flex items-center gap-4 text-xs">
           <div className="flex items-center gap-1.5">
             <GitBranch className="h-4 w-4" />
             <span>
@@ -148,13 +145,13 @@ export default function PromptCard({
         <Button
           variant="outline"
           size="sm"
-          className="flex-1 text-xs bg-transparent"
+          className="flex-1 bg-transparent text-xs"
           onClick={(e) => {
             e.stopPropagation();
             router.push(`${pathname}/${_id}/versions`);
           }}
         >
-          <GitBranch className="h-3 w-3 mr-1" />
+          <GitBranch className="mr-1 h-3 w-3" />
           All Versions
         </Button>
 
@@ -165,7 +162,7 @@ export default function PromptCard({
             className="flex-1 text-xs"
             onClick={handleViewActiveVersion}
           >
-            <ExternalLink className="h-3 w-3 mr-1" />
+            <ExternalLink className="mr-1 h-3 w-3" />
             View Active
           </Button>
         )}

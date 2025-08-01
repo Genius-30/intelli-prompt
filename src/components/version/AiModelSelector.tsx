@@ -1,19 +1,8 @@
 "use client";
 
 import { Clock, Crown, XIcon } from "lucide-react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../ui/select";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 import { AI_MODELS } from "@/lib/constants/AI_MODELS";
 import { Button } from "../ui/button";
@@ -47,9 +36,7 @@ export function AIModelSelector({
     }
 
     if (isPremium && !isUserPremium) {
-      toast.error(
-        "This model is only available for premium users. Please upgrade your plan."
-      );
+      toast.error("This model is only available for premium users. Please upgrade your plan.");
       return;
     }
 
@@ -62,50 +49,44 @@ export function AIModelSelector({
         isDisabled
           ? "border-muted bg-muted/30 opacity-60"
           : selectedModel
-          ? "border-primary shadow-md bg-primary/5 hover:shadow-lg"
-          : "border-border bg-card hover:border-primary/50 hover:shadow-lg"
+            ? "border-primary bg-primary/5 shadow-md hover:shadow-lg"
+            : "border-border bg-card hover:border-primary/50 hover:shadow-lg"
       }`}
     >
       {/* Overlay for coming soon or premium */}
       {isDisabled && (
-        <div className="absolute inset-0 bg-background/75 z-10 flex items-center justify-center">
-          <div className="text-center space-y-2">
+        <div className="bg-background/75 absolute inset-0 z-10 flex items-center justify-center">
+          <div className="space-y-2 text-center">
             {isComingSoon ? (
               <>
-                <Clock className="w-6 h-6 text-muted-foreground mx-auto" />
-                <p className="text-xs font-medium text-muted-foreground">
-                  Coming Soon
-                </p>
+                <Clock className="text-muted-foreground mx-auto h-6 w-6" />
+                <p className="text-muted-foreground text-xs font-medium">Coming Soon</p>
               </>
             ) : (
               <>
-                <Crown className="w-6 h-6 text-amber-500 mx-auto" />
-                <p className="text-xs font-medium text-muted-foreground">
-                  Premium Only
-                </p>
+                <Crown className="mx-auto h-6 w-6 text-amber-500" />
+                <p className="text-muted-foreground text-xs font-medium">Premium Only</p>
               </>
             )}
           </div>
         </div>
       )}
 
-      <div className="p-4 space-y-3 relative z-0">
+      <div className="relative z-0 space-y-3 p-4">
         {/* Header */}
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-[#09090b]">
-              <IconComponent className="w-4 h-4" color="white" />
+            <div className="rounded-lg bg-[#09090b] p-2">
+              <IconComponent className="h-4 w-4" color="white" />
             </div>
             <div className="flex-1">
               <div className="flex items-center gap-2">
-                <h3 className="font-semibold text-sm capitalize">
-                  {data.name}
-                </h3>
+                <h3 className="text-sm font-semibold capitalize">{data.name}</h3>
                 {isComingSoon && (
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger>
-                        <Clock className="w-3 h-3 text-blue-500" />
+                        <Clock className="h-3 w-3 text-blue-500" />
                       </TooltipTrigger>
                       <TooltipContent>
                         <p>Coming soon - not available yet</p>
@@ -117,7 +98,7 @@ export function AIModelSelector({
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger>
-                        <Crown className="w-3 h-3 text-amber-500" />
+                        <Crown className="h-3 w-3 text-amber-500" />
                       </TooltipTrigger>
                       <TooltipContent>
                         <p>Premium model - Upgrade to access</p>
@@ -126,9 +107,7 @@ export function AIModelSelector({
                   </TooltipProvider>
                 )}
               </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                {data.description}
-              </p>
+              <p className="text-muted-foreground mt-1 text-xs">{data.description}</p>
             </div>
           </div>
 
@@ -136,28 +115,24 @@ export function AIModelSelector({
             <Button
               variant="ghost"
               size="icon"
-              className="h-7 px-2 text-destructive hover:text-destructive hover:bg-destructive/10"
+              className="text-destructive hover:text-destructive hover:bg-destructive/10 h-7 px-2"
               onClick={() => onDeselect(provider)}
             >
-              <XIcon className="w-4 h-4" />
+              <XIcon className="h-4 w-4" />
             </Button>
           )}
         </div>
 
         {/* Select Model */}
-        <Select
-          value={selectedModel || ""}
-          onValueChange={handleSelect}
-          disabled={isDisabled}
-        >
+        <Select value={selectedModel || ""} onValueChange={handleSelect} disabled={isDisabled}>
           <SelectTrigger className="w-full">
             <SelectValue
               placeholder={
                 isComingSoon
                   ? "Coming soon"
                   : isPremium && !isUserPremium
-                  ? "Premium required"
-                  : "Choose model"
+                    ? "Premium required"
+                    : "Choose model"
               }
             />
           </SelectTrigger>
@@ -167,9 +142,7 @@ export function AIModelSelector({
                 <div className="flex flex-col items-start">
                   <span className="font-medium">{model.name}</span>
                   {model.description && (
-                    <span className="text-xs text-muted-foreground">
-                      {model.description}
-                    </span>
+                    <span className="text-muted-foreground text-xs">{model.description}</span>
                   )}
                 </div>
               </SelectItem>

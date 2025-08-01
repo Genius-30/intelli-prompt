@@ -18,11 +18,7 @@ interface TestPromptInput {
 
 export function useGetResponse() {
   return useMutation({
-    mutationFn: async ({
-      versionId,
-      models,
-      tokenEstimated = 100,
-    }: TestPromptInput) => {
+    mutationFn: async ({ versionId, models, tokenEstimated = 100 }: TestPromptInput) => {
       const res = await axiosInstance.post(`/version/${versionId}/testModel`, {
         models,
         tokenEstimated,
@@ -54,14 +50,10 @@ export function useGetAllResponsesForVersion(versionId: string) {
     enabled: !!versionId,
     queryFn: async () => {
       try {
-        const res = await axiosInstance.get(
-          `/version/${versionId}/allResponses`
-        );
+        const res = await axiosInstance.get(`/version/${versionId}/allResponses`);
         return res.data.responses as ModelResponse[];
       } catch (error: any) {
-        toast.error(
-          error?.response?.data?.message || "Failed to fetch model responses"
-        );
+        toast.error(error?.response?.data?.message || "Failed to fetch model responses");
         throw error;
       }
     },

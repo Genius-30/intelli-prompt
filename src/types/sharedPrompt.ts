@@ -20,3 +20,11 @@ export interface SharedPrompt {
   createdAt: string;
   updatedAt: string;
 }
+
+export type Response = {
+  _id: string;
+  model: string;
+  temperature: number;
+  createdAt: string;
+  responseId: string;
+};

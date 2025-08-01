@@ -1,14 +1,10 @@
 import { NextResponse } from "next/server";
 import { User } from "@/models/user.model";
-import { getAuthenticatedUser } from "@/utils/getAuthenticatedUser";
 
 // to get details of specific user
 export async function GET(req: Request, { params }: { params: any }) {
   try {
-    const { userId, error } = await getAuthenticatedUser();
-    if (error) return error;
-
-    const username  = (await params).username;
+    const username = (await params).username;
     if (!username) {
       return NextResponse.json(
         { message: "Invalid username" },
@@ -18,7 +14,7 @@ export async function GET(req: Request, { params }: { params: any }) {
 
     const user = await User.findOne({ username })
       .select(
-        "username fullname bio email avatar rank followerCount followeeCount createdAt"
+        "username fullname bio socials email avatar rank followerCount followeeCount createdAt"
       )
       .lean();
     if (!user) {

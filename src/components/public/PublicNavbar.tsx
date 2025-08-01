@@ -12,12 +12,16 @@ import {
   NavbarLogo,
 } from "@/components/ui/resizable-navbar";
 
-import { Link } from "lucide-react";
+import AuthButton from "../ui/auth-button";
+import Link from "next/link";
+import { Play } from "lucide-react";
 import ThemeToggle from "../ThemeToggle";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export default function PublicNavbar() {
+  const router = useRouter();
+
   const navItems = [
     { name: "Explore", link: "/explore" },
     { name: "Leaderboard", link: "/leaderboard" },
@@ -25,9 +29,35 @@ export default function PublicNavbar() {
     { name: "Pricing", link: "/pricing" },
   ];
 
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const shareLinks = [
+    {
+      text: "Login",
+      onClick: () => router.push("/sign-in"),
+      label: "Go to Sign In",
+      className: `
+      bg-muted dark:bg-neutral-900 
+      text-neutral-800 dark:text-neutral-200 
+      hover:bg-neutral-200 dark:hover:bg-neutral-800 
+      font-medium tracking-wide
+      transition-colors duration-200
+    `.trim(),
+    },
+    {
+      text: "Sign Up",
+      onClick: () => router.push("/sign-up"),
+      label: "Go to Sign Up",
+      className: `
+      bg-primary dark:bg-primary/70
+      text-white dark:text-white
+      hover:bg-primary/80 dark:hover:bg-primary/60
+      font-medium tracking-wide 
+      shadow-md hover:shadow-lg
+      transition-all duration-200
+    `.trim(),
+    },
+  ];
 
-  const router = useRouter();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const route = (path: string) => {
     setIsMobileMenuOpen(false);
@@ -42,15 +72,16 @@ export default function PublicNavbar() {
           <NavbarLogo />
           <NavItems items={navItems} />
           <div className="flex items-center gap-2">
-            <NavbarButton variant="secondary" className="p-0">
+            <NavbarButton as="div" variant="secondary" className="p-0">
               <ThemeToggle />
             </NavbarButton>
-            <NavbarButton variant="secondary" onClick={() => route("/sign-in")}>
-              Login
-            </NavbarButton>
-            <NavbarButton variant="gradient" onClick={() => route("/sign-up")}>
+            <AuthButton
+              links={shareLinks}
+              className="from-primary to-primary/70 h-9 bg-gradient-to-b text-sm font-medium text-white shadow-[0px_2px_0px_0px_rgba(255,255,255,0.3)_inset]"
+            >
               Get Started
-            </NavbarButton>
+              {/* <Play size={10} className="border-none fill-white outline-none" /> */}
+            </AuthButton>
           </div>
         </NavBody>
 
@@ -64,10 +95,7 @@ export default function PublicNavbar() {
             />
           </MobileNavHeader>
 
-          <MobileNavMenu
-            isOpen={isMobileMenuOpen}
-            onClose={() => setIsMobileMenuOpen(false)}
-          >
+          <MobileNavMenu isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)}>
             {navItems.map((item, idx) => (
               <Link
                 key={`mobile-link-${idx}`}
@@ -78,7 +106,7 @@ export default function PublicNavbar() {
                 <span className="block">{item.name}</span>
               </Link>
             ))}
-            <div className="flex w-full flex-col gap-2">
+            <div className="flex flex-col items-start gap-2">
               <NavbarButton variant="secondary" className="p-0">
                 <ThemeToggle showLabel />
               </NavbarButton>
@@ -89,11 +117,7 @@ export default function PublicNavbar() {
               >
                 Login
               </NavbarButton>
-              <NavbarButton
-                onClick={() => route("/sign-up")}
-                variant="gradient"
-                className="w-full"
-              >
+              <NavbarButton onClick={() => route("/sign-up")} variant="gradient" className="w-full">
                 Get Started
               </NavbarButton>
             </div>

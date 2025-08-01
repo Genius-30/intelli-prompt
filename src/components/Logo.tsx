@@ -9,13 +9,13 @@ function Logo({
   readonly textClassName?: string;
 }) {
   return (
-    <div className="flex items-center gap-2 md:gap-3 text-md md:text-lg font-bold tracking-wide text-primary select-none">
+    <div className="text-md text-primary flex items-center gap-1 font-bold tracking-wide select-none md:gap-3 md:text-lg">
       <Image
-        src="/favicon.ico"
+        src="/logo.png"
         alt="logo"
         width={32}
         height={32}
-        className={`h-5 w-5 md:h-6 md:w-6 object-cover ring-2 ring-muted shadow-lg shadow-primary/30 rounded-full ${imageClassName}`}
+        className={`ring-muted shadow-primary/30 h-5 w-5 rounded-md object-cover shadow-lg ring-2 md:h-6 md:w-6 ${imageClassName}`}
       />
       <span className={textClassName}>IntelliPrompt</span>
     </div>

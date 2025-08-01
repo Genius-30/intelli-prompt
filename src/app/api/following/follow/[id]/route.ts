@@ -1,13 +1,11 @@
 // Follow a user
-import { NextResponse } from 'next/server';
-import { getAuthenticatedUser } from '@/utils/getAuthenticatedUser';
-import { Follow } from '@/models/follow.model';
-import { User } from '@/models/user.model';
 
-export async function POST(
-  req: Request,
-  { params }: { params: any }
-) {
+import { Follow } from "@/models/follow.model";
+import { NextResponse } from "next/server";
+import { User } from "@/models/user.model";
+import { getAuthenticatedUser } from "@/utils/getAuthenticatedUser";
+
+export async function POST(req: Request, { params }: { params: any }) {
   try {
     const { userId, error } = await getAuthenticatedUser();
     if (error) return error;
@@ -29,22 +27,22 @@ export async function POST(
       { _id: userId },
       {
         $inc: {
-          followeeCount: 1
-        }
-      }
-    )
+          followeeCount: 1,
+        },
+      },
+    );
 
     await User.updateOne(
       { _id: strangerId },
       {
         $inc: {
-          followerCount: 1
-        }
-      }
-    )
+          followerCount: 1,
+        },
+      },
+    );
 
-    return NextResponse.json({ message: 'user followed successfully' }, { status: 201 });
+    return NextResponse.json({ message: "user followed successfully" }, { status: 201 });
   } catch (err) {
-    return NextResponse.json({ error: 'error following user', err }, { status: 500 });
+    return NextResponse.json({ error: "error following user", err }, { status: 500 });
   }
 }

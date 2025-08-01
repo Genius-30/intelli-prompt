@@ -1,13 +1,11 @@
 // Unfollow a user
-import { NextResponse } from 'next/server';
-import { getAuthenticatedUser } from '@/utils/getAuthenticatedUser';
-import { Follow } from '@/models/follow.model';
-import { User } from '@/models/user.model';
 
-export async function DELETE(
-  req: Request,
-  { params }: { params: any }
-) {
+import { Follow } from "@/models/follow.model";
+import { NextResponse } from "next/server";
+import { User } from "@/models/user.model";
+import { getAuthenticatedUser } from "@/utils/getAuthenticatedUser";
+
+export async function DELETE(req: Request, { params }: { params: any }) {
   try {
     const { userId, error } = await getAuthenticatedUser();
     if (error) return error;
@@ -26,22 +24,22 @@ export async function DELETE(
       { _id: userId },
       {
         $inc: {
-          followeeCount: -1
-        }
-      }
-    )
+          followeeCount: -1,
+        },
+      },
+    );
 
     await User.updateOne(
       { _id: strangerId },
       {
         $inc: {
-          followerCount: -1
-        }
-      }
-    )
-    
-    return NextResponse.json({ message: 'user unfollowed successfully' }, { status: 201 });
+          followerCount: -1,
+        },
+      },
+    );
+
+    return NextResponse.json({ message: "user unfollowed successfully" }, { status: 201 });
   } catch (err) {
-    return NextResponse.json({ error: 'error unfollowing user' }, { status: 500 });
+    return NextResponse.json({ error: "error unfollowing user" }, { status: 500 });
   }
 }

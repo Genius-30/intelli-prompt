@@ -5,26 +5,32 @@ import {
   useFollowStatus,
   useUserByUsername,
 } from "@/lib/queries/user";
-import { useParams, useRouter } from "next/navigation";
 
 import { AlertTriangle } from "lucide-react";
 import { UserProfileDisplay } from "@/components/user/UserProfileDisplay";
 import { UserProfileSkeleton } from "@/components/skeletons/UserProfileSkeleton";
-import { toast } from "sonner";
+import { useAuth } from "@clerk/nextjs";
 import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
-export default function UserProfilePage() {
-  const { username } = useParams();
+export default function UserProfilePage({
+  username,
+}: {
+  readonly username: string;
+}) {
+  const { isLoaded, isSignedIn } = useAuth();
   const router = useRouter();
 
-  const { data: currentUser } = useCurrentUser();
+  const shouldFetch = isLoaded && isSignedIn;
+  const { data: currentUser } = useCurrentUser({ enabled: shouldFetch });
+
   const {
     data: user,
     isLoading: isUserLoading,
     isError: isUserError,
-  } = useUserByUsername(username as string);
+  } = useUserByUsername(username);
 
-  const isOwnProfile = currentUser?.username === username;
+  const isOwnProfile = isSignedIn && currentUser?.username === username;
 
   useEffect(() => {
     if (isOwnProfile) {
@@ -32,18 +38,14 @@ export default function UserProfilePage() {
     }
   }, [isOwnProfile, router]);
 
+  const shouldFetchFollowStatus = isSignedIn && !!user?._id && !isOwnProfile;
+
   const { data: followStatus, isPending: isFollowStatusLoading } =
     useFollowStatus(user?._id, {
-      enabled: !!user?._id && !isOwnProfile,
+      enabled: shouldFetchFollowStatus,
     });
 
-  useEffect(() => {
-    if (isUserError) {
-      toast.error("Invalid username!");
-    }
-  }, [isUserError]);
-
-  if (isUserLoading || (!isOwnProfile && user && isFollowStatusLoading)) {
+  if (isUserLoading || (shouldFetchFollowStatus && isFollowStatusLoading)) {
     return <UserProfileSkeleton />;
   }
 
@@ -55,8 +57,8 @@ export default function UserProfilePage() {
           User not found
         </h2>
         <p className="text-sm text-muted-foreground max-w-md">
-          The profile you're trying to view doesn’t exist or the username is
-          incorrect. Please check the URL or try searching for another user.
+          Sorry, we couldn’t find any user with the username{" "}
+          <span className="font-medium">{username}</span>.
         </p>
       </div>
     );
@@ -65,8 +67,8 @@ export default function UserProfilePage() {
   return (
     <UserProfileDisplay
       user={user}
-      isOwnProfile={isOwnProfile}
-      followStatus={isOwnProfile ? undefined : followStatus}
+      isOwnProfile={isSignedIn ? !!isOwnProfile : false}
+      followStatus={isSignedIn && !isOwnProfile ? followStatus : undefined}
     />
   );
 }

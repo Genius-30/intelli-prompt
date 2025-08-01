@@ -7,9 +7,6 @@ import { getAuthenticatedUser } from "@/utils/getAuthenticatedUser";
 
 export async function POST(req: Request) {
   try {
-    const { userId, error } = await getAuthenticatedUser();
-    if (error) return error;
-
     const { personId } = await req.json();
 
     const followersList = await Follow.find({ followeeId: personId });

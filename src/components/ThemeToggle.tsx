@@ -28,7 +28,7 @@ export default function ThemeToggle({ showLabel = false }: ModeToggleProps) {
       variant="ghost"
       size="sm"
       onClick={toggleTheme}
-      className={`gap-2 flex items-center ${showLabel ? "w-full" : ""}`}
+      className={`gap-2 flex items-center ${showLabel ? "mx-auto" : ""}`}
     >
       {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
       {showLabel && (isDark ? "Light" : "Dark")}
