@@ -12,12 +12,18 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    const lastActive = new Date(user.streak.lastActive);
-    lastActive.setHours(0, 0, 0, 0);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
+    const lastActive = new Date(user.streak.lastActive);
+    lastActive.setHours(0, 0, 0, 0);
+
     const diff = today.getTime() - lastActive.getTime();
+
+    // If user already updated today, return early
+    if (diff === 0) {
+      return NextResponse.json({ message: "Streak already updated today" }, { status: 200 });
+    }
 
     if (diff === 86400000) {
       user.streak.current += 1;
@@ -45,9 +51,6 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ message: "streak updated" }, { status: 200 });
   } catch (error) {
-    return NextResponse.json(
-      { error: "Failed to update streak" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to update streak" }, { status: 500 });
   }
 }

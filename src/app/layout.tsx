@@ -1,5 +1,6 @@
 import "./globals.css";
 
+import { CustomToaster } from "@/components/common/CustomToaster";
 import { Inter } from "next/font/google";
 import type { Metadata } from "next";
 import Providers from "./providers";
@@ -48,7 +49,10 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`scrollbar-thin ${inter.className}`} cz-shortcut-listen="true">
-        <Providers>{children}</Providers>
+        <Providers>
+          {children}
+          <CustomToaster />
+        </Providers>
       </body>
     </html>
   );

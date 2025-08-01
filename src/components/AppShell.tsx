@@ -3,10 +3,11 @@
 import { ReactNode, useEffect, useState } from "react";
 import { redirect, usePathname } from "next/navigation";
 
-import { CustomToaster } from "@/components/common/CustomToaster";
 import DashboardLayout from "@/components/layouts/DashboardLayout";
 import { Loader } from "@/components/ui/loader";
 import PublicLayout from "@/components/layouts/PublicLayout";
+import { toast } from "sonner";
+import { useUpdateStreak } from "@/lib/queries/analytics";
 import { useUser } from "@clerk/nextjs";
 
 const PUBLIC_PATHS = [
@@ -22,14 +23,12 @@ const PUBLIC_PATHS = [
 
 const NO_SHELL_PATHS = ["/sign-in", "/sign-up"];
 
-export default function AppShell({
-  children,
-}: {
-  readonly children: ReactNode;
-}) {
+export default function AppShell({ children }: { readonly children: ReactNode }) {
   const { isLoaded, isSignedIn } = useUser();
   const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
+
+  const { mutate: updateStreak } = useUpdateStreak();
 
   const afterSignInRedirectUrl =
     process.env.NEXT_PUBLIC_CLERK_SIGN_IN_FORCE_REDIRECT_URL || "/explore";
@@ -37,6 +36,26 @@ export default function AppShell({
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  useEffect(() => {
+    if (isSignedIn) {
+      updateStreak(undefined, {
+        onSuccess: (data) => {
+          if (data?.message === "streak updated") {
+            toast.success("+1 Streak! 🔥 Keep it going!", {
+              position: "top-center",
+              duration: 5000,
+              className: "text-base font-semibold shadow-xl rounded-lg border border-amber-300",
+              style: {
+                background: "#fef3c7",
+                color: "#92400e",
+              },
+            });
+          }
+        },
+      });
+    }
+  }, [isSignedIn, updateStreak]);
 
   if (!mounted || !isLoaded) {
     return (
@@ -71,10 +90,5 @@ export default function AppShell({
     redirect("/sign-in");
   }
 
-  return (
-    <>
-      {shell}
-      <CustomToaster />
-    </>
-  );
+  return <>{shell}</>;
 }

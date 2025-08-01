@@ -18,14 +18,8 @@ export async function GET() {
       .map((dateObj) => new Date(dateObj).toISOString().split("T")[0])
       .sort((a, b) => a.localeCompare(b));
 
-    return NextResponse.json(
-      { message: "graph fetched", graphDates },
-      { status: 200 }
-    );
+    return NextResponse.json({ message: "graph fetched", graphDates }, { status: 200 });
   } catch (error) {
-    return NextResponse.json(
-      { error: "Failed fetching graph" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed fetching graph" }, { status: 500 });
   }
 }

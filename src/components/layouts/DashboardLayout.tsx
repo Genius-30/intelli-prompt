@@ -24,7 +24,7 @@ import Link from "next/link";
 import Logo from "../Logo";
 import { SidebarFolderSection } from "@/components/dashboardLayout/SidebarFolderSection";
 import { SidebarMainLinks } from "@/components/dashboardLayout/SidebarMainLinks";
-import ThemeToggle from "../ThemeToggle";
+import ThemeToggle from "../common/ThemeToggle";
 
 export default function DashboardLayout({
   children,

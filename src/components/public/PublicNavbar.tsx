@@ -15,7 +15,7 @@ import {
 import AuthButton from "../ui/auth-button";
 import Link from "next/link";
 import { Play } from "lucide-react";
-import ThemeToggle from "../ThemeToggle";
+import ThemeToggle from "../common/ThemeToggle";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
