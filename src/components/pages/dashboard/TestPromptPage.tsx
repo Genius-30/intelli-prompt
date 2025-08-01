@@ -1,12 +1,7 @@
 "use client";
 
 import { Eye, Loader2, Play, ThermometerSun } from "lucide-react";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 import { AIModelSelector } from "@/components/version/AiModelSelector";
 import { AI_MODELS } from "@/lib/constants/AI_MODELS";
@@ -23,7 +18,7 @@ import { useState } from "react";
 
 const isUserPremium = false;
 
-export default function TestPromptClient() {
+export default function TestPromptPage() {
   const { versionId } = useParams();
   const [tokenEstimated, setTokenEstimated] = useState(0);
   const [globalTemperature, setGlobalTemperature] = useState(1.5);
@@ -65,7 +60,7 @@ export default function TestPromptClient() {
         onSuccess: (data) => {
           setResponses(data);
         },
-      }
+      },
     );
   };
 
@@ -74,18 +69,13 @@ export default function TestPromptClient() {
 
     // Check if model requires premium and user is not premium
     if (providerData?.premium && !isUserPremium) {
-      toast.error(
-        "This model is only available for premium users. Please upgrade your plan."
-      );
+      toast.error("This model is only available for premium users. Please upgrade your plan.");
       return;
     }
 
     setSelectedModels((prev) => {
       const others = prev.filter((m) => m.provider !== provider);
-      return [
-        ...others,
-        { provider, model: modelId, temperature: globalTemperature },
-      ];
+      return [...others, { provider, model: modelId, temperature: globalTemperature }];
     });
   };
 
@@ -102,7 +92,7 @@ export default function TestPromptClient() {
       {/* Header */}
       <div className="text-start">
         <h1 className="text-2xl font-bold tracking-tight">AI Model Testing</h1>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-muted-foreground text-sm">
           Test your prompts across multiple AI models and compare responses
         </p>
       </div>
@@ -123,11 +113,9 @@ export default function TestPromptClient() {
           </Badge>
         </div>
 
-        <div className="grid gap-4 grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-4">
           {Object.keys(AI_MODELS).map((provider) => {
-            const selected = selectedModels.find(
-              (m) => m.provider === provider
-            );
+            const selected = selectedModels.find((m) => m.provider === provider);
             return (
               <AIModelSelector
                 key={provider}
@@ -143,12 +131,10 @@ export default function TestPromptClient() {
       </div>
 
       {/* Temperature Control & Test Button */}
-      <div className="border rounded-lg">
-        <div className="flex items-center gap-2 px-3 py-2 border-b bg-muted/30">
-          <ThermometerSun className="w-3 h-3 text-muted-foreground" />
-          <span className="text-xs text-muted-foreground">
-            Temperature & Test
-          </span>
+      <div className="rounded-lg border">
+        <div className="bg-muted/30 flex items-center gap-2 border-b px-3 py-2">
+          <ThermometerSun className="text-muted-foreground h-3 w-3" />
+          <span className="text-muted-foreground text-xs">Temperature & Test</span>
         </div>
         <div className="p-3">
           <div className="flex items-center justify-around gap-4">
@@ -156,7 +142,7 @@ export default function TestPromptClient() {
             <div className="w-full max-w-[400px] space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium">Temperature</span>
-                <span className="text-xs font-mono bg-muted px-2 py-1 rounded">
+                <span className="bg-muted rounded px-2 py-1 font-mono text-xs">
                   {globalTemperature.toFixed(1)}
                 </span>
               </div>
@@ -169,7 +155,7 @@ export default function TestPromptClient() {
                 className="w-full"
                 disabled={isTesting || selectedModels.length === 0}
               />
-              <div className="flex justify-between text-xs text-muted-foreground">
+              <div className="text-muted-foreground flex justify-between text-xs">
                 <span>Focused</span>
                 <span>Creative</span>
               </div>
@@ -188,21 +174,18 @@ export default function TestPromptClient() {
                     >
                       {isTesting ? (
                         <>
-                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                           Testing...
                         </>
                       ) : (
                         <>
-                          <Play className="w-4 h-4 mr-2" />
+                          <Play className="mr-2 h-4 w-4" />
                           Run Test
                         </>
                       )}
                     </Button>
                   </TooltipTrigger>
-                  <TooltipContent
-                    className="bg-muted"
-                    arrowClassName="bg-muted fill-muted"
-                  >
+                  <TooltipContent className="bg-muted" arrowClassName="bg-muted fill-muted">
                     {selectedModels.length === 0
                       ? "Select at least one model to test"
                       : `Test ${selectedModels.length} models at temperature ${globalTemperature}`}
@@ -218,7 +201,7 @@ export default function TestPromptClient() {
       {(isTesting || responses.length > 0) && (
         <div className="space-y-4">
           <div className="flex items-center gap-2">
-            <Eye className="w-4 h-4" />
+            <Eye className="h-4 w-4" />
             <h2 className="text-lg font-semibold">Results</h2>
           </div>
 
@@ -232,21 +215,19 @@ export default function TestPromptClient() {
                   />
                 ))
               : responses.map((res) => {
-                  const hasError =
-                    !!res.error ||
-                    res.response?.toLowerCase().includes("error");
+                  const hasError = !!res.error || res.response?.toLowerCase().includes("error");
 
                   return (
                     <div key={`${res.model}-${res.provider}`}>
                       {hasError ? (
-                        <div className="border border-destructive/50 bg-destructive/5 p-4 rounded-lg">
-                          <div className="flex items-center gap-2 mb-2">
-                            <div className="w-2 h-2 rounded-full bg-destructive" />
-                            <span className="font-semibold text-sm">
+                        <div className="border-destructive/50 bg-destructive/5 rounded-lg border p-4">
+                          <div className="mb-2 flex items-center gap-2">
+                            <div className="bg-destructive h-2 w-2 rounded-full" />
+                            <span className="text-sm font-semibold">
                               {res.provider.toUpperCase()} - {res.model}
                             </span>
                           </div>
-                          <p className="text-sm text-destructive">
+                          <p className="text-destructive text-sm">
                             {(() => {
                               if (typeof res.error === "string") {
                                 return res.error;
@@ -257,7 +238,7 @@ export default function TestPromptClient() {
                               return JSON.stringify(
                                 res.error ?? res.response ?? "No response",
                                 null,
-                                2
+                                2,
                               );
                             })()}
                           </p>

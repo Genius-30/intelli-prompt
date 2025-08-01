@@ -14,6 +14,7 @@ import { EditProfileModal } from "./EditProfileModal";
 import Link from "next/link";
 import { SocialLink } from "@/types/user";
 import { UserProfileTabs } from "./UserProfileTabs";
+import { socialIcons } from "@/lib/constants/SOCIAL_PLATFORM";
 import { toast } from "sonner";
 import { useAuth } from "@clerk/nextjs";
 import { useToggleFollow } from "@/lib/queries/user";
@@ -41,13 +42,6 @@ interface UserProfileDisplayProps {
   readonly isOwnProfile: boolean;
   readonly followStatus?: { isFollowing: boolean; isFollowedBy: boolean };
 }
-
-const socialIcons: Record<string, JSX.Element> = {
-  github: <SiGithub className="h-4 w-4" />,
-  twitter: <SiX className="h-4 w-4" />,
-  linkedin: <SiLinkedin className="h-4 w-4" />,
-  instagram: <SiInstagram className="h-4 w-4" />,
-};
 
 const getIcon = (label: string) => {
   const key = label.toLowerCase();
@@ -126,8 +120,8 @@ export function UserProfileDisplay({ user, isOwnProfile, followStatus }: UserPro
         <CardContent className="px-6">
           <div className="flex flex-col gap-4 sm:gap-12 md:flex-row">
             {/* Avatar & Basic Info */}
-            <div className="flex flex-col items-center md:items-center">
-              <Avatar className="ring-primary/20 h-20 w-20 ring-4">
+            <div className="flex h-full flex-col items-center md:items-start">
+              <Avatar className="ring-primary/20 h-24 w-24 ring-4">
                 <AvatarImage src={user.avatar || ""} alt={user.fullname} />
                 <AvatarFallback className="bg-primary/10 text-primary text-xl font-semibold">
                   {user.fullname
@@ -137,11 +131,11 @@ export function UserProfileDisplay({ user, isOwnProfile, followStatus }: UserPro
                 </AvatarFallback>
               </Avatar>
 
-              <div className="mt-4 text-center md:text-center">
+              <div className="mt-4 text-center md:text-start">
                 <h1 className="text-2xl font-bold">{user.fullname}</h1>
                 <p className="text-muted-foreground">@{user.username}</p>
 
-                <div className="mt-3 flex flex-wrap justify-center gap-2 md:justify-center">
+                <div className="mt-4 flex flex-wrap justify-center gap-2 md:justify-start">
                   {isOwnProfile && <Badge className={getPlanColor(user.plan)}>{user.plan}</Badge>}
                   <Badge className={getRankColor(user.rank)}>
                     <Trophy className="mr-1 h-3 w-3" />
@@ -174,11 +168,9 @@ export function UserProfileDisplay({ user, isOwnProfile, followStatus }: UserPro
                           rel="noopener noreferrer"
                           className="transition-transform hover:scale-[1.02]"
                         >
-                          <Badge
-                            className={`gap-1 px-2 py-1.5 text-xs font-medium transition-all ${socialColors[social.label.toLowerCase()] || "bg-muted"}`}
-                          >
+                          <Badge className="bg-muted/70 gap-1 px-2 py-1.5 text-xs font-medium transition-all">
                             {getIcon(social.label)}
-                            <span className="capitalize">{social.label}</span>
+                            <span className="text-foreground capitalize">{social.label}</span>
                           </Badge>
                         </Link>
                       ))}
@@ -230,6 +222,7 @@ export function UserProfileDisplay({ user, isOwnProfile, followStatus }: UserPro
                   <p className="text-muted-foreground text-xs">Joined</p>
                 </div>
               </div>
+
               {/* Action Button */}
               {!isOwnProfile &&
                 (() => {

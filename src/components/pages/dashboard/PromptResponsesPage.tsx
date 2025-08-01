@@ -23,10 +23,11 @@ interface Response {
   createdAt: string;
 }
 
-export default function AllResponsesClient() {
+export default function PromptResponsesPage() {
   const { versionId } = useParams();
-  const { data: responses = [], isLoading: isLoadingResponses } =
-    useGetAllResponsesForVersion(versionId as string);
+  const { data: responses = [], isLoading: isLoadingResponses } = useGetAllResponsesForVersion(
+    versionId as string,
+  );
 
   const [selectedProviders, setSelectedProviders] = useState<string[]>([]);
   const [showFilters, setShowFilters] = useState(false);
@@ -84,10 +85,7 @@ export default function AllResponsesClient() {
 
     // Sort responses within each group by time (newest first)
     Object.keys(groups).forEach((key) => {
-      groups[key].sort(
-        (a, b) =>
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-      );
+      groups[key].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
     });
 
     return groups;
@@ -95,9 +93,7 @@ export default function AllResponsesClient() {
 
   const toggleProvider = (provider: string) => {
     setSelectedProviders((prev) =>
-      prev.includes(provider)
-        ? prev.filter((p) => p !== provider)
-        : [...prev, provider]
+      prev.includes(provider) ? prev.filter((p) => p !== provider) : [...prev, provider],
     );
   };
 
@@ -113,11 +109,11 @@ export default function AllResponsesClient() {
         {Array.from({ length: 3 }).map((_, idx) => (
           <Card key={idx}>
             <CardHeader>
-              <Skeleton className="h-6 w-1/2 mb-2" />
+              <Skeleton className="mb-2 h-6 w-1/2" />
               <Skeleton className="h-4 w-1/3" />
             </CardHeader>
             <CardContent>
-              <Skeleton className="h-4 w-full mb-2" />
+              <Skeleton className="mb-2 h-4 w-full" />
               <Skeleton className="h-4 w-full" />
             </CardContent>
           </Card>
@@ -139,10 +135,8 @@ export default function AllResponsesClient() {
           <div key={dateKey} className="space-y-4">
             {/* Date separator */}
             <div className="flex items-center">
-              <div className="bg-muted px-3 py-1 rounded-lg">
-                <span className="text-xs font-medium text-muted-foreground">
-                  {dateKey}
-                </span>
+              <div className="bg-muted rounded-lg px-3 py-1">
+                <span className="text-muted-foreground text-xs font-medium">{dateKey}</span>
               </div>
             </div>
 
@@ -154,7 +148,7 @@ export default function AllResponsesClient() {
 
                 return (
                   <div key={`${res._id}-${res.model}`} className="space-y-2">
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <div className="text-muted-foreground flex items-center gap-2 text-xs">
                       <span>
                         {new Date(res.createdAt).toLocaleTimeString("en-US", {
                           hour: "2-digit",
@@ -182,15 +176,10 @@ export default function AllResponsesClient() {
 
   return (
     <div>
-      <PromptVersionTestCard
-        versionId={versionId as string}
-        showTokenEstimate={false}
-      />
+      <PromptVersionTestCard versionId={versionId as string} showTokenEstimate={false} />
 
-      <div className="flex items-center justify-between mt-6 sm:mt-8 mb-3">
-        <h2 className="font-semibold text-shadow-foreground text-lg">
-          All Responses
-        </h2>
+      <div className="mt-6 mb-3 flex items-center justify-between sm:mt-8">
+        <h2 className="text-shadow-foreground text-lg font-semibold">All Responses</h2>
 
         {availableProviders.length > 0 && (
           <Button
@@ -212,11 +201,10 @@ export default function AllResponsesClient() {
 
       {/* Filter UI */}
       {showFilters && availableProviders.length > 0 && (
-        <div className="mb-4 pb-3 border-b">
+        <div className="mb-4 border-b pb-3">
           <div className="flex flex-wrap gap-2">
             {availableProviders.map((provider) => {
-              const providerConfig =
-                AI_MODELS[provider as keyof typeof AI_MODELS];
+              const providerConfig = AI_MODELS[provider as keyof typeof AI_MODELS];
               if (!providerConfig) return null;
 
               const Icon = providerConfig.icon;
@@ -228,7 +216,7 @@ export default function AllResponsesClient() {
                   variant={isSelected ? "default" : "outline"}
                   size="sm"
                   onClick={() => toggleProvider(provider)}
-                  className="p-2 h-8 w-8"
+                  className="h-8 w-8 p-2"
                   title={providerConfig.name}
                 >
                   <Icon className="h-4 w-4" />
@@ -240,9 +228,9 @@ export default function AllResponsesClient() {
                 variant="ghost"
                 size="sm"
                 onClick={clearFilters}
-                className="h-auto p-1 text-xs ml-auto"
+                className="ml-auto h-auto p-1 text-xs"
               >
-                <X className="h-3 w-3 mr-1" />
+                <X className="mr-1 h-3 w-3" />
                 Clear
               </Button>
             )}

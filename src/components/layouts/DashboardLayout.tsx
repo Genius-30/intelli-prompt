@@ -2,14 +2,7 @@
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ChevronsUpDown, LogOut, Receipt, Settings, User } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../ui/collapsible";
 import {
   Sidebar,
   SidebarContent,
@@ -50,7 +43,6 @@ export default function DashboardLayout({
             <Logo />
           </div>
         </SidebarHeader>
-
         <SidebarContent>
           <SidebarMainLinks />
           <SidebarFolderSection />
@@ -60,53 +52,57 @@ export default function DashboardLayout({
         <SidebarFooter>
           <SidebarMenu>
             <SidebarMenuItem>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <SidebarMenuButton className="h-10 gap-2">
-                    <Avatar className="h-6 w-6">
-                      <AvatarImage src={user.imageUrl} />
-                      <AvatarFallback>
-                        {user.firstName?.[0]}
-                        {user.lastName?.[0]}
-                      </AvatarFallback>
-                    </Avatar>
-                    <span className="max-w-[100px] truncate">{user.fullName || user.username}</span>
-                    <ChevronsUpDown className="mr-1 ml-auto" />
-                  </SidebarMenuButton>
-                </DropdownMenuTrigger>
+              <Collapsible className="w-full">
+                <div className="relative">
+                  <CollapsibleTrigger asChild>
+                    <SidebarMenuButton className="h-10 w-full justify-start gap-2">
+                      <Avatar className="h-6 w-6">
+                        <AvatarImage src={user.imageUrl} />
+                        <AvatarFallback>
+                          {user.firstName?.[0]}
+                          {user.lastName?.[0]}
+                        </AvatarFallback>
+                      </Avatar>
+                      <span className="truncate">{user.fullName || user.username}</span>
+                      {/** Toggle icon */}
+                      <ChevronsUpDown className="ml-auto size-4 transition-transform data-[state=open]:rotate-180" />
+                    </SidebarMenuButton>
+                  </CollapsibleTrigger>
 
-                <DropdownMenuContent side="top" className="w-[--radix-popper-anchor-width]">
-                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-
-                  <DropdownMenuItem asChild>
-                    <Link href="/profile">
-                      <User className="mr-2 h-4 w-4" />
+                  <CollapsibleContent className="bg-muted/60 absolute bottom-full z-50 mb-2 w-full space-y-2 rounded-lg border px-1 py-2 shadow-lg">
+                    <Link
+                      href="/profile"
+                      className="hover:bg-muted-foreground/10 flex items-center gap-2 rounded-md px-2 py-1.5 text-sm transition"
+                    >
+                      <User className="size-4" />
                       Profile
                     </Link>
-                  </DropdownMenuItem>
 
-                  <DropdownMenuItem asChild>
-                    <Link href="/billing">
-                      <Receipt className="mr-2 h-4 w-4" />
+                    <Link
+                      href="/billing"
+                      className="hover:bg-muted-foreground/10 flex items-center gap-2 rounded-md px-2 py-1.5 text-sm transition"
+                    >
+                      <Receipt className="size-4" />
                       Billing
                     </Link>
-                  </DropdownMenuItem>
 
-                  <DropdownMenuItem onClick={() => openUserProfile()}>
-                    <Settings className="mr-2 h-4 w-4" />
-                    Manage Account
-                  </DropdownMenuItem>
+                    <button
+                      onClick={() => openUserProfile()}
+                      className="hover:bg-muted-foreground/10 flex w-full cursor-pointer items-center justify-start gap-2 rounded-md px-2 py-1.5 text-sm transition"
+                    >
+                      <Settings className="size-4" />
+                      Manage Account
+                    </button>
 
-                  <DropdownMenuSeparator />
-                  <SignOutButton>
-                    <DropdownMenuItem className="text-red-600">
-                      <LogOut className="mr-2 h-4 w-4 text-red-600" />
-                      Log out
-                    </DropdownMenuItem>
-                  </SignOutButton>
-                </DropdownMenuContent>
-              </DropdownMenu>
+                    <SignOutButton>
+                      <div className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/10">
+                        <LogOut className="size-4 text-red-600" />
+                        Log out
+                      </div>
+                    </SignOutButton>
+                  </CollapsibleContent>
+                </div>
+              </Collapsible>
             </SidebarMenuItem>
           </SidebarMenu>
         </SidebarFooter>

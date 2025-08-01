@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import dynamic from "next/dynamic";
+import PromptsPage from "../../../../../components/pages/dashboard/PromptsPage";
 
 export const metadata: Metadata = {
   title: "Prompts",
@@ -15,8 +15,6 @@ export const metadata: Metadata = {
   },
 };
 
-const PromptsList = dynamic(() => import("./PromptsList"), { ssr: false });
-
 export default function page() {
-  return <PromptsList />;
+  return <PromptsPage />;
 }

@@ -1,5 +1,5 @@
+import EditVersionPage from "../../../../../../../../components/pages/dashboard/EditVersionPage";
 import { Metadata } from "next";
-import dynamic from "next/dynamic";
 
 export const metadata: Metadata = {
   title: "Edit Prompt Version",
@@ -15,8 +15,6 @@ export const metadata: Metadata = {
   },
 };
 
-const EditVersionClient = dynamic(() => import("./EditVersionClient"), { ssr: false });
-
-export default function EditPromptPage() {
-  return <EditVersionClient />;
+export default function page() {
+  return <EditVersionPage />;
 }

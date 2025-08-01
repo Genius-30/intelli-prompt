@@ -1,12 +1,7 @@
 "use client";
 
 import { AlertTriangle, Plus, Redo2Icon, Share, Zap } from "lucide-react";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import {
   useAddVersion,
   useGetVersion,
@@ -38,7 +33,7 @@ type VersionData = {
   isFavorite: boolean;
 };
 
-export default function EditVersionClient() {
+export default function EditVersionPage() {
   const { versionId } = useParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -57,12 +52,9 @@ export default function EditVersionClient() {
   const [tokenEstimated, setTokenEstimated] = useState(100);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
-  const { mutateAsync: updateVersion, isPending: isUpdating } =
-    useUpdateVersion();
-  const { mutateAsync: addPromptVersion, isPending: isAdding } =
-    useAddVersion();
-  const { mutate: toggleFavorite, isPending: isToggling } =
-    useToggleFavoriteVersion();
+  const { mutateAsync: updateVersion, isPending: isUpdating } = useUpdateVersion();
+  const { mutateAsync: addPromptVersion, isPending: isAdding } = useAddVersion();
+  const { mutate: toggleFavorite, isPending: isToggling } = useToggleFavoriteVersion();
 
   useEffect(() => {
     if (initialData?.content) {
@@ -72,8 +64,7 @@ export default function EditVersionClient() {
   }, [initialData]);
 
   const isPromptValid = content.trim().length > 0;
-  const isUnchanged =
-    initialData && content.trim() === initialData.content.trim();
+  const isUnchanged = initialData && content.trim() === initialData.content.trim();
   const disableSaveButton = !isPromptValid || isUnchanged;
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -104,15 +95,15 @@ export default function EditVersionClient() {
   if (isError || !initialData) {
     return (
       <div className="flex flex-col items-center justify-center py-16">
-        <div className="w-16 h-16 bg-destructive/10 rounded-full flex items-center justify-center mb-4">
-          <AlertTriangle className="w-8 h-8 text-destructive" />
+        <div className="bg-destructive/10 mb-4 flex h-16 w-16 items-center justify-center rounded-full">
+          <AlertTriangle className="text-destructive h-8 w-8" />
         </div>
-        <h3 className="text-lg font-semibold mb-2">Failed to load version</h3>
-        <p className="text-muted-foreground text-center mb-6 max-w-md">
+        <h3 className="mb-2 text-lg font-semibold">Failed to load version</h3>
+        <p className="text-muted-foreground mb-6 max-w-md text-center">
           Something went wrong while loading the version. Please try again.
         </p>
         <Button onClick={() => window.location.reload()} size="lg">
-          <Redo2Icon className="w-4 h-4 mr-2" />
+          <Redo2Icon className="mr-2 h-4 w-4" />
           Retry
         </Button>
       </div>
@@ -123,15 +114,11 @@ export default function EditVersionClient() {
     <TooltipProvider>
       <div className="space-y-8">
         {/* Version Header */}
-        <div className="flex flex-col md:flex-row items-start justify-between gap-4">
+        <div className="flex flex-col items-start justify-between gap-4 md:flex-row">
           <div>
-            <p className="text-xl font-semibold">
-              Version {initialData.version}
-            </p>
+            <p className="text-xl font-semibold">Version {initialData.version}</p>
             {!initialData.isActive && (
-              <p className="text-sm text-muted-foreground">
-                This is not the active version.
-              </p>
+              <p className="text-muted-foreground text-sm">This is not the active version.</p>
             )}
           </div>
           <div className="flex flex-wrap items-center gap-2">
@@ -145,27 +132,19 @@ export default function EditVersionClient() {
               isPending={isToggling}
               onClick={() => toggleFavorite(initialData._id)}
             />
-            <Button
-              variant="secondary"
-              onClick={() => setIsShareModalOpen(true)}
-              className="gap-2"
-            >
+            <Button variant="secondary" onClick={() => setIsShareModalOpen(true)} className="gap-2">
               Share
-              <Share className="w-3 h-3" />
+              <Share className="h-3 w-3" />
             </Button>
-            <Button
-              type="button"
-              variant="default"
-              onClick={() => router.push(`${pathname}/test`)}
-            >
+            <Button type="button" variant="default" onClick={() => router.push(`${pathname}/test`)}>
               Test
-              <Zap className="w-4 h-4" />
+              <Zap className="h-4 w-4" />
             </Button>
           </div>
         </div>
 
         {/* Content + Enhancer */}
-        <div className="grid gap-6 grid-cols-1 md:grid-cols-2 items-stretch">
+        <div className="grid grid-cols-1 items-stretch gap-6 md:grid-cols-2">
           <div className="h-full min-h-[300px]">
             <PromptContentInput
               value={content}
@@ -174,7 +153,7 @@ export default function EditVersionClient() {
               setTokenEstimated={setTokenEstimated}
             />
             {/* Actions */}
-            <div className="flex flex-wrap items-center gap-2 mt-6">
+            <div className="mt-6 flex flex-wrap items-center gap-2">
               {disableSaveButton ? (
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -190,9 +169,7 @@ export default function EditVersionClient() {
                     </span>
                   </TooltipTrigger>
                   <TooltipContent>
-                    {!isPromptValid
-                      ? "Prompt cannot be empty."
-                      : "No changes made."}
+                    {!isPromptValid ? "Prompt cannot be empty." : "No changes made."}
                   </TooltipContent>
                 </Tooltip>
               ) : (
@@ -204,7 +181,7 @@ export default function EditVersionClient() {
                 >
                   {isUpdating ? (
                     <>
-                      <Loader className="w-4 h-4 mr-2 animate-spin" />
+                      <Loader className="mr-2 h-4 w-4 animate-spin" />
                       Saving...
                     </>
                   ) : (
@@ -233,12 +210,12 @@ export default function EditVersionClient() {
                 >
                   {isAdding ? (
                     <>
-                      <Loader className="w-4 h-4" />
+                      <Loader className="h-4 w-4" />
                       Creating...
                     </>
                   ) : (
                     <>
-                      <Plus className="w-4 h-4" />
+                      <Plus className="h-4 w-4" />
                       Create Version
                     </>
                   )}

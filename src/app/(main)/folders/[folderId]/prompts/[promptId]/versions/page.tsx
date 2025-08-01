@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import { PromptVersionsClient } from "./PromptVersionsClient";
+import { PromptVersionsPage } from "../../../../../../../components/pages/dashboard/PromptVersionsPage";
 import { SITE_URL } from "@/lib/constants/SITE_URL";
 
 export const metadata: Metadata = {
@@ -28,6 +28,6 @@ export const metadata: Metadata = {
   },
 };
 
-export default function PromptVersionsPage() {
-  return <PromptVersionsClient />;
+export default function page() {
+  return <PromptVersionsPage />;
 }

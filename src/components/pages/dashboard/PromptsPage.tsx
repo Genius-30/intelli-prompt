@@ -27,19 +27,15 @@ interface Prompt {
   activeVersion?: ActiveVersion;
 }
 
-export default function PromptsList() {
+export default function PromptsPage() {
   const { folderId } = useParams();
   const pathname = usePathname();
 
-  const {
-    data: prompts,
-    isPending,
-    isError,
-  } = useGetPromptsByFolder(folderId as string);
+  const { data: prompts, isPending, isError } = useGetPromptsByFolder(folderId as string);
 
   if (isPending) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
         {Array.from({ length: 6 }).map((_, idx) => (
           <PromptCardSkeleton key={idx} />
         ))}
@@ -49,11 +45,11 @@ export default function PromptsList() {
 
   if (isError) {
     return (
-      <div className="border rounded-md p-6 bg-destructive/5 border-destructive text-destructive">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div className="bg-destructive/5 border-destructive text-destructive rounded-md border p-6">
+        <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
           <div>
             <h2 className="text-lg font-semibold">Failed to load prompts</h2>
-            <p className="text-sm text-destructive/80">
+            <p className="text-destructive/80 text-sm">
               Something went wrong. Please try again later.
             </p>
           </div>
@@ -67,19 +63,17 @@ export default function PromptsList() {
 
   if (!prompts || prompts.length === 0) {
     return (
-      <div className="border rounded-md p-6 bg-muted/30">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div className="bg-muted/30 rounded-md border p-6">
+        <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
           <div>
-            <h2 className="text-lg font-semibold text-foreground">
-              No Prompts Found
-            </h2>
-            <p className="text-sm text-muted-foreground">
+            <h2 className="text-foreground text-lg font-semibold">No Prompts Found</h2>
+            <p className="text-muted-foreground text-sm">
               You haven’t created any prompts in this folder yet.
             </p>
           </div>
           <Button asChild>
             <Link href={`${pathname}/new`}>
-              <PlusIcon className="w-4 h-4 mr-2" />
+              <PlusIcon className="mr-2 h-4 w-4" />
               New Prompt
             </Link>
           </Button>
@@ -89,7 +83,7 @@ export default function PromptsList() {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
       {prompts.map((prompt: Prompt) => (
         <PromptCard key={prompt._id} {...prompt} />
       ))}

@@ -7,14 +7,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { JSX, useEffect, useState } from "react";
-import { SiGithub, SiInstagram, SiLinkedin, SiX } from "react-icons/si";
 import { SocialLink, SocialPlatform } from "@/types/user";
+import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Loader } from "../ui/loader";
+import { PLATFORM_CONFIG } from "@/lib/constants/SOCIAL_PLATFORM";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { useUpdateUserProfile } from "@/lib/queries/user";
@@ -25,33 +25,6 @@ interface Props {
   readonly initialBio: string;
   readonly initialLinks: SocialLink[];
 }
-
-// Platform config for cleaner mapping
-const PLATFORM_CONFIG: Record<
-  SocialPlatform,
-  { icon: JSX.Element; baseUrl: string; placeholder: string }
-> = {
-  twitter: {
-    icon: <SiX className="h-4 w-4 text-blue-500" />,
-    baseUrl: "https://twitter.com/",
-    placeholder: "e.g. intelliprompt_",
-  },
-  instagram: {
-    icon: <SiInstagram className="h-4 w-4 text-pink-500" />,
-    baseUrl: "https://instagram.com/",
-    placeholder: "e.g. intelliprompt.ai",
-  },
-  linkedin: {
-    icon: <SiLinkedin className="h-4 w-4 text-blue-700" />,
-    baseUrl: "https://linkedin.com/in/",
-    placeholder: "e.g. intelliprompt_ai",
-  },
-  github: {
-    icon: <SiGithub className="h-4 w-4 text-zinc-800" />,
-    baseUrl: "https://github.com/",
-    placeholder: "e.g. intelliprompt",
-  },
-};
 
 export function EditProfileModal({ open, onClose, initialBio, initialLinks }: Props) {
   const [bio, setBio] = useState(initialBio || "");

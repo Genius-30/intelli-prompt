@@ -24,7 +24,7 @@ export async function DELETE(req: Request, { params }: { params: any }) {
       { _id: userId },
       {
         $inc: {
-          followeeCount: 1,
+          followeeCount: -1,
         },
       },
     );

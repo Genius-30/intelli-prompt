@@ -11,7 +11,7 @@ export const metadata = {
   },
 };
 
-export default async function PromptsPage({ params }: PromptPageProps) {
+export default async function page({ params }: PromptPageProps) {
   const { folderId, promptId } = await params;
   redirect(`/folders/${folderId}/prompts/${promptId}/versions`);
 }

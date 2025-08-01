@@ -14,7 +14,7 @@ import { toast } from "sonner";
 import { useCreatePrompt } from "@/lib/queries/prompt";
 import { useState } from "react";
 
-export default function NewPromptClient() {
+export default function NewPromptPage() {
   const { folderId } = useParams();
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
@@ -59,19 +59,19 @@ export default function NewPromptClient() {
         onError: (error) => {
           console.error("Create prompt failed:", error);
         },
-      }
+      },
     );
   };
 
   const isFormValid = title.trim() && content.trim();
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
+    <div className="mx-auto max-w-6xl space-y-6">
       <div className="text-start">
-        <h1 className="text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 dark:from-gray-100 dark:to-gray-400 bg-clip-text text-transparent">
+        <h1 className="bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-2xl font-bold text-transparent dark:from-gray-100 dark:to-gray-400">
           Create New Prompt
         </h1>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-muted-foreground text-sm">
           Create your first prompt version and enhance it with AI
         </p>
       </div>
@@ -85,10 +85,10 @@ export default function NewPromptClient() {
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Enter title for your prompt..."
-          className="bg-background/50 backdrop-blur-sm border-border/50 focus:border-primary/50"
+          className="bg-background/50 border-border/50 focus:border-primary/50 backdrop-blur-sm"
         />
       </div>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-2">
+      <div className="mb-2 grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Original Prompt Section */}
         <div className="space-y-6">
           <PromptContentInput
@@ -105,12 +105,12 @@ export default function NewPromptClient() {
             >
               {createPromptMutation.isPending ? (
                 <>
-                  <Loader className="w-4 h-4" />
+                  <Loader className="h-4 w-4" />
                   Creating...
                 </>
               ) : (
                 <>
-                  <Edit3 className="w-4 h-4" />
+                  <Edit3 className="h-4 w-4" />
                   Create Prompt
                 </>
               )}

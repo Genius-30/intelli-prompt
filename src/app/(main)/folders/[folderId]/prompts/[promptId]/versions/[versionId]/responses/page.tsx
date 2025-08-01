@@ -1,6 +1,6 @@
 import { Metadata } from "next";
+import PromptResponsesPage from "../../../../../../../../../components/pages/dashboard/PromptResponsesPage";
 import { SITE_URL } from "@/lib/constants/SITE_URL";
-import dynamic from "next/dynamic";
 
 export const metadata: Metadata = {
   title: "All Responses",
@@ -28,8 +28,6 @@ export const metadata: Metadata = {
   },
 };
 
-const AllResponsesClient = dynamic(() => import("./AllResponsesClient"), { ssr: false });
-
 export default function Page() {
-  return <AllResponsesClient />;
+  return <PromptResponsesPage />;
 }

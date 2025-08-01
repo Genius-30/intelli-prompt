@@ -1,6 +1,6 @@
 import { Metadata } from "next";
+import NewPromptPage from "@/components/pages/dashboard/NewPromptPage";
 import { SITE_URL } from "@/lib/constants/SITE_URL";
-import dynamic from "next/dynamic";
 
 export const metadata: Metadata = {
   title: "New Prompt",
@@ -29,8 +29,6 @@ export const metadata: Metadata = {
   },
 };
 
-const NewPromptClient = dynamic(() => import("./NewPromptClient"), { ssr: false });
-
-export default function NewPromptPage() {
-  return <NewPromptClient />;
+export default function page() {
+  return <NewPromptPage />;
 }
