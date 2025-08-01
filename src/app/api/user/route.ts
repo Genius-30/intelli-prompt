@@ -25,30 +25,38 @@ export async function PATCH(req:Request) {
     const { userId, error } = await getAuthenticatedUser();
     if (error) return error;
 
+    const updateFields: any = {};
+
     const { bio, socials } = await req.json()
-    if (typeof bio !== 'string' || bio.length > 120) {
-      return NextResponse.json({ message: "Invalid bio or too lenghty" }, { status: 400 });
+    if (bio !== undefined) {
+      if (typeof bio !== 'string' || bio.length > 120) {
+        return NextResponse.json({ message: "Invalid bio or too lenghty" }, { status: 400 });
+      }
+      updateFields.bio = bio;
     }
 
-    if (
-      !Array.isArray(socials) ||
-      socials.some(
-        (item) =>
-          typeof item.label !== 'string' ||
-          typeof item.url !== 'string' ||
-          !/^https?:\/\/.+/.test(item.url)
-      )
-    ) {
-      return NextResponse.json({ message: "Invalid socials format" }, { status: 400 });
+    if (socials !== undefined) {
+      if (
+        !Array.isArray(socials) ||
+        socials.some(
+          (item) =>
+            typeof item.label !== 'string' ||
+            typeof item.url !== 'string' ||
+            !/^https?:\/\/.+/.test(item.url)
+        )
+      ) {
+        return NextResponse.json({ message: "Invalid socials format" }, { status: 400 });
+      }
+      updateFields.socials = socials;
+    }
+
+    if(Object.keys(updateFields).length === 0){
+      return NextResponse.json({ message: "No valid fields to update" }, { status: 400 });
     }
 
     const updated = await User.updateOne(
       { _id: userId },
-      { $set: {
-          bio,
-          socials
-        }
-      }
+      { $set: updateFields }
     )
     if(updated.modifiedCount === 0){
       return NextResponse.json({ message: "err updating user details" }, { status: 500 });

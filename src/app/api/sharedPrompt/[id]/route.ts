@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { SharedPrompt } from '@/models/sharedPrompt.model';
 import { getAuthenticatedUser } from '@/utils/getAuthenticatedUser';
 import mongoose from 'mongoose';
+import '@/models/modelResponse.model';
 
 // delete sharedPrompt
 export async function DELETE(
@@ -74,14 +75,46 @@ export async function GET(
     if (!mongoose.Types.ObjectId.isValid(sharedPromptId)) {
       return NextResponse.json({ message: "invalid sharedPromptId" },{ status: 400 });
     }
-
-    const sharedPrompt = await SharedPrompt.findById(sharedPromptId).lean();
+    
+    const sharedPrompt = await SharedPrompt.aggregate([
+      {
+        $match: {
+          _id: new mongoose.Types.ObjectId(sharedPromptId),
+        },
+      },
+      {
+        $lookup: {
+          from: 'modelresponses', 
+          localField: 'responseId',
+          foreignField: '_id',
+          as: 'responseData',
+        },
+      },
+      {
+        $unwind: {
+          path: '$responseData',
+          preserveNullAndEmptyArrays: true, 
+        },
+      },
+      {
+        $addFields: {
+          response: '$responseData.response',
+        },
+      },
+      {
+        $project: {
+          responseData: 0,
+          responseId: 0, 
+          __v: 0,
+        },
+      },
+    ]);
     if (!sharedPrompt) {
       return NextResponse.json({ message: "sharedPrompt not found" }, { status: 404 });
     }
 
     return NextResponse.json({ message: "sharedPrompt found", sharedPrompt }, { status: 200 });
-  } catch (error) {
-    return NextResponse.json({ error: 'Failed fetching sharedPrompt' }, { status: 500 });
+  } catch (err) {
+    return NextResponse.json({ error: 'Failed fetching sharedPrompt', err }, { status: 500 });
   }
 }
