@@ -73,7 +73,7 @@ export default function PromptsPage() {
           </div>
           <Button asChild>
             <Link href={`${pathname}/new`}>
-              <PlusIcon className="mr-2 h-4 w-4" />
+              <PlusIcon className="h-4 w-4" />
               New Prompt
             </Link>
           </Button>

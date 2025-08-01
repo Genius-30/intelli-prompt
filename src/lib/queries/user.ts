@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axiosInstance from "@/lib/axios";
 import { toast } from "sonner";
 
-export const useCurrentUser = ({ enabled }: { enabled: boolean }) => {
+export const useCurrentUser = ({ enabled = true }: { enabled?: boolean } = {}) => {
   return useQuery({
     queryKey: ["currentUser"],
     queryFn: async () => {

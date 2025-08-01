@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import { SITE_URL } from "@/lib/constants/SITE_URL";
-import TestPromptPage from "../../../../../../../../../components/pages/dashboard/TestPromptPage";
+import TestPromptPage from "@/components/pages/dashboard/TestPromptPage";
 
 export const metadata: Metadata = {
   title: "Test Prompt",

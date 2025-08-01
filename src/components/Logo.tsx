@@ -15,7 +15,7 @@ function Logo({
         alt="logo"
         width={32}
         height={32}
-        className={`ring-muted shadow-primary/30 h-5 w-5 rounded-lg object-cover shadow-lg ring-2 md:h-6 md:w-6 ${imageClassName}`}
+        className={`ring-muted shadow-primary/30 h-5 w-5 rounded-md object-cover shadow-lg ring-2 md:h-6 md:w-6 ${imageClassName}`}
       />
       <span className={textClassName}>IntelliPrompt</span>
     </div>

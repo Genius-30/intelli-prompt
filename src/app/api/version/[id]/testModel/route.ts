@@ -1,11 +1,11 @@
+import { IModelResponse, callOpenRouter } from "@/utils/models";
 import { NextRequest, NextResponse } from "next/server";
 import { checkSubscription, deductTokens, isEnoughToken } from "@/utils/manageTokens";
-import { IModelResponse } from "@/utils/models";
+
+import { AI_MODELS } from "@/lib/constants/AI_MODELS";
 import { Version } from "@/models/version.model";
-import { callOpenRouter } from "@/utils/models";
 import { getAuthenticatedUser } from "@/utils/getAuthenticatedUser";
 import { rateLimit } from "@/lib/rateLimit";
-import { AI_MODELS } from "@/lib/constants";
 
 // to test prompt on models
 export async function POST(req: NextRequest, { params }: { params: any }) {
@@ -19,34 +19,22 @@ export async function POST(req: NextRequest, { params }: { params: any }) {
     const { models, tokenEstimated } = await req.json();
     const versionId = (await params).id;
     if (!versionId || !Array.isArray(models) || models.length === 0) {
-      return NextResponse.json(
-        { error: "Prompt and models are required." },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Prompt and models are required." }, { status: 400 });
     }
 
     const subs = await checkSubscription({ userId });
     if (!subs.success) {
-      return NextResponse.json(
-        { message: "Subscription expired" },
-        { status: 400 }
-      );
+      return NextResponse.json({ message: "Subscription expired" }, { status: 400 });
     }
 
     const tokens = await isEnoughToken({ userId, tokenEstimated });
     if (!tokens.success) {
-      return NextResponse.json(
-        { message: "Not enough token" },
-        { status: 400 }
-      );
+      return NextResponse.json({ message: "Not enough token" }, { status: 400 });
     }
 
     const versionDoc = await Version.findById(versionId);
     if (!versionDoc?.content) {
-      return NextResponse.json(
-        { message: "version or content not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ message: "version or content not found" }, { status: 404 });
     }
 
     const content = versionDoc.content;
@@ -68,24 +56,18 @@ export async function POST(req: NextRequest, { params }: { params: any }) {
           response: result.response,
           error: result.error,
         };
-      })
+      }),
     );
 
-    return NextResponse.json(
-      { message: "testing completed", results },
-      { status: 200 }
-    );
+    return NextResponse.json({ message: "testing completed", results }, { status: 200 });
   } catch (err) {
-    return NextResponse.json(
-      { message: "error while testing model", err },
-      { status: 500 }
-    );
+    return NextResponse.json({ message: "error while testing model", err }, { status: 500 });
   }
 }
 
 function getModelNameById(modelId: string): string | undefined {
   for (const provider of Object.values(AI_MODELS)) {
-    const found = provider.models.find(m => m.id === modelId);
+    const found = provider.models.find((m) => m.id === modelId);
     if (found) return found.name;
   }
   return undefined;

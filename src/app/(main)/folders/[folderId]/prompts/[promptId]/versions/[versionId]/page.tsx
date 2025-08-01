@@ -1,4 +1,4 @@
-import EditVersionPage from "../../../../../../../../components/pages/dashboard/EditVersionPage";
+import EditVersionPage from "@/components/pages/dashboard/EditVersionPage";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {

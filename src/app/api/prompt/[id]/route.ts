@@ -1,15 +1,12 @@
+import { ModelResponse } from "@/models/modelResponse.model";
 import { NextResponse } from "next/server";
 import { Prompt } from "@/models/prompt.model";
+import { Version } from "@/models/version.model";
 import { getAuthenticatedUser } from "@/utils/getAuthenticatedUser";
 import mongoose from "mongoose";
-import { ModelResponse } from "@/models/modelResponse.model";
-import { Version } from "@/models/version.model";
 
 // updates prompt title
-export async function PATCH(
-  req: Request,
-  { params }: { params: any }
-) {
+export async function PATCH(req: Request, { params }: { params: any }) {
   try {
     const { userId, error } = await getAuthenticatedUser();
     if (error) return error;
@@ -24,10 +21,7 @@ export async function PATCH(
       return NextResponse.json({ message: "invalid title" }, { status: 400 });
     }
 
-    await Prompt.updateOne(
-      { _id: promptId, ownerId: userId },
-      { title: newTitle }
-    );
+    await Prompt.updateOne({ _id: promptId, ownerId: userId }, { title: newTitle });
 
     return NextResponse.json({ message: "prompt renamed" }, { status: 200 });
   } catch (err) {
@@ -36,17 +30,14 @@ export async function PATCH(
 }
 
 // delete specific prompt
-export async function DELETE(
-  req: Request,
-  { params }: { params: any }
-) {
+export async function DELETE(req: Request, { params }: { params: any }) {
   try {
     const { userId, error } = await getAuthenticatedUser();
     if (error) return error;
 
     const promptId = (await params).id;
     if (!mongoose.Types.ObjectId.isValid(promptId)) {
-      return NextResponse.json({ message: "invalid promptId" },{ status: 400 });
+      return NextResponse.json({ message: "invalid promptId" }, { status: 400 });
     }
 
     const prompt = await Prompt.findOneAndDelete({
@@ -67,10 +58,7 @@ export async function DELETE(
 }
 
 // fetch specific prompt
-export async function GET(
-  req: Request,
-  { params }: { params: any }
-) {
+export async function GET(req: Request, { params }: { params: any }) {
   try {
     const { userId, error } = await getAuthenticatedUser();
     if (error) return error;
@@ -81,7 +69,7 @@ export async function GET(
     }
 
     const prompt = await Prompt.findById({ _id: promptId }).lean();
-    if(!prompt){
+    if (!prompt) {
       return NextResponse.json({ message: "prompt not found" }, { status: 404 });
     }
 

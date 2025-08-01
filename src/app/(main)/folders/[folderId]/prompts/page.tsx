@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import PromptsPage from "../../../../../components/pages/dashboard/PromptsPage";
+import PromptsPage from "@/components/pages/dashboard/PromptsPage";
 
 export const metadata: Metadata = {
   title: "Prompts",

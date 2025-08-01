@@ -8,9 +8,7 @@ export function useGetPromptsByFolder(folderId: string) {
     queryKey: ["prompts", folderId],
     queryFn: async () => {
       // Replace with your actual API call
-      const response = await axiosInstance.get(
-        `/folder/${folderId}/allPrompts`
-      );
+      const response = await axiosInstance.get(`/folder/${folderId}/allPrompts`);
       return response.data.prompts;
     },
     enabled: !!folderId,
@@ -56,14 +54,39 @@ export const useCreatePrompt = () => {
   });
 };
 
+type UpdatePromptPayload = {
+  promptId: string;
+  newTitle?: string;
+};
+
+export function useUpdatePrompt() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ promptId, newTitle }: UpdatePromptPayload) => {
+      const payload: Record<string, any> = {};
+      if (newTitle) payload.newTitle = newTitle;
+
+      const response = await axiosInstance.patch(`/prompt/${promptId}`, payload);
+      return response.data;
+    },
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["prompt", variables.promptId] });
+      queryClient.invalidateQueries({ queryKey: ["prompts"] });
+      toast.success("Prompt updated successfully");
+    },
+    onError: (err: any) => {
+      toast.error(err.response?.data?.message || "Failed to update prompt");
+    },
+  });
+}
+
 export function useToggleFavoritePrompt(promptId: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async () => {
-      const response = await axiosInstance.patch(
-        `/prompt/${promptId}/favorite`
-      );
+      const response = await axiosInstance.patch(`/prompt/${promptId}/favorite`);
       return response.data;
     },
     onSuccess: () => {

@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import PromptResponsesPage from "../../../../../../../../../components/pages/dashboard/PromptResponsesPage";
+import PromptResponsesPage from "@/components/pages/dashboard/PromptResponsesPage";
 import { SITE_URL } from "@/lib/constants/SITE_URL";
 
 export const metadata: Metadata = {

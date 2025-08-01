@@ -34,7 +34,7 @@ interface Props {
 }
 
 const formSchema = z.object({
-  title: z.string().min(1, "Prompt title is required."),
+  title: z.string().min(1, "Folder title is required."),
 });
 
 type FormSchemaType = z.infer<typeof formSchema>;
@@ -73,10 +73,7 @@ export function FolderCreateModal({
         </DialogHeader>
 
         <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(handleSubmit)}
-            className="space-y-4"
-          >
+          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
             <FormField
               control={form.control}
               name="title"

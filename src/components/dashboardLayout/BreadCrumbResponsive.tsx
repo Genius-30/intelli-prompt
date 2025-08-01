@@ -78,7 +78,7 @@ export function BreadcrumbResponsive() {
         </div>
 
         {/* Desktop view: full breadcrumbs */}
-        <div className="hidden items-center gap-x-1.5 sm:flex">
+        <div className="hidden flex-wrap items-center gap-x-1.5 sm:flex">
           {crumbs.map((crumb, index) => {
             const isLast = index === crumbs.length - 1;
             return (
@@ -89,7 +89,9 @@ export function BreadcrumbResponsive() {
                     <BreadcrumbPage className="capitalize">{crumb.label}</BreadcrumbPage>
                   ) : (
                     <BreadcrumbLink asChild className="capitalize">
-                      <Link href={crumb.href}>{crumb.label}</Link>
+                      <Link href={crumb.href} className="text-nowrap whitespace-nowrap">
+                        {crumb.label}
+                      </Link>
                     </BreadcrumbLink>
                   )}
                 </BreadcrumbItem>
