@@ -1,15 +1,28 @@
 "use client";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Award, Crown, Flame, Medal, Share2, Star, TrendingUp, Trophy } from "lucide-react";
+import { Award, Crown, Flame, Medal, Share2, TrendingUp, Trophy } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { useTrendingUsers } from "@/lib/queries/analytics";
 
 export default function LeaderboardClient() {
+  const { data: trendingUsers, isLoading: isLoadingTrendingUsers } = useTrendingUsers();
+
+  console.log(trendingUsers);
+
+  if (isLoadingTrendingUsers) {
+    return (
+      <div className="flex h-full items-center justify-center">
+        <p className="text-muted-foreground">Loading...</p>
+      </div>
+    );
+  }
+
   const topContributors = [
     {
       rank: 1,
@@ -103,13 +116,6 @@ export default function LeaderboardClient() {
     },
   ];
 
-  const categories = [
-    { name: "Development", leader: "Sarah Chen", points: 1240 },
-    { name: "Marketing", leader: "Mike Johnson", points: 890 },
-    { name: "Research", leader: "Dr. Emily Watson", points: 760 },
-    { name: "Creative", leader: "Alex Rivera", points: 650 },
-  ];
-
   const getRankIcon = (rank: number) => {
     switch (rank) {
       case 1:
@@ -135,7 +141,7 @@ export default function LeaderboardClient() {
       <div className="flex w-full items-center justify-between">
         <div>
           <h1 className="text-foreground text-2xl font-bold tracking-tight">Leaderboard</h1>
-          <p className="text-muted-foreground text-sm mt-1">
+          <p className="text-muted-foreground mt-1 text-sm">
             Top contributors in the IntelliPrompt community
           </p>
         </div>
@@ -166,21 +172,63 @@ export default function LeaderboardClient() {
       <div className="grid grid-cols-1 gap-6 pt-4 lg:grid-cols-3">
         {/* Main Leaderboard */}
         <div className="lg:col-span-2">
-          <Tabs defaultValue="overall">
-            <TabsList className="mb-2 grid h-10 w-full grid-cols-3 gap-4">
+          <Tabs defaultValue="trending">
+            <TabsList className="mb-2 grid h-10 w-full min-w-2xs grid-cols-2 gap-4">
+              <TabsTrigger value="trending" className="flex items-center gap-1.5 text-sm">
+                <TrendingUp className="h-4 w-4" />
+                Trending
+              </TabsTrigger>
               <TabsTrigger value="overall" className="flex items-center gap-1.5 text-sm">
                 <Trophy className="h-4 w-4" />
                 Overall
               </TabsTrigger>
-              <TabsTrigger value="weekly" className="flex items-center gap-1.5 text-sm">
-                <TrendingUp className="h-4 w-4" />
-                This Week
-              </TabsTrigger>
-              <TabsTrigger value="categories" className="flex items-center gap-1.5 text-sm">
-                <Star className="h-4 w-4" />
-                Categories
-              </TabsTrigger>
             </TabsList>
+
+            <TabsContent value="trending">
+              <Card className="gap-2 border-0 shadow-sm">
+                <CardHeader className="py-0">
+                  <CardTitle className="text-lg">Trending Now</CardTitle>
+                  <CardDescription className="text-sm">
+                    Top contributors this week based on recent activity
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4 p-4">
+                  {trendingUsers.map((data, index) => (
+                    <div
+                      key={data.user.rank}
+                      className="hover:bg-muted/50 flex items-center justify-between rounded-lg border px-4 py-2"
+                    >
+                      <div className="flex items-center space-x-3">
+                        {getRankIcon(index + 1)}
+                        <Avatar className="h-6 w-6">
+                          <AvatarImage src={data.user.avatar || ""} />
+                          <AvatarFallback>
+                            {data.user.fullname
+                              .split(" ")
+                              .map((n) => n[0])
+                              .join("")}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <div className="flex items-center space-x-2">
+                            <span className="font-medium">{data.user.fullname}</span>
+                            <Badge variant="outline" className="text-xs">
+                              {data.user.rank}
+                            </Badge>
+                          </div>
+                          <span className="text-muted-foreground text-sm">
+                            @{data.user.username}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="font-semibold">{data.totalScore} pts</div>
+                      </div>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+            </TabsContent>
 
             <TabsContent value="overall">
               <Card className="gap-2 border-0 shadow-sm">
@@ -245,79 +293,9 @@ export default function LeaderboardClient() {
                 </CardContent>
               </Card>
             </TabsContent>
-
-            <TabsContent value="weekly">
-              <Card className="border-0 shadow-sm">
-                <CardHeader className="p-4 pb-0">
-                  <CardTitle className="text-lg">Weekly Top</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3 p-4">
-                  {weeklyTop.map((user) => (
-                    <div
-                      key={user.rank}
-                      className="hover:bg-muted/50 flex items-center justify-between rounded-lg border px-4 py-2"
-                    >
-                      <div className="flex items-center space-x-3">
-                        {getRankIcon(user.rank)}
-                        <Avatar className="h-6 w-6">
-                          <AvatarImage src={user.avatar || "/placeholder.svg"} />
-                          <AvatarFallback>
-                            {user.name
-                              .split(" ")
-                              .map((n) => n[0])
-                              .join("")}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <div className="flex items-center space-x-2">
-                            <span className="font-medium">{user.name}</span>
-                            <Badge variant="outline" className="text-xs">
-                              {user.badge}
-                            </Badge>
-                          </div>
-                          <span className="text-muted-foreground text-sm">@{user.username}</span>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <div className="font-semibold">{user.points} pts</div>
-                        <div className="text-muted-foreground text-sm">{user.prompts} prompts</div>
-                      </div>
-                    </div>
-                  ))}
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="categories">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Category Leaders</CardTitle>
-                  <CardDescription>Top contributors by category</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                    {categories.map((category) => (
-                      <div key={category.name} className="border-border rounded-lg border p-4">
-                        <div className="mb-2 flex items-center justify-between">
-                          <h3 className="font-semibold">{category.name}</h3>
-                          <Crown className="h-4 w-4 text-yellow-500" />
-                        </div>
-                        <div className="space-y-1">
-                          <div className="font-medium">{category.leader}</div>
-                          <div className="text-muted-foreground text-sm">
-                            {category.points} points
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
           </Tabs>
         </div>
 
-        {/* Sidebar */}
         <div className="space-y-6">
           {/* Your Rank */}
           <Card>
@@ -347,75 +325,6 @@ export default function LeaderboardClient() {
                 <TrendingUp className="mr-2 h-4 w-4" />
                 Climb the Ranks
               </Button>
-            </CardContent>
-          </Card>
-
-          {/* Achievement Goals */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Next Achievements</CardTitle>
-              <CardDescription>Goals to unlock</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <div className="text-lg">🏆</div>
-                    <div>
-                      <div className="text-sm font-medium">Top 25</div>
-                      <div className="text-muted-foreground text-xs">Reach rank 25</div>
-                    </div>
-                  </div>
-                  <Badge variant="outline">22 to go</Badge>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <div className="text-lg">🔥</div>
-                    <div>
-                      <div className="text-sm font-medium">Streak Master</div>
-                      <div className="text-muted-foreground text-xs">30 day streak</div>
-                    </div>
-                  </div>
-                  <Badge variant="outline">23 days</Badge>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <div className="text-lg">⭐</div>
-                    <div>
-                      <div className="text-sm font-medium">Popular Creator</div>
-                      <div className="text-muted-foreground text-xs">500 total likes</div>
-                    </div>
-                  </div>
-                  <Badge variant="outline">344 more</Badge>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Community Stats */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Community Stats</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Total Users</span>
-                <span className="font-medium">2,341</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Active This Week</span>
-                <span className="font-medium">456</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Prompts Shared</span>
-                <span className="font-medium">12,847</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Total Likes</span>
-                <span className="font-medium">89,234</span>
-              </div>
             </CardContent>
           </Card>
         </div>

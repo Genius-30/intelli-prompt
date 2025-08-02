@@ -53,3 +53,14 @@ export const useRecentVersions = () => {
     refetchOnWindowFocus: false,
   });
 };
+
+export function useTrendingUsers() {
+  return useQuery({
+    queryKey: ["trending-users"],
+    queryFn: async () => {
+      const res = await axiosInstance.get("/analytics/leaderboard/trending");
+      return res.data.data;
+    },
+    staleTime: 1000 * 60, // 1 minute cache
+  });
+}

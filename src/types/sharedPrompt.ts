@@ -1,7 +1,6 @@
 export interface SharedPrompt {
   _id: string;
-  ownerId: {
-    fullname: string;
+  owner: {
     avatar: string;
     username: string;
   };
@@ -10,12 +9,12 @@ export interface SharedPrompt {
   tags: string[];
   modelUsed: string;
   responseId?: Response;
-  likes: string[];
-  saves: string[];
-  shares: string[];
-  comments: Comment[];
+  likeCount: number;
+  saveCount: number;
+  shareCount: number;
+  commentCount: number;
+  latestComments: Comment[];
   createdAt: string;
-  updatedAt: string;
 }
 
 export interface Comment {

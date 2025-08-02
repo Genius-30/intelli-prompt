@@ -9,6 +9,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
+import { SharedPrompt } from "@/types/sharedPrompt";
 import { SharedPromptCard } from "@/components/community/SharedPromptCard";
 import { SharedPromptCardSkeleton } from "@/components/skeletons/SharedPromptCardSkeleton";
 import { useRouter } from "next/navigation";
@@ -22,97 +23,97 @@ function useSharedPrompts() {
     // Simulate API call
     const timer = setTimeout(() => {
       setData([
-        {
-          id: 1,
-          title: "Advanced Code Review Assistant",
-          description:
-            "Comprehensive code review with security, performance, and best practices analysis",
-          author: {
-            name: "Sarah Chen",
-            avatar: "/placeholder.svg?height=32&width=32",
-            username: "sarahc",
-          },
-          tags: ["development", "code-review", "security"],
-          likes: 234,
-          comments: 45,
-          saves: 89,
-          timeAgo: "2h ago",
-        },
-        {
-          id: 2,
-          title: "Email Marketing Campaign Generator",
-          description: "Create compelling email campaigns with subject lines, content, and CTAs",
-          author: {
-            name: "Mike Johnson",
-            avatar: "/placeholder.svg?height=32&width=32",
-            username: "mikej",
-          },
-          tags: ["marketing", "email", "copywriting"],
-          likes: 189,
-          comments: 32,
-          saves: 67,
-          timeAgo: "4h ago",
-        },
-        {
-          id: 3,
-          title: "Research Paper Summarizer",
-          description: "Extract key insights and create concise summaries from academic papers",
-          author: {
-            name: "Dr. Emily Watson",
-            avatar: "/placeholder.svg?height=32&width=32",
-            username: "emilyw",
-          },
-          tags: ["research", "academic", "summarization"],
-          likes: 156,
-          comments: 28,
-          saves: 94,
-          timeAgo: "6h ago",
-        },
-        {
-          id: 4,
-          title: "Creative Writing Companion",
-          description: "Generate story ideas, character development, and plot suggestions",
-          author: {
-            name: "Alex Rivera",
-            avatar: "/placeholder.svg?height=32&width=32",
-            username: "alexr",
-          },
-          tags: ["creative", "writing", "storytelling"],
-          likes: 298,
-          comments: 67,
-          saves: 123,
-          timeAgo: "8h ago",
-        },
-        {
-          id: 5,
-          title: "Data Analysis Helper",
-          description: "Analyze datasets and generate insights with statistical summaries",
-          author: {
-            name: "John Smith",
-            avatar: "/placeholder.svg?height=32&width=32",
-            username: "johns",
-          },
-          tags: ["data", "analysis", "statistics"],
-          likes: 167,
-          comments: 23,
-          saves: 78,
-          timeAgo: "10h ago",
-        },
-        {
-          id: 6,
-          title: "Social Media Content Creator",
-          description: "Generate engaging posts, captions, and hashtags for social platforms",
-          author: {
-            name: "Lisa Park",
-            avatar: "/placeholder.svg?height=32&width=32",
-            username: "lisap",
-          },
-          tags: ["social-media", "content", "engagement"],
-          likes: 201,
-          comments: 38,
-          saves: 92,
-          timeAgo: "12h ago",
-        },
+        // {
+        //   id: 1,
+        //   title: "Advanced Code Review Assistant",
+        //   description:
+        //     "Comprehensive code review with security, performance, and best practices analysis",
+        //   author: {
+        //     name: "Sarah Chen",
+        //     avatar: "/placeholder.svg?height=32&width=32",
+        //     username: "sarahc",
+        //   },
+        //   tags: ["development", "code-review", "security"],
+        //   likes: 234,
+        //   comments: 45,
+        //   saves: 89,
+        //   timeAgo: "2h ago",
+        // },
+        // {
+        //   id: 2,
+        //   title: "Email Marketing Campaign Generator",
+        //   description: "Create compelling email campaigns with subject lines, content, and CTAs",
+        //   author: {
+        //     name: "Mike Johnson",
+        //     avatar: "/placeholder.svg?height=32&width=32",
+        //     username: "mikej",
+        //   },
+        //   tags: ["marketing", "email", "copywriting"],
+        //   likes: 189,
+        //   comments: 32,
+        //   saves: 67,
+        //   timeAgo: "4h ago",
+        // },
+        // {
+        //   id: 3,
+        //   title: "Research Paper Summarizer",
+        //   description: "Extract key insights and create concise summaries from academic papers",
+        //   author: {
+        //     name: "Dr. Emily Watson",
+        //     avatar: "/placeholder.svg?height=32&width=32",
+        //     username: "emilyw",
+        //   },
+        //   tags: ["research", "academic", "summarization"],
+        //   likes: 156,
+        //   comments: 28,
+        //   saves: 94,
+        //   timeAgo: "6h ago",
+        // },
+        // {
+        //   id: 4,
+        //   title: "Creative Writing Companion",
+        //   description: "Generate story ideas, character development, and plot suggestions",
+        //   author: {
+        //     name: "Alex Rivera",
+        //     avatar: "/placeholder.svg?height=32&width=32",
+        //     username: "alexr",
+        //   },
+        //   tags: ["creative", "writing", "storytelling"],
+        //   likes: 298,
+        //   comments: 67,
+        //   saves: 123,
+        //   timeAgo: "8h ago",
+        // },
+        // {
+        //   id: 5,
+        //   title: "Data Analysis Helper",
+        //   description: "Analyze datasets and generate insights with statistical summaries",
+        //   author: {
+        //     name: "John Smith",
+        //     avatar: "/placeholder.svg?height=32&width=32",
+        //     username: "johns",
+        //   },
+        //   tags: ["data", "analysis", "statistics"],
+        //   likes: 167,
+        //   comments: 23,
+        //   saves: 78,
+        //   timeAgo: "10h ago",
+        // },
+        // {
+        //   id: 6,
+        //   title: "Social Media Content Creator",
+        //   description: "Generate engaging posts, captions, and hashtags for social platforms",
+        //   author: {
+        //     name: "Lisa Park",
+        //     avatar: "/placeholder.svg?height=32&width=32",
+        //     username: "lisap",
+        //   },
+        //   tags: ["social-media", "content", "engagement"],
+        //   likes: 201,
+        //   comments: 38,
+        //   saves: 92,
+        //   timeAgo: "12h ago",
+        // },
       ]);
       setIsLoading(false);
     }, 1500); // Simulate 1.5s loading time
@@ -210,7 +211,6 @@ export default function ExploreClient() {
         <TabsContent value="all" className="space-y-4">
           {(() => {
             if (isLoading) {
-              // Loading skeleton
               return (
                 <div className="grid gap-4">
                   {Array.from({ length: 6 }).map((_, index) => (
@@ -266,8 +266,8 @@ export default function ExploreClient() {
               // Prompts list
               return (
                 <div className="grid gap-4">
-                  {filteredPrompts.map((prompt) => (
-                    <SharedPromptCard key={`all-${prompt.id}`} prompt={prompt} />
+                  {filteredPrompts.map((prompt: SharedPrompt) => (
+                    <SharedPromptCard key={prompt._id} prompt={prompt} />
                   ))}
                 </div>
               );

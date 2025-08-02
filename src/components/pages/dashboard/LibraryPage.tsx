@@ -61,9 +61,9 @@ export default function LibraryPage() {
                 .map((_, index) => <SharedPromptCardSkeleton key={index} />);
             }
             if (data?.savedSharedPrompts?.length) {
-              // return data.savedSharedPrompts.map((prompt: SharedPrompt) => (
-              //   <SharedPromptCard key={prompt._id} prompt={prompt} />
-              // ));
+              return data.savedSharedPrompts.map((prompt: SharedPrompt) => (
+                <SharedPromptCard key={prompt._id} prompt={prompt} />
+              ));
             }
             return (
               <p className="text-muted-foreground mt-4 ml-1 text-sm">No saved prompts found.</p>

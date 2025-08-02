@@ -16,6 +16,8 @@ export function SharedPromptCard({
   showTrendingIndicator = false,
   showUser = true,
 }: SharedPromptCardProps) {
+  console.log(prompt);
+
   const router = useRouter();
 
   const handleShare = useCallback(() => {
@@ -49,9 +51,9 @@ export function SharedPromptCard({
           <div className="mb-4 flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <Avatar className="ring-primary/20 h-10 w-10 ring-2">
-                <AvatarImage src={prompt.ownerId.avatar || ""} alt={prompt.ownerId.fullname} />
+                <AvatarImage src={prompt.owner.avatar || ""} alt={prompt.owner.username} />
                 <AvatarFallback className="bg-primary/10 text-primary font-medium">
-                  {prompt.ownerId.fullname
+                  {prompt.owner.username
                     .split(" ")
                     .map((n) => n[0])
                     .join("")}
@@ -59,12 +61,11 @@ export function SharedPromptCard({
               </Avatar>
               <div>
                 <div className="flex items-center space-x-2">
-                  <span className="text-foreground font-semibold">{prompt.ownerId.fullname}</span>
                   <Link
-                    href={`/user/${prompt.ownerId.username}`}
+                    href={`/u/${prompt.owner.username}`}
                     className="text-muted-foreground text-sm hover:underline"
                   >
-                    @{prompt.ownerId.username}
+                    @{prompt.owner.username}
                   </Link>
                   <span className="text-muted-foreground text-sm">• {prompt.createdAt}</span>
                 </div>
@@ -112,7 +113,7 @@ export function SharedPromptCard({
               className="h-9 px-3 text-sm hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/20"
             >
               <Heart className="mr-2 h-4 w-4" />
-              {prompt.likes.length}
+              {prompt.likeCount}
             </Button>
             <Button
               variant="ghost"
@@ -120,7 +121,7 @@ export function SharedPromptCard({
               className="h-9 px-3 text-sm hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-950/20"
             >
               <MessageCircle className="mr-2 h-4 w-4" />
-              {prompt.comments.length}
+              {prompt.commentCount}
             </Button>
             <Button
               variant="ghost"
@@ -128,7 +129,7 @@ export function SharedPromptCard({
               className="h-9 px-3 text-sm hover:bg-yellow-50 hover:text-yellow-600 dark:hover:bg-yellow-950/20"
             >
               <Bookmark className="mr-2 h-4 w-4" />
-              {prompt.saves.length}
+              {prompt.saveCount}
             </Button>
           </div>
 
@@ -150,7 +151,7 @@ export function SharedPromptCard({
               title="Share"
             >
               <Share2 className="h-4 w-4" />
-              {prompt.shares.length}
+              {prompt.shareCount}
             </Button>
           </div>
         </div>
