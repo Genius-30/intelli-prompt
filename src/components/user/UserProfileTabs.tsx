@@ -3,15 +3,15 @@ import { Share2, UserPlus, Users } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useFollowers, useFollowing, useUserSharedPrompts } from "@/lib/queries/user";
 
-import { AppUser } from "@/types/user";
 import { SharedPrompt } from "@/types/sharedPrompt";
 import { SharedPromptCard } from "./SharedPromptCardUser";
 import { SharedPromptCardSkeleton } from "../skeletons/SharedPromptCardUserSkeleton";
+import { User } from "@/types/user";
 import { UserCard } from "./UserCard";
 import { UserCardSkeleton } from "../skeletons/UserCard";
 
 interface UserProfileTabsProps {
-  readonly user: AppUser;
+  readonly user: User;
   readonly isOwnProfile: boolean;
 }
 
@@ -107,7 +107,7 @@ export function UserProfileTabs({ user, isOwnProfile }: UserProfileTabsProps) {
         } else {
           followersTabContent = (
             <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
-              {followers.map((user: AppUser) => (
+              {followers.map((user: User) => (
                 <UserCard key={user._id} user={user} />
               ))}
             </div>
@@ -149,7 +149,7 @@ export function UserProfileTabs({ user, isOwnProfile }: UserProfileTabsProps) {
           }
           return (
             <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
-              {(following ?? []).map((user: AppUser) => (
+              {(following ?? []).map((user: User) => (
                 <UserCard key={user._id} user={user} />
               ))}
             </div>

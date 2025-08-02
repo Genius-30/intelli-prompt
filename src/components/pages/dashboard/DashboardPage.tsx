@@ -7,6 +7,8 @@ import { FolderSelectModal } from "@/components/dashboard/FolderSelectModal";
 import GradientProgress from "@/components/ui/gradient-progress";
 import Link from "next/link";
 import StreakCircle from "@/components/dashboard/StreakCircle";
+import StreakCircleSkeleton from "@/components/skeletons/StreakCircleSkeleton";
+import { useCurrentUser } from "@/lib/queries/user";
 
 const dashboardStats = [
   {
@@ -53,6 +55,8 @@ const dashboardStats = [
 ];
 
 export default function DashboardClient() {
+  const { data: user, isLoading: isUserLoading } = useCurrentUser();
+
   const recentPrompts = [
     {
       id: 1,
@@ -85,7 +89,7 @@ export default function DashboardClient() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-foreground text-2xl font-bold tracking-tight">Dashboard</h1>
-          <p className="text-muted-foreground text-sm mt-1">
+          <p className="text-muted-foreground mt-1 text-sm">
             Welcome back! Here's your prompt activity overview.
           </p>
         </div>
@@ -93,9 +97,9 @@ export default function DashboardClient() {
       </div>
 
       {/* Main Grid: Streak + Stats */}
-      <div className="grid w-full grid-cols-1 gap-6 md:grid-cols-2">
+      <div className="flex w-full flex-wrap gap-6">
         {/* Left: Streak Graph */}
-        <Card className="min-w-[350px] gap-1 rounded-2xl border-0 py-4 shadow-lg">
+        <Card className="gap-1 rounded-2xl border-0 py-4 shadow-lg">
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-muted-foreground text-sm font-medium">
               Streak Progress
@@ -105,7 +109,14 @@ export default function DashboardClient() {
             </div>
           </CardHeader>
           <CardContent className="flex items-center justify-center">
-            <StreakCircle currentStreak={12} longestStreak={25} />
+            {isUserLoading ? (
+              <StreakCircleSkeleton />
+            ) : (
+              <StreakCircle
+                currentStreak={user?.streak?.current || 0}
+                longestStreak={user?.streak?.best || 0}
+              />
+            )}
           </CardContent>
         </Card>
 

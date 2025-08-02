@@ -1,7 +1,5 @@
-import React from "react";
-
 const TOTAL_DAYS = 20;
-const RADIUS = 120;
+const RADIUS = 100;
 const CENTER = 150;
 
 interface StreakCircleProps {
@@ -13,12 +11,12 @@ const StreakCircle: React.FC<StreakCircleProps> = ({ currentStreak, longestStrea
   const angleStep = 360 / TOTAL_DAYS;
 
   return (
-    <div className="relative mx-auto h-[300px] w-[300px] rounded-full bg-transparent">
+    <div className="relative mx-auto h-[250px] w-[250px] rounded-full bg-transparent">
       {[...Array(TOTAL_DAYS)].map((_, i) => {
         const angle = angleStep * i + 90; // rotate clockwise starting from bottom
         const rad = (angle * Math.PI) / 180;
-        const x = CENTER + RADIUS * Math.cos(rad) - 15;
-        const y = CENTER + RADIUS * Math.sin(rad) - 15;
+        const x = CENTER + RADIUS * Math.cos(rad) - 35;
+        const y = CENTER + RADIUS * Math.sin(rad) - 35;
 
         const isFilled = i < currentStreak;
         const isGlowing = i === currentStreak - 1;
@@ -29,7 +27,7 @@ const StreakCircle: React.FC<StreakCircleProps> = ({ currentStreak, longestStrea
         return (
           <div
             key={i}
-            className={`absolute flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold transition-all duration-300 ${isFilled ? "bg-primary text-white" : "bg-gray-700 text-transparent"} ${isGlowing ? "shadow-[0_0_12px_8px_rgba(89,89,229,0.7)]" : ""}`}
+            className={`absolute flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold transition-all duration-300 ${isFilled ? "bg-primary text-white" : "bg-gray-700 text-transparent"} ${isGlowing ? "shadow-[0_0_12px_8px_rgba(89,89,229,0.7)]" : ""}`}
             style={{ top: y, left: x, transform: `scale(${scale})`, opacity: opacity }}
           >
             {isFilled ? "✔" : ""}

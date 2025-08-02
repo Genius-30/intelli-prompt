@@ -3,13 +3,13 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
 
-import { AppUser } from "@/types/user";
 import { Badge } from "@/components/ui/badge";
+import { User } from "@/types/user";
 import { getRankColor } from "@/lib/ui-utils";
 import { useRouter } from "next/navigation";
 
 interface UserCardProps {
-  readonly user: AppUser;
+  readonly user: User;
 }
 
 export function UserCard({ user }: UserCardProps) {
@@ -21,15 +21,12 @@ export function UserCard({ user }: UserCardProps) {
 
   return (
     <Card
-      className="hover:shadow-md cursor-pointer transition-shadow p-4"
+      className="cursor-pointer p-4 transition-shadow hover:shadow-md"
       onClick={handleCardClick}
     >
       <CardContent className="flex items-center gap-4 p-0">
         <Avatar className="h-10 w-10">
-          <AvatarImage
-            src={user.avatar || "/placeholder.svg"}
-            alt={user.fullname}
-          />
+          <AvatarImage src={user.avatar || "/placeholder.svg"} alt={user.fullname} />
           <AvatarFallback className="bg-primary/10 text-primary">
             {user.fullname
               .split(" ")
@@ -39,7 +36,7 @@ export function UserCard({ user }: UserCardProps) {
         </Avatar>
         <div>
           <p className="font-medium">{user.fullname}</p>
-          <p className="text-sm text-muted-foreground">@{user.username}</p>
+          <p className="text-muted-foreground text-sm">@{user.username}</p>
         </div>
         <Badge className={`select-none ${getRankColor(user.rank || "Rookie")}`}>
           {user.rank || "Rookie"}

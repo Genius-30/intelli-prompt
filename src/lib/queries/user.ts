@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
+import { User } from "@/types/user";
 import axiosInstance from "@/lib/axios";
 import { toast } from "sonner";
 
@@ -8,7 +9,7 @@ export const useCurrentUser = ({ enabled = true }: { enabled?: boolean } = {}) =
     queryKey: ["currentUser"],
     queryFn: async () => {
       const { data } = await axiosInstance.get("/user");
-      return data.mongoUser;
+      return data.mongoUser as User;
     },
     staleTime: 1000 * 60 * 5,
     enabled,
