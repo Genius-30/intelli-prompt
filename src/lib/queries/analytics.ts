@@ -26,3 +26,30 @@ export const useUpdateStreak = () => {
     },
   });
 };
+
+type RecentVersion = {
+  _id: string;
+  content: string;
+  updatedAt: string;
+  createdAt: string;
+  prompt: {
+    _id: string;
+    title: string;
+  };
+  folder?: {
+    _id: string;
+    title: string;
+  };
+};
+
+export const useRecentVersions = () => {
+  return useQuery({
+    queryKey: ["recent-versions"],
+    queryFn: async () => {
+      const res = await axiosInstance.get("/analytics/recent");
+      return res.data.data as RecentVersion[];
+    },
+    staleTime: 1000 * 60, // 1 minute
+    refetchOnWindowFocus: false,
+  });
+};

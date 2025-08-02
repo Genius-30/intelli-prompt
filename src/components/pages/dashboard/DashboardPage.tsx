@@ -6,9 +6,13 @@ import { CheckCircle, Clock, FileText, Folder, Heart, Zap } from "lucide-react";
 import { FolderSelectModal } from "@/components/dashboard/FolderSelectModal";
 import GradientProgress from "@/components/ui/gradient-progress";
 import Link from "next/link";
+import RecentPromptSkeleton from "@/components/skeletons/RecentPromptsSkeleton";
 import StreakCircle from "@/components/dashboard/StreakCircle";
 import StreakCircleSkeleton from "@/components/skeletons/StreakCircleSkeleton";
+import { formatDistanceToNow } from "date-fns";
 import { useCurrentUser } from "@/lib/queries/user";
+import { useRecentVersions } from "@/lib/queries/analytics";
+import { useState } from "react";
 
 const dashboardStats = [
   {
@@ -56,33 +60,16 @@ const dashboardStats = [
 
 export default function DashboardClient() {
   const { data: user, isLoading: isUserLoading } = useCurrentUser();
+  const { data: recentPrompts, isLoading: isRecentPromptsLoading } = useRecentVersions();
 
-  const recentPrompts = [
-    {
-      id: 1,
-      title: "Code Review Assistant",
-      folder: "Development",
-      folderId: "dev-123",
-      lastUsed: "2 hours ago",
-      tests: 12,
-    },
-    {
-      id: 2,
-      title: "Email Generator",
-      folder: "Marketing",
-      folderId: "marketing-456",
-      lastUsed: "1 day ago",
-      tests: 8,
-    },
-    {
-      id: 3,
-      title: "Bug Report Analyzer",
-      folder: "Development",
-      folderId: "dev-123",
-      lastUsed: "3 days ago",
-      tests: 15,
-    },
-  ];
+  const [expandedPrompts, setExpandedPrompts] = useState<Record<string, boolean>>({});
+
+  const toggleExpanded = (id: string) => {
+    setExpandedPrompts((prev) => ({
+      ...prev,
+      [id]: !prev[id],
+    }));
+  };
 
   return (
     <div className="space-y-8">
@@ -97,9 +84,9 @@ export default function DashboardClient() {
       </div>
 
       {/* Main Grid: Streak + Stats */}
-      <div className="flex w-full flex-wrap gap-6">
-        {/* Left: Streak Graph */}
-        <Card className="gap-1 rounded-2xl border-0 py-4 shadow-lg">
+      <div className="flex w-full flex-col gap-6 lg:flex-row">
+        {/* Streak Graph */}
+        <Card className="w-full gap-1 rounded-2xl border-0 py-4 shadow-lg lg:max-w-xs">
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-muted-foreground text-sm font-medium">
               Streak Progress
@@ -120,8 +107,8 @@ export default function DashboardClient() {
           </CardContent>
         </Card>
 
-        {/* Right: Stat Cards */}
-        <div className="grid flex-1 grid-cols-1 gap-4 sm:grid-cols-2">
+        {/* Stat Cards */}
+        <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2">
           {dashboardStats.map((stat, i) => (
             <Card
               key={i}
@@ -148,34 +135,83 @@ export default function DashboardClient() {
             <CardTitle className="text-xl font-semibold">Recent Prompts</CardTitle>
             <CardDescription>Your most recently used prompts and templates</CardDescription>
           </CardHeader>
-          <CardContent className="pt-0">
-            <div className="space-y-3">
-              {recentPrompts.map((prompt) => (
-                <Link key={prompt.id} href={`/folders/${prompt.folderId}/prompts/${prompt.id}`}>
-                  <div className="border-border hover:bg-muted/30 hover:border-primary/30 group flex cursor-pointer items-center justify-between rounded-xl border p-4 transition-all duration-200">
-                    <div className="flex flex-1 items-center space-x-4">
-                      <div className="from-primary/10 to-primary/5 group-hover:from-primary/20 group-hover:to-primary/10 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br transition-colors">
-                        <FileText className="text-primary h-5 w-5" />
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <h3 className="mb-1 truncate leading-none font-medium">{prompt.title}</h3>
-                        <div className="text-muted-foreground flex items-center space-x-3 text-xs">
-                          <div className="flex items-center gap-1">
-                            <Folder className="h-3 w-3" />
-                            <span className="truncate">{prompt.folder}</span>
-                          </div>
-                          <span>•</span>
-                          <div className="flex items-center gap-1">
-                            <Clock className="h-3 w-3" />
-                            <span>{prompt.lastUsed}</span>
+          <CardContent className="flex flex-col gap-2 pt-0">
+            {(() => {
+              if (isRecentPromptsLoading) {
+                return (
+                  <>
+                    <RecentPromptSkeleton />
+                    <RecentPromptSkeleton />
+                    <RecentPromptSkeleton />
+                  </>
+                );
+              } else if (!recentPrompts || recentPrompts.length === 0) {
+                return (
+                  <div className="text-muted-foreground py-6 text-center text-sm">
+                    You haven’t used any prompts recently.
+                  </div>
+                );
+              } else {
+                return recentPrompts.map((prompt, idx) => (
+                  <Link
+                    key={prompt.prompt._id + (prompt.folder?._id ?? "") + idx}
+                    href={`/folders/${prompt.folder?._id ?? "unknown"}/prompts/${prompt.prompt._id}/versions/${prompt._id}`}
+                  >
+                    <div className="border-border hover:bg-muted/30 hover:border-primary/30 group flex cursor-pointer flex-col gap-2 rounded-xl border p-4 transition-all duration-200">
+                      <div className="flex items-center space-x-4">
+                        <div className="from-primary/10 to-primary/5 group-hover:from-primary/20 group-hover:to-primary/10 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br transition-colors">
+                          <FileText className="text-primary h-5 w-5" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <h3 className="mb-1 truncate leading-none font-medium">
+                            {prompt.prompt.title}
+                          </h3>
+                          <div className="text-muted-foreground flex items-center space-x-3 text-xs">
+                            <div className="flex items-center gap-1">
+                              <Folder className="h-3 w-3" />
+                              <span className="truncate">
+                                {prompt.folder?.title ?? "No Folder"}
+                              </span>
+                            </div>
+                            <span>•</span>
+                            <div className="flex items-center gap-1">
+                              <Clock className="h-3 w-3" />
+                              <span>
+                                {formatDistanceToNow(new Date(prompt.updatedAt), {
+                                  addSuffix: true,
+                                })}
+                              </span>
+                            </div>
                           </div>
                         </div>
                       </div>
+
+                      {/* Prompt content */}
+                      <div className="w-full">
+                        <pre
+                          className={`text-muted-foreground mt-1 font-mono text-xs leading-relaxed whitespace-pre-wrap sm:text-sm ${
+                            expandedPrompts[prompt._id]
+                              ? ""
+                              : "line-clamp-2 max-h-20 overflow-hidden"
+                          }`}
+                        >
+                          <code>{prompt.content}</code>
+                        </pre>
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            toggleExpanded(prompt._id);
+                          }}
+                          className="text-primary mt-1 text-xs hover:underline"
+                        >
+                          {expandedPrompts[prompt._id] ? "Show less" : "Show more"}
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
+                  </Link>
+                ));
+              }
+            })()}
           </CardContent>
         </Card>
       </div>

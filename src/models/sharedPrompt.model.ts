@@ -1,4 +1,5 @@
 import mongoose, { Document, Model, Schema } from "mongoose";
+
 import { IUser } from "./user.model";
 
 export interface IShared extends Document {
@@ -29,7 +30,7 @@ const SharedPromptSchema: Schema<IShared> = new Schema(
     content: { type: String, required: true },
     tags: { type: [String], default: [] },
     modelUsed: { type: String, required: true },
-    responseId: { type: Schema.Types.ObjectId, ref:'ModelResponse' },
+    responseId: { type: Schema.Types.ObjectId, ref: "ModelResponse" },
     likes: { type: [String], default: [] },
     saves: { type: [String], default: [] },
     shares: { type: [String], default: [] },
@@ -46,12 +47,11 @@ const SharedPromptSchema: Schema<IShared> = new Schema(
       default: [],
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 SharedPromptSchema.index({ tags: 1 });
 SharedPromptSchema.index({ title: "text" });
 
 export const SharedPrompt: Model<IShared> =
-  mongoose.models.SharedPrompt ||
-  mongoose.model<IShared>("SharedPrompt", SharedPromptSchema);
+  mongoose.models.SharedPrompt || mongoose.model<IShared>("SharedPrompt", SharedPromptSchema);

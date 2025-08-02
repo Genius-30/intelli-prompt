@@ -21,7 +21,7 @@ export async function GET(req: Request) {
 async function getSavedPrompts(userId: any) {
   const favPrompts = await Prompt.find({ ownerId: userId, isFavorite: true });
   const favVersions = await Version.find({ ownerId: userId, isFavorite: true });
-  const savedSharedPrompts = await SharedPrompt.find({ ownerId: userId, likes: userId });
+  const savedSharedPrompts = await SharedPrompt.find({ ownerId: userId, saves: userId });
 
   return {
     favPrompts,

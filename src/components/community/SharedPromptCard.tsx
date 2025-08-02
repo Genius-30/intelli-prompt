@@ -7,29 +7,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { SharedPromptCardProps } from "@/types/sharedPrompt";
 import { useCallback } from "react";
 import { useRouter } from "next/navigation";
-
-interface SharedPromptCardProps {
-  prompt: {
-    id: number;
-    title: string;
-    description: string;
-    author: {
-      name: string;
-      avatar: string;
-      username: string;
-    };
-    tags: string[];
-    modelUsed?: string;
-    likes: number;
-    comments: number;
-    saves: number;
-    timeAgo: string;
-  };
-  showTrendingIndicator?: boolean;
-  showUser?: boolean;
-}
 
 export function SharedPromptCard({
   prompt,
@@ -39,7 +19,7 @@ export function SharedPromptCard({
   const router = useRouter();
 
   const handleShare = useCallback(() => {
-    const url = `${window.location.origin}/prompts/${prompt.id}`;
+    const url = `${window.location.origin}/prompts/${prompt._id}`;
     if (navigator.share) {
       navigator
         .share({
@@ -52,7 +32,7 @@ export function SharedPromptCard({
       navigator.clipboard.writeText(url);
       alert("Link copied to clipboard");
     }
-  }, [prompt.id, prompt.title]);
+  }, [prompt._id, prompt.title]);
 
   return (
     <Card className="border-primary/10 hover:border-primary/20 relative overflow-hidden border transition-all duration-200 hover:shadow-md">
@@ -69,9 +49,9 @@ export function SharedPromptCard({
           <div className="mb-4 flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <Avatar className="ring-primary/20 h-10 w-10 ring-2">
-                <AvatarImage src={prompt.author.avatar || ""} alt={prompt.author.name} />
+                <AvatarImage src={prompt.ownerId.avatar || ""} alt={prompt.ownerId.fullname} />
                 <AvatarFallback className="bg-primary/10 text-primary font-medium">
-                  {prompt.author.name
+                  {prompt.ownerId.fullname
                     .split(" ")
                     .map((n) => n[0])
                     .join("")}
@@ -79,14 +59,14 @@ export function SharedPromptCard({
               </Avatar>
               <div>
                 <div className="flex items-center space-x-2">
-                  <span className="text-foreground font-semibold">{prompt.author.name}</span>
+                  <span className="text-foreground font-semibold">{prompt.ownerId.fullname}</span>
                   <Link
-                    href={`/user/${prompt.author.username}`}
+                    href={`/user/${prompt.ownerId.username}`}
                     className="text-muted-foreground text-sm hover:underline"
                   >
-                    @{prompt.author.username}
+                    @{prompt.ownerId.username}
                   </Link>
-                  <span className="text-muted-foreground text-sm">• {prompt.timeAgo}</span>
+                  <span className="text-muted-foreground text-sm">• {prompt.createdAt}</span>
                 </div>
               </div>
             </div>
@@ -96,13 +76,13 @@ export function SharedPromptCard({
         {/* Content */}
         <div className="mb-4 space-y-3">
           <Link
-            href={`/prompts/${prompt.id}`}
+            href={`/prompts/${prompt._id}`}
             className="hover:text-primary focus:ring-primary block w-fit cursor-pointer rounded text-lg font-semibold transition-colors focus:ring-2 focus:outline-none"
             tabIndex={0}
           >
             {prompt.title}
           </Link>
-          <p className="text-muted-foreground leading-relaxed">{prompt.description}</p>
+          <p className="text-muted-foreground leading-relaxed">{prompt.content}</p>
         </div>
 
         {/* Tags & Model */}
@@ -132,7 +112,7 @@ export function SharedPromptCard({
               className="h-9 px-3 text-sm hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/20"
             >
               <Heart className="mr-2 h-4 w-4" />
-              {prompt.likes}
+              {prompt.likes.length}
             </Button>
             <Button
               variant="ghost"
@@ -140,7 +120,7 @@ export function SharedPromptCard({
               className="h-9 px-3 text-sm hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-950/20"
             >
               <MessageCircle className="mr-2 h-4 w-4" />
-              {prompt.comments}
+              {prompt.comments.length}
             </Button>
             <Button
               variant="ghost"
@@ -148,7 +128,7 @@ export function SharedPromptCard({
               className="h-9 px-3 text-sm hover:bg-yellow-50 hover:text-yellow-600 dark:hover:bg-yellow-950/20"
             >
               <Bookmark className="mr-2 h-4 w-4" />
-              {prompt.saves}
+              {prompt.saves.length}
             </Button>
           </div>
 
@@ -156,7 +136,7 @@ export function SharedPromptCard({
             <Button
               variant="outline"
               size="sm"
-              onClick={() => router.push(`/run/${prompt.id}`)}
+              onClick={() => router.push(`/run/${prompt._id}`)}
               className="text-xs"
             >
               <Play className="mr-1 h-4 w-4" />
@@ -170,6 +150,7 @@ export function SharedPromptCard({
               title="Share"
             >
               <Share2 className="h-4 w-4" />
+              {prompt.shares.length}
             </Button>
           </div>
         </div>
