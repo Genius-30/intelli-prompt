@@ -9,25 +9,25 @@ export async function GET(req: NextRequest) {
     const result = await rateLimit(req);
     if (result) return result;
 
-    const {userId, error} = await getAuthenticatedUser()
-    if(error) return error
+    const { userId, error } = await getAuthenticatedUser();
+    if (error) return error;
 
-    const data = await getSetCache('trendingUsersOverall', 60, () => getUserScore(userId));
-    
-    return NextResponse.json({ message:'trending users fetched', data }, { status: 200 });
+    const cacheKey = `userScoreAndRank:${userId}`;
+    const data = await getSetCache(cacheKey, 60, () => getUserScoreAndRank(userId));
+
+    return NextResponse.json({ message: 'user score and rank fetched', data }, { status: 200 });
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to fetch trending users' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to fetch user score and rank' }, { status: 500 });
   }
 }
 
-async function getUserScore(userId: any) {
+async function getUserScoreAndRank(userId: string) {
   const sevenDaysAgo = new Date();
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
-  const prompts = await SharedPrompt.aggregate([
+  const userScores = await SharedPrompt.aggregate([
     {
       $match: {
-        ownerId: userId,
         createdAt: { $gte: sevenDaysAgo }
       }
     },
@@ -49,8 +49,25 @@ async function getUserScore(userId: any) {
         _id: '$ownerId',
         totalScore: { $sum: '$score' }
       }
-    }
-  ])
+    },
+    { $sort: { totalScore: -1 } }
+  ]);
 
-  return prompts[0]?.totalScore || 0;
+  // Find the user's totalScore and rank
+  let userTotalScore = 0;
+  let userRank = null;
+  for (let i = 0; i < userScores.length; i++) {
+    if (userScores[i]._id == userId) {
+      userTotalScore = userScores[i].totalScore;
+      userRank = i + 1; // rank is 1-based
+      break;
+    }
+  }
+
+  return {
+    userId,
+    totalScore: userTotalScore,
+    rank: userRank,
+    totalUsers: userScores.length
+  };
 }

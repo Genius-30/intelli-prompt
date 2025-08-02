@@ -44,19 +44,8 @@ async function getSavedPrompts(userId: any) {
     },
     {
       $addFields: {
-        latestComments: {
-          $slice: [
-            {
-              $reverseArray: {
-                $sortArray: {
-                  input: { $ifNull: ["$comments", []] },
-                  sortBy: { createdAt: 1 }
-                }
-              }
-            },
-            3
-          ]
-        }
+        isUserLiked: { $in: [userId, { $ifNull: ["$likes", []] }] },
+        isUserSaved: { $in: [userId, { $ifNull: ["$saves", []] }] }
       }
     },
     {
@@ -64,11 +53,15 @@ async function getSavedPrompts(userId: any) {
         title: 1,
         content: 1,
         tags: 1,
+        modelUsed: 1,
+        createdAt: 1,
+        responseId: 1,
         likeCount: { $size: { $ifNull: ["$likes", []] } },
         saveCount: { $size: { $ifNull: ["$saves", []] } },
         shareCount: { $size: { $ifNull: ["$shares", []] } },
         commentCount: { $size: { $ifNull: ["$comments", []] } },
-        latestComments: 1,
+        isUserLiked: 1,
+        isUserSaved: 1,
         "owner.username": 1,
         "owner.avatar": 1
       }

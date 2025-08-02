@@ -32,6 +32,7 @@ async function getTrendingUsers() {
       {
         $project: {
           ownerId: 1,
+          likes: 1,
           score: {
             $add: [
               { $multiply: [{ $size: { $ifNull: ['$likes', []] } }, 1] },
@@ -45,7 +46,9 @@ async function getTrendingUsers() {
       {
         $group: {
           _id: '$ownerId',
-          totalScore: { $sum: '$score' }
+          totalScore: { $sum: '$score' },
+          totalSharedPrompts: { $sum: 1 },
+          totalLikes: { $sum: { $size: { $ifNull: ['$likes', []] } } }
         }
       },
       {
@@ -73,6 +76,8 @@ async function getTrendingUsers() {
           _id: 0,
           userId: '$_id',
           totalScore: 1,
+          totalSharedPrompts: 1,
+          totalLikes: 1,
           'user.username': 1,
           'user.fullname': 1,
           'user.avatar': 1,

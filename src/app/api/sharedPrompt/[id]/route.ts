@@ -29,7 +29,7 @@ export async function DELETE(
   }
 }
 
-// Update shared prompt title/tags
+// Update sharedPrompt title/tags
 export async function PATCH(
   req: Request,
   { params }: { params: any }
