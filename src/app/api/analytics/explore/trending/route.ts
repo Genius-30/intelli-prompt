@@ -57,6 +57,23 @@ async function getTrendingPosts() {
       }
     },
     {
+      $addFields: {
+        latestComments: {
+          $slice: [
+            {
+              $reverseArray: {
+                $sortArray: {
+                  input: { $ifNull: ["$comments", []] },
+                  sortBy: { createdAt: 1 }
+                }
+              }
+            },
+            3
+          ]
+        }
+      }
+    },
+    {
       $project: {
         title: 1,
         content: 1,
@@ -67,6 +84,7 @@ async function getTrendingPosts() {
         saveCount: { $size: { $ifNull: ["$saves", []] } },
         shareCount: { $size: { $ifNull: ["$shares", []] } },
         commentCount: { $size: { $ifNull: ["$comments", []] } },
+        latestComments: 1,
         "owner._id": 1,
         "owner.username": 1,
         "owner.avatar": 1,
