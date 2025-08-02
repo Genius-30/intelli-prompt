@@ -11,7 +11,7 @@ export async function GET(req: NextRequest) {
 
     await connectDb();
 
-    const data = await getSetCache('trendingUsersWeekly', 60, getTrendingUsers);
+    const data = await getSetCache('trendingUsersOverall', 60, getTrendingUsers);
     
     return NextResponse.json({ message:'trending users fetched', data }, { status: 200 });
   } catch (error) {
@@ -20,15 +20,7 @@ export async function GET(req: NextRequest) {
 }
 
 async function getTrendingUsers() {
-  const sevenDaysAgo = new Date();
-  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-
   return await SharedPrompt.aggregate([
-      {
-        $match: {
-          createdAt: { $gte: sevenDaysAgo }
-        }
-      },
       {
         $project: {
           ownerId: 1,
@@ -73,8 +65,8 @@ async function getTrendingUsers() {
           _id: 0,
           userId: '$_id',
           totalScore: 1,
-          'user.username': 1,
           'user.fullname': 1,
+          'user.username': 1,
           'user.avatar': 1,
           'user.rank': 1
         }
