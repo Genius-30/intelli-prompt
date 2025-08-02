@@ -38,7 +38,7 @@ const SharedPromptSchema: Schema<IShared> = new Schema(
         {
           _id: { type: Schema.Types.ObjectId, auto: true },
           userId: { type: String, required: true },
-          content: { type: String, required: true },
+          content: { type: String, required: true, maxlength: 300 },
           likes: { type: [String], default: [] },
           createdAt: { type: Date, default: Date.now },
         },

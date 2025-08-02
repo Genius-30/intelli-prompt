@@ -21,55 +21,60 @@ export async function GET(req: NextRequest) {
 
 async function getTrendingUsers() {
   return await SharedPrompt.aggregate([
-      {
-        $project: {
-          ownerId: 1,
-          score: {
-            $add: [
-              { $multiply: [{ $size: { $ifNull: ['$likes', []] } }, 1] },
-              { $multiply: [{ $size: { $ifNull: ['$saves', []] } }, 3] },
-              { $multiply: [{ $size: { $ifNull: ['$comments', []] } }, 5] },
-              { $multiply: [{ $size: { $ifNull: ['$shares', []] } }, 8] }
-            ]
-          }
-        }
-      },
-      {
-        $group: {
-          _id: '$ownerId',
-          totalScore: { $sum: '$score' }
-        }
-      },
-      {
-        $sort: { totalScore: -1 }
-      },
-      {
-        $limit: 20
-      },
-      {
-        $lookup: {
-          from: 'users',
-          localField: '_id',
-          foreignField: '_id',
-          as: 'user'
-        }
-      },
-      {
-        $unwind: {
-          path: '$user',
-          preserveNullAndEmptyArrays: true
-        }
-      },
-      {
-        $project: {
-          _id: 0,
-          userId: '$_id',
-          totalScore: 1,
-          'user.fullname': 1,
-          'user.username': 1,
-          'user.avatar': 1,
-          'user.rank': 1
+    {
+      $project: {
+        ownerId: 1,
+        likes: 1,
+        score: {
+          $add: [
+            { $multiply: [{ $size: { $ifNull: ['$likes', []] } }, 1] },
+            { $multiply: [{ $size: { $ifNull: ['$saves', []] } }, 3] },
+            { $multiply: [{ $size: { $ifNull: ['$comments', []] } }, 5] },
+            { $multiply: [{ $size: { $ifNull: ['$shares', []] } }, 8] }
+          ]
         }
       }
-    ]);
+    },
+    {
+      $group: {
+        _id: '$ownerId',
+        totalScore: { $sum: '$score' },
+        totalSharedPrompts: { $sum: 1 },
+        totalLikes: { $sum: { $size: { $ifNull: ['$likes', []] } } }
+      }
+    },
+    { 
+      $sort: { totalScore: -1 }
+    },
+    {
+      $limit: 20
+    },
+    {
+      $lookup: {
+        from: 'users',
+        localField: '_id',
+        foreignField: '_id',
+        as: 'user'
+      }
+    },
+    {
+      $unwind: {
+        path: '$user',
+        preserveNullAndEmptyArrays: true
+      }
+    },
+    {
+      $project: {
+        _id: 0,
+        userId: '$_id',
+        totalScore: 1,
+        totalSharedPrompts: 1,
+        totalLikes: 1,
+        'user.fullname': 1,
+        'user.username': 1,
+        'user.avatar': 1,
+        'user.rank': 1
+      }
+    }
+  ]);
 }
