@@ -12,7 +12,7 @@ import { Clock, FileText, Flame, Folder, Heart, Star, Zap } from "lucide-react";
 import { FolderSelectModal } from "@/components/dashboard/FolderSelectModal";
 import GradientProgress from "@/components/ui/gradient-progress";
 import Link from "next/link";
-import StreakGraph from "@/components/dashboard/StreakGraph";
+import StreakCircle from "@/components/dashboard/Streak";
 
 const dashboardStats = [
   {
@@ -106,7 +106,7 @@ export default function DashboardClient() {
           </CardDescription>
         </CardHeader>
         <CardContent className="py-6">
-          <StreakGraph />
+          <StreakCircle currentStreak={9} longestStreak={25}/>
         </CardContent>
       </Card>
 

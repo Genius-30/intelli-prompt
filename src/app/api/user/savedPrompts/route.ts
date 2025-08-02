@@ -21,7 +21,59 @@ export async function GET(req:Request) {
 async function getSavedPrompts(userId: any) {
   const favPrompts = await Prompt.find({ ownerId: userId, isFavorite: true })
   const favVersions = await Version.find({ ownerId: userId, isFavorite: true })
-  const savedSharedPrompts = await SharedPrompt.find({ ownerId: userId, likes: userId })
+  const savedSharedPrompts = await SharedPrompt.aggregate([
+    {
+      $match: {
+        ownerId: userId,
+        saves: userId
+      }
+    },
+    {
+      $lookup: {
+        from: 'users',
+        localField: 'ownerId',
+        foreignField: '_id',
+        as: 'owner'
+      }
+    },
+    {
+      $unwind: {
+        path: '$owner',
+        preserveNullAndEmptyArrays: true
+      }
+    },
+    {
+      $addFields: {
+        latestComments: {
+          $slice: [
+            {
+              $reverseArray: {
+                $sortArray: {
+                  input: { $ifNull: ["$comments", []] },
+                  sortBy: { createdAt: 1 }
+                }
+              }
+            },
+            3
+          ]
+        }
+      }
+    },
+    {
+      $project: {
+        title: 1,
+        content: 1,
+        tags: 1,
+        likeCount: { $size: { $ifNull: ["$likes", []] } },
+        saveCount: { $size: { $ifNull: ["$saves", []] } },
+        shareCount: { $size: { $ifNull: ["$shares", []] } },
+        commentCount: { $size: { $ifNull: ["$comments", []] } },
+        latestComments: 1,
+        "owner.username": 1,
+        "owner.avatar": 1
+      }
+    }
+  ])
 
   return {
     favPrompts, favVersions, savedSharedPrompts
