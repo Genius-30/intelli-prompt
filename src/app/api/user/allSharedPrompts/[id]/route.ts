@@ -43,7 +43,43 @@ export async function GET(req: NextRequest, { params }: { params: any }) {
 }
 
 async function getAllSharedPrompts(personId: string) {
-  return await SharedPrompt.find({ ownerId: personId })
-    .sort({ createdAt: -1 })
-    .lean();
+  return await SharedPrompt.aggregate([
+    {
+      $match: { ownerId: personId }
+    },
+    {
+      $sort: { createdAt: -1 }
+    },
+    {
+      $addFields: {
+        latestComments: {
+          $slice: [
+            {
+              $reverseArray: {
+                $sortArray: {
+                  input: { $ifNull: ["$comments", []] },
+                  sortBy: { createdAt: 1 }
+                }
+              }
+            },
+            3
+          ]
+        }
+      }
+    },
+    {
+      $project: {
+        title: 1,
+        content: 1,
+        tags: 1,
+        modelUsed: 1,
+        responseId: 1,
+        likeCount: { $size: { $ifNull: ["$likes", []] } },
+        saveCount: { $size: { $ifNull: ["$saves", []] } },
+        shareCount: { $size: { $ifNull: ["$shares", []] } },
+        commentCount: { $size: { $ifNull: ["$comments", []] } },
+        latestComments: 1,
+      }
+    }
+  ])
 }
