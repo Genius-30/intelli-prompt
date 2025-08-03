@@ -12,15 +12,16 @@ interface Article {
 }
 
 export const topChatGPTPrompts: Article = {
-  _id: '1',
-  title: 'Top 10 ChatGPT Prompts for Developers in 2025',
-  excerpt: 'Discover the most effective ChatGPT prompts every developer needs in 2025 to boost productivity and write cleaner code.',
-  category: 'development',
-  author: 'Mohd Zaid',
-  date: 'July 31, 2025',
-  readTime: '7 min read',
-  image: '/images/article1.jpeg',
-  slug: 'top-chatgpt-prompts-2025',
+  _id: "1",
+  title: "Top 10 ChatGPT Prompts for Developers in 2025",
+  excerpt:
+    "Discover the most effective ChatGPT prompts every developer needs in 2025 to boost productivity and write cleaner code.",
+  category: "development",
+  author: "Mohd Zaid",
+  date: "July 31, 2025",
+  readTime: "7 min read",
+  image: "/images/article1.jpeg",
+  slug: "top-chatgpt-prompts-2025",
   content: `<div class="article-content">
 
   <h1 class="text-3xl font-bold mb-6">Top 10 ChatGPT Prompts for Developers in 2025</h1>
@@ -60,19 +61,20 @@ export const topChatGPTPrompts: Article = {
   <h2 class="text-2xl font-bold mt-8 mb-4">Conclusion & CTA</h2>
   <p class="mb-4">Implement these <strong>AI prompt engineering</strong> examples to elevate your workflow. Start auto-generating code with IntelliPrompt today—<a href="#" class="text-indigo-600 underline">Sign up free</a>!</p>
 
-  </div>`
+  </div>`,
 };
 
 export const organizeAIpromptsGuide: Article = {
-  _id: '2',
-  title: 'How to Organize AI Prompts Like a Pro: Your 2025 Guide',
-  excerpt: 'Master prompt management in 2025 with our guide to organizing prompts, versioning, folders, and metadata.',
-  category: 'tools',
-  author: 'Genius Porwal',
-  date: 'July 31, 2025',
-  readTime: '6 min read',
-  image: '/images/article2.jpeg',
-  slug: 'organize-ai-prompts-2025',
+  _id: "2",
+  title: "How to Organize AI Prompts Like a Pro: Your 2025 Guide",
+  excerpt:
+    "Master prompt management in 2025 with our guide to organizing prompts, versioning, folders, and metadata.",
+  category: "tools",
+  author: "Genius Porwal",
+  date: "July 31, 2025",
+  readTime: "6 min read",
+  image: "/images/article2.jpeg",
+  slug: "organize-ai-prompts-2025",
   content: `<div class="article-content">
 
   <h1 class="text-3xl font-bold mb-6">How to Organize AI Prompts Like a Pro: Your 2025 Guide</h1>
@@ -100,19 +102,20 @@ export const organizeAIpromptsGuide: Article = {
   <h2 class="text-2xl font-bold mt-8 mb-4">Conclusion & CTA</h2>
   <p class="mb-4">Ready to tame your prompt chaos? Try IntelliPrompt’s built-in <strong>prompt versioning system</strong> and see how easy organizing AI prompts can be!</p>
 
-  </div>`
+  </div>`,
 };
 
 export const openRouterVsOpenAI: Article = {
-  _id: '3',
-  title: 'OpenRouter vs. OpenAI: Which AI Gateway Should You Choose?',
-  excerpt: 'Compare OpenRouter and OpenAI side-by-side—features, pricing, and rate limits to pick the best gateway.',
-  category: 'comparison',
-  author: 'Mohd Zaid',
-  date: 'July 31, 2025',
-  readTime: '7 min read',
-  image: '/images/article3.jpeg',
-  slug: 'openrouter-vs-openai',
+  _id: "3",
+  title: "OpenRouter vs. OpenAI: Which AI Gateway Should You Choose?",
+  excerpt:
+    "Compare OpenRouter and OpenAI side-by-side—features, pricing, and rate limits to pick the best gateway.",
+  category: "comparison",
+  author: "Mohd Zaid",
+  date: "July 31, 2025",
+  readTime: "7 min read",
+  image: "/images/article3.jpeg",
+  slug: "openrouter-vs-openai",
   content: `<div class="article-content">
 
   <h1 class="text-3xl font-bold mb-6">OpenRouter vs. OpenAI: Which AI Gateway Should You Choose?</h1>
@@ -140,19 +143,20 @@ export const openRouterVsOpenAI: Article = {
   <h2 class="text-2xl font-bold mt-8 mb-4">Conclusion & CTA</h2>
   <p class="mb-4">Choose wisely to optimize your <strong>multi-model prompt testing</strong>. Sign up for IntelliPrompt, integrate both gateways, and switch models on the fly!</p>
 
-  </div>`
+  </div>`,
 };
 
 export const marketingPromptUseCases: Article = {
-  _id: '4',
-  title: '5 Creative Prompt Engineering Use Cases for Marketers',
-  excerpt: 'Explore 5 innovative prompt engineering tips that marketers can use to generate ad copy, social posts, SEO keywords, and more.',
-  category: 'marketing',
-  author: 'Genius Porwal',
-  date: 'July 31, 2025',
-  readTime: '6 min read',
-  image: '/images/article4.jpeg',
-  slug: 'prompt-engineering-marketers',
+  _id: "4",
+  title: "5 Creative Prompt Engineering Use Cases for Marketers",
+  excerpt:
+    "Explore 5 innovative prompt engineering tips that marketers can use to generate ad copy, social posts, SEO keywords, and more.",
+  category: "marketing",
+  author: "Genius Porwal",
+  date: "July 31, 2025",
+  readTime: "6 min read",
+  image: "/images/article4.jpeg",
+  slug: "prompt-engineering-marketers",
   content: `<div class="article-content">
 
   <h1 class="text-3xl font-bold mb-6">5 Creative Prompt Engineering Use Cases for Marketers</h1>
@@ -177,19 +181,20 @@ export const marketingPromptUseCases: Article = {
   <h2 class="text-2xl font-bold mt-8 mb-4">Conclusion & CTA</h2>
   <p class="mb-4">Apply these <strong>AI marketing prompts</strong> to scale your campaigns. Log in to IntelliPrompt to save, categorize, and refine your top-performing prompts!</p>
 
-  </div>`
+  </div>`,
 };
 
 export const promptVersioningArticle: Article = {
-  _id: '5',
-  title: 'What Is Prompt Versioning and Why You Need It',
-  excerpt: 'Learn what prompt versioning is, why version control matters, and how to implement it in IntelliPrompt for reliable AI workflows.',
-  category: 'development',
-  author: 'Mohd Zaid',
-  date: 'July 31, 2025',
-  readTime: '6 min read',
-  image: '/images/article5.jpeg',
-  slug: 'prompt-versioning-explained',
+  _id: "5",
+  title: "What Is Prompt Versioning and Why You Need It",
+  excerpt:
+    "Learn what prompt versioning is, why version control matters, and how to implement it in IntelliPrompt for reliable AI workflows.",
+  category: "development",
+  author: "Mohd Zaid",
+  date: "July 31, 2025",
+  readTime: "6 min read",
+  image: "/images/article5.jpeg",
+  slug: "prompt-versioning-explained",
   content: `<div class="article-content">
 
   <h1 class="text-3xl font-bold mb-6">What Is Prompt Versioning and Why You Need It</h1>
@@ -219,5 +224,5 @@ export const promptVersioningArticle: Article = {
   <h2 class="text-2xl font-bold mt-8 mb-4">Conclusion & CTA</h2>
   <p class="mb-4">Don’t let prompt drift sabotage your workflows. Start using IntelliPrompt’s <strong>built-in versioning system</strong> today and maintain complete control over your AI prompts!</p>
 
-  </div>`
+  </div>`,
 };

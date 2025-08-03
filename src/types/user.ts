@@ -32,3 +32,15 @@ export interface SocialLink {
   label: SocialPlatform;
   url: string;
 }
+
+export type RankUser = {
+  _id: string;
+  rank: string;
+  name: string;
+  username: string;
+  avatar: string;
+  points: number;
+  prompts: number;
+  likes: number;
+  streak: number;
+};

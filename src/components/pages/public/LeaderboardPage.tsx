@@ -1,19 +1,16 @@
 "use client";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Award, Crown, Flame, Medal, Share2, TrendingUp, Trophy } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Share2, TrendingUp, Trophy } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
+import { RankUser } from "@/types/user";
+import UserRankCard from "@/components/leaderboard/userRankCard";
 import { useTrendingUsers } from "@/lib/queries/analytics";
 
 export default function LeaderboardClient() {
   const { data: trendingUsers, isLoading: isLoadingTrendingUsers } = useTrendingUsers();
-
-  console.log(trendingUsers);
 
   if (isLoadingTrendingUsers) {
     return (
@@ -25,7 +22,8 @@ export default function LeaderboardClient() {
 
   const topContributors = [
     {
-      rank: 1,
+      _id: "1",
+      rank: "Rookie",
       name: "Techo Biz",
       username: "techobiz",
       avatar: "/placeholder.svg?height=40&width=40",
@@ -33,11 +31,10 @@ export default function LeaderboardClient() {
       prompts: 28,
       likes: 2341,
       streak: 15,
-      badge: "Expert",
-      change: "+2",
     },
     {
-      rank: 2,
+      _id: "2",
+      rank: "Pro",
       name: "Genius Porwal",
       username: "thisisgenius",
       avatar: "/placeholder.svg?height=40&width=40",
@@ -45,11 +42,10 @@ export default function LeaderboardClient() {
       prompts: 24,
       likes: 1987,
       streak: 12,
-      badge: "Advanced",
-      change: "0",
     },
     {
-      rank: 3,
+      _id: "3",
+      rank: "Expert",
       name: "Dr. Emily Watson",
       username: "emilyw",
       avatar: "/placeholder.svg?height=40&width=40",
@@ -57,11 +53,10 @@ export default function LeaderboardClient() {
       prompts: 19,
       likes: 1654,
       streak: 8,
-      badge: "Expert",
-      change: "-1",
     },
     {
-      rank: 4,
+      _id: "4",
+      rank: "Master",
       name: "Alex Rivera",
       username: "alexr",
       avatar: "/placeholder.svg?height=40&width=40",
@@ -69,11 +64,10 @@ export default function LeaderboardClient() {
       prompts: 22,
       likes: 1432,
       streak: 6,
-      badge: "Advanced",
-      change: "+1",
     },
     {
-      rank: 5,
+      _id: "5",
+      rank: "Champion",
       name: "David Kim",
       username: "davidk",
       avatar: "/placeholder.svg?height=40&width=40",
@@ -81,59 +75,8 @@ export default function LeaderboardClient() {
       prompts: 18,
       likes: 1298,
       streak: 4,
-      badge: "Intermediate",
-      change: "+3",
     },
   ];
-
-  const weeklyTop = [
-    {
-      rank: 1,
-      name: "Alex Rivera",
-      username: "alexr",
-      avatar: "/placeholder.svg?height=32&width=32",
-      points: 340,
-      prompts: 3,
-      badge: "Advanced",
-    },
-    {
-      rank: 2,
-      name: "Sarah Chen",
-      username: "sarahc",
-      avatar: "/placeholder.svg?height=32&width=32",
-      points: 280,
-      prompts: 2,
-      badge: "Expert",
-    },
-    {
-      rank: 3,
-      name: "Mike Johnson",
-      username: "mikej",
-      avatar: "/placeholder.svg?height=32&width=32",
-      points: 220,
-      prompts: 2,
-      badge: "Advanced",
-    },
-  ];
-
-  const getRankIcon = (rank: number) => {
-    switch (rank) {
-      case 1:
-        return <Crown className="h-5 w-5 text-yellow-500" />;
-      case 2:
-        return <Medal className="h-5 w-5 text-gray-400" />;
-      case 3:
-        return <Award className="h-5 w-5 text-amber-600" />;
-      default:
-        return <span className="text-muted-foreground text-lg font-bold">#{rank}</span>;
-    }
-  };
-
-  const getChangeColor = (change: string) => {
-    if (change.startsWith("+")) return "text-green-500";
-    if (change.startsWith("-")) return "text-red-500";
-    return "text-muted-foreground";
-  };
 
   return (
     <div className="space-y-6">
@@ -193,39 +136,9 @@ export default function LeaderboardClient() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4 p-4">
-                  {trendingUsers.map((data, index) => (
-                    <div
-                      key={data.user.rank}
-                      className="hover:bg-muted/50 flex items-center justify-between rounded-lg border px-4 py-2"
-                    >
-                      <div className="flex items-center space-x-3">
-                        {getRankIcon(index + 1)}
-                        <Avatar className="h-6 w-6">
-                          <AvatarImage src={data.user.avatar || ""} />
-                          <AvatarFallback>
-                            {data.user.fullname
-                              .split(" ")
-                              .map((n) => n[0])
-                              .join("")}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <div className="flex items-center space-x-2">
-                            <span className="font-medium">{data.user.fullname}</span>
-                            <Badge variant="outline" className="text-xs">
-                              {data.user.rank}
-                            </Badge>
-                          </div>
-                          <span className="text-muted-foreground text-sm">
-                            @{data.user.username}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <div className="font-semibold">{data.totalScore} pts</div>
-                      </div>
-                    </div>
-                  ))}
+                  {/* {trendingUsers.map((user: RankUser, index: number) => (
+                    <UserRankCard key={user._id} user={user} index={index} />
+                  ))} */}
                 </CardContent>
               </Card>
             </TabsContent>
@@ -239,56 +152,8 @@ export default function LeaderboardClient() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4 p-4">
-                  {topContributors.map((user) => (
-                    <div
-                      key={user.rank}
-                      className={`hover:bg-muted/50 flex items-center justify-between rounded-lg px-4 py-3 transition-colors ${
-                        user.rank <= 3 ? "bg-muted/30" : "border"
-                      }`}
-                    >
-                      <div className="flex items-center space-x-4">
-                        {getRankIcon(user.rank)}
-                        <Avatar className="h-10 w-10">
-                          <AvatarImage src={user.avatar || "/placeholder.svg"} />
-                          <AvatarFallback>
-                            {user.name
-                              .split(" ")
-                              .map((n) => n[0])
-                              .join("")}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <div className="flex items-center space-x-2">
-                            <Link href={`/profile/${user.username}`}>
-                              <span className="hover:text-primary cursor-pointer font-semibold">
-                                {user.name}
-                              </span>
-                            </Link>
-                            <Badge variant="outline" className="text-xs">
-                              {user.badge}
-                            </Badge>
-                          </div>
-                          <div className="text-muted-foreground flex items-center space-x-4 text-sm">
-                            <span>@{user.username}</span>
-                            <span className="flex items-center gap-1">
-                              <Flame className="h-3 w-3" />
-                              {user.streak}d
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="text-right">
-                        <div className="text-lg font-bold">{user.points.toLocaleString()}</div>
-                        <div className="text-muted-foreground flex items-center justify-end space-x-3 text-sm">
-                          <span>{user.prompts} prompts</span>
-                          <span>{user.likes} likes</span>
-                          <span className={getChangeColor(user.change)}>
-                            {user.change !== "0" && user.change}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
+                  {topContributors.map((user: RankUser, index: number) => (
+                    <UserRankCard key={user._id} user={user} index={index} />
                   ))}
                 </CardContent>
               </Card>
