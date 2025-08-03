@@ -20,7 +20,6 @@ export default function LeaderboardClient() {
       prompts: 28,
       likes: 2341,
       streak: 15,
-      badge: "Expert",
       change: "+2",
     },
     {
@@ -32,7 +31,6 @@ export default function LeaderboardClient() {
       prompts: 24,
       likes: 1987,
       streak: 12,
-      badge: "Advanced",
       change: "0",
     },
     {
@@ -44,7 +42,6 @@ export default function LeaderboardClient() {
       prompts: 19,
       likes: 1654,
       streak: 8,
-      badge: "Expert",
       change: "-1",
     },
     {
@@ -56,7 +53,6 @@ export default function LeaderboardClient() {
       prompts: 22,
       likes: 1432,
       streak: 6,
-      badge: "Advanced",
       change: "+1",
     },
     {
@@ -68,7 +64,6 @@ export default function LeaderboardClient() {
       prompts: 18,
       likes: 1298,
       streak: 4,
-      badge: "Intermediate",
       change: "+3",
     },
   ];
@@ -216,9 +211,6 @@ export default function LeaderboardClient() {
                                 {user.name}
                               </span>
                             </Link>
-                            <Badge variant="outline" className="text-xs">
-                              {user.badge}
-                            </Badge>
                           </div>
                           <div className="text-muted-foreground flex items-center space-x-4 text-sm">
                             <span>@{user.username}</span>

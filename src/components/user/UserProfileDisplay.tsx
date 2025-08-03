@@ -6,7 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
 import { JSX, useState } from "react";
 import { SiGithub, SiInstagram, SiLinkedin, SiX } from "react-icons/si";
-import { getFollowButtonVariant, getPlanColor, getRankColor, socialColors } from "@/lib/ui-utils";
+import { getFollowButtonVariant, getPlanColor, socialColors } from "@/lib/ui-utils";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -27,7 +27,6 @@ interface DisplayUser {
   socials?: SocialLink[];
   avatar: string;
   plan: string;
-  rank: string;
   streak: {
     current: number;
     best: number;
@@ -137,10 +136,6 @@ export function UserProfileDisplay({ user, isOwnProfile, followStatus }: UserPro
 
                 <div className="mt-4 flex flex-wrap justify-center gap-2 md:justify-start">
                   {isOwnProfile && <Badge className={getPlanColor(user.plan)}>{user.plan}</Badge>}
-                  <Badge className={getRankColor(user.rank)}>
-                    <Trophy className="mr-1 h-3 w-3" />
-                    {user.rank}
-                  </Badge>
                 </div>
               </div>
             </div>

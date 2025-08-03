@@ -14,9 +14,6 @@ export function UserCardSkeleton() {
           <Skeleton className="h-4 w-32 rounded" />
           <Skeleton className="h-3 w-24 rounded" />
         </div>
-
-        {/* Rank badge */}
-        <Skeleton className="h-6 w-16 rounded-full" />
       </CardContent>
     </Card>
   );

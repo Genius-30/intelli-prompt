@@ -1,3 +1,6 @@
+export const dynamic = "force-static"; // Ensure SSG
+export const runtime = "nodejs";       // Force Node.js runtime
+
 import fs from "fs";
 import path from "path";
 import matter from "gray-matter";

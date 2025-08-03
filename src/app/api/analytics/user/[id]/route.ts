@@ -49,7 +49,6 @@ async function getUserAnalytics(userId: string) {
     email: user.email,
     avatar: user.avatar,
     plan: user.plan,
-    rank: user.rank,
     streak: user.streak,
     subscription,
     createdAt: user.createdAt,

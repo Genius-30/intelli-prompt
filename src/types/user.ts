@@ -6,7 +6,6 @@ export type User = {
   email: string;
   avatar?: string;
   plan: "Free" | "Premium" | "Enterprise";
-  rank: "Rookie" | "Cadet" | "Elite" | "Veteran" | "Master";
   subscriptionEnds: Date;
   streak: {
     current: number;

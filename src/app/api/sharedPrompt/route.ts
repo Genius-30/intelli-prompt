@@ -84,7 +84,6 @@ function getAllSharedPrompts() {
         "owner.username": 1,
         "owner.avatar": 1,
         "owner._id": 1,
-        "owner.rank": 1
       }
     }
   ])

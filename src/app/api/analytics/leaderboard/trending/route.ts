@@ -81,7 +81,6 @@ async function getTrendingUsers() {
           'user.username': 1,
           'user.fullname': 1,
           'user.avatar': 1,
-          'user.rank': 1
         }
       }
     ]);

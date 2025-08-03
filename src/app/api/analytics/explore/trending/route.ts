@@ -56,7 +56,6 @@ async function getTrendingPosts(userId?: string | null) {
     "owner._id": 1,
     "owner.username": 1,
     "owner.avatar": 1,
-    "owner.rank": 1
   }
 
   // If user is logged in, add isUserLiked and isUserSaved
