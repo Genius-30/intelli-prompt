@@ -11,8 +11,10 @@ export const useCurrentUser = ({ enabled = true }: { enabled?: boolean } = {}) =
       const { data } = await axiosInstance.get("/user");
       return data.mongoUser as User;
     },
-    staleTime: 1000 * 60 * 5,
     enabled,
+    staleTime: 1000 * 60 * 5,
+    retry: false,
+    refetchOnWindowFocus: false,
   });
 };
 

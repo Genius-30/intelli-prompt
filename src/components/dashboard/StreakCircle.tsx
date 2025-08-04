@@ -27,7 +27,7 @@ const StreakCircle: React.FC<StreakCircleProps> = ({ currentStreak, longestStrea
         return (
           <div
             key={i}
-            className={`absolute flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold transition-all duration-300 ${isFilled ? "bg-primary text-white" : "bg-gray-700 text-transparent"} ${isGlowing ? "shadow-[0_0_12px_8px_rgba(89,89,229,0.7)]" : ""}`}
+            className={`absolute flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold transition-all duration-300 ${isFilled ? "bg-primary text-white" : "bg-muted text-transparent"} ${isGlowing ? "shadow-[0_0_12px_3px_rgba(89,89,229,0.7)]" : ""}`}
             style={{ top: y, left: x, transform: `scale(${scale})`, opacity: opacity }}
           >
             {isFilled ? "✔" : ""}
@@ -35,10 +35,12 @@ const StreakCircle: React.FC<StreakCircleProps> = ({ currentStreak, longestStrea
         );
       })}
 
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center text-white">
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center">
         <div className="text-primary text-2xl font-bold">{currentStreak}</div>
-        <div className="text-sm text-gray-300">Current Streak</div>
-        <div className="text-xs text-gray-400">Longest Streak: {longestStreak}</div>
+        <div className="text-muted-foreground text-sm">Current Streak</div>
+        <div className="text-muted-foreground text-xs">
+          Longest Streak: <span className="text-amber-500">{longestStreak}</span>
+        </div>
       </div>
     </div>
   );

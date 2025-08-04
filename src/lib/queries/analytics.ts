@@ -1,3 +1,4 @@
+import { CurrentUserRankData, UserStats } from "@/types/user";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import axiosInstance from "../axios";
@@ -10,6 +11,8 @@ export const useUserStreakGraph = () => {
       return data.graphDates;
     },
     staleTime: 1000 * 60 * 5, // 5 minutes cache
+    refetchOnWindowFocus: false,
+    retry: 1,
   });
 };
 
@@ -54,13 +57,51 @@ export const useRecentVersions = () => {
   });
 };
 
-export function useTrendingUsers() {
+export function useLeaderboardTrendingUsers() {
   return useQuery({
     queryKey: ["trending-users"],
     queryFn: async () => {
       const res = await axiosInstance.get("/analytics/leaderboard/trending");
       return res.data.data;
     },
-    staleTime: 1000 * 60, // 1 minute cache
+    staleTime: 1000 * 60, // 1 minute
+    refetchOnWindowFocus: false,
+    retry: 1,
   });
 }
+
+export function useLeaderboardOverallUsers() {
+  return useQuery({
+    queryKey: ["trending-users-overall"],
+    queryFn: async () => {
+      const res = await axiosInstance.get("/analytics/leaderboard/overall");
+      return res.data.data;
+    },
+    staleTime: 1000 * 60, // cache for 1 minute
+  });
+}
+
+export const useUserStats = ({ enabled }: { enabled?: boolean } = {}) => {
+  return useQuery({
+    queryKey: ["userStats"],
+    queryFn: async () => {
+      const res = await axiosInstance.post("/analytics/stats");
+      return res.data.data as UserStats;
+    },
+    enabled,
+    staleTime: 60 * 1000, // 1 minute
+    retry: 1,
+  });
+};
+
+export const useUserScoreAndRank = ({ enabled }: { enabled?: boolean }) => {
+  return useQuery({
+    queryKey: ["userScoreAndRank"],
+    queryFn: async () => {
+      const response = await axiosInstance.get("/analytics/leaderboard/userScore");
+      return response.data.data as CurrentUserRankData;
+    },
+    staleTime: 1000 * 60, // 1 min cache
+    retry: 1,
+  });
+};

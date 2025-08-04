@@ -108,7 +108,7 @@ export default function DashboardLayout({
         </SidebarFooter>
       </Sidebar>
 
-      <SidebarInset>
+      <SidebarInset className="bg-background">
         <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
           <SidebarTrigger className="-ml-1" />
 

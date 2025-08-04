@@ -2,65 +2,101 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { CheckCircle, Clock, FileText, Folder, Heart, Zap } from "lucide-react";
+import { useRecentVersions, useUserStats } from "@/lib/queries/analytics";
 
 import { FolderSelectModal } from "@/components/dashboard/FolderSelectModal";
 import GradientProgress from "@/components/ui/gradient-progress";
 import Link from "next/link";
 import RecentPromptSkeleton from "@/components/skeletons/RecentPromptsSkeleton";
+import { Skeleton } from "@/components/ui/skeleton";
 import StreakCircle from "@/components/dashboard/StreakCircle";
 import StreakCircleSkeleton from "@/components/skeletons/StreakCircleSkeleton";
 import { formatDistanceToNow } from "date-fns";
 import { useCurrentUser } from "@/lib/queries/user";
-import { useRecentVersions } from "@/lib/queries/analytics";
 import { useState } from "react";
-
-const dashboardStats = [
-  {
-    title: "Total Prompts",
-    value: "28",
-    icon: <FileText className="text-muted-foreground h-4 w-4" />,
-    description: (
-      <p className="text-muted-foreground text-xs">
-        <span className="text-green-500">+4</span> from last month
-      </p>
-    ),
-  },
-  {
-    title: "Token Usage",
-    value: "12.4K",
-    icon: <Zap className="text-muted-foreground h-4 w-4" />,
-    description: (
-      <>
-        <GradientProgress value={62} className="mt-2" />
-        <p className="text-muted-foreground mt-1 text-xs">62% of monthly limit</p>
-      </>
-    ),
-  },
-  {
-    title: "Community Likes",
-    value: "156",
-    icon: <Heart className="text-muted-foreground h-4 w-4" />,
-    description: (
-      <p className="text-muted-foreground text-xs">
-        <span className="text-green-500">+12</span> this week
-      </p>
-    ),
-  },
-  {
-    title: "Shared Prompts",
-    value: "42",
-    icon: <CheckCircle className="text-muted-foreground h-4 w-4" />,
-    description: (
-      <p className="text-muted-foreground text-xs">
-        <span className="text-green-500">+3</span> this month
-      </p>
-    ),
-  },
-];
 
 export default function DashboardClient() {
   const { data: user, isLoading: isUserLoading } = useCurrentUser();
   const { data: recentPrompts, isLoading: isRecentPromptsLoading } = useRecentVersions();
+  const { data: stats, isLoading: isStatsLoading } = useUserStats();
+
+  const dashboardStats = stats
+    ? [
+        {
+          title: stats.totalPrompts.label,
+          value: stats.totalPrompts.value,
+          icon: <FileText className="text-muted-foreground h-4 w-4" />,
+          description: (
+            <p className="text-muted-foreground text-xs">
+              <span
+                className={`${
+                  parseFloat(stats.totalPrompts.trend) > 0 ? "text-green-500" : "text-red-500"
+                }`}
+              >
+                {stats.totalPrompts.trend.split(" ")[0]}
+              </span>{" "}
+              {stats.totalPrompts.trend.split(" ").slice(1).join(" ")}
+            </p>
+          ),
+        },
+        {
+          title: stats.tokenUsage.label,
+          value: stats.tokenUsage.value,
+          icon: <Zap className="text-muted-foreground h-4 w-4" />,
+          description: (
+            <>
+              <GradientProgress value={stats.tokenUsage.progress} className="mt-2" />
+              <p className="text-muted-foreground mt-1 text-xs">
+                <span
+                  className={`${
+                    parseFloat(stats.tokenUsage.progressLabel) > 0
+                      ? "text-red-500"
+                      : "text-yellow-500"
+                  }`}
+                >
+                  {stats.tokenUsage.progressLabel.split(" ")[0]}
+                </span>{" "}
+                {stats.tokenUsage.progressLabel.split(" ").slice(1).join(" ")}
+              </p>
+            </>
+          ),
+        },
+        {
+          title: stats.communityLikes.label,
+          value: stats.communityLikes.value,
+          icon: <Heart className="text-muted-foreground h-4 w-4" />,
+          description: (
+            <p className="text-muted-foreground text-xs">
+              <span
+                className={`${
+                  parseFloat(stats.communityLikes.trend) > 0 ? "text-green-500" : "text-red-500"
+                }`}
+              >
+                {stats.communityLikes.trend.split(" ")[0]}
+              </span>{" "}
+              {stats.communityLikes.trend.split(" ").slice(1).join(" ")}
+            </p>
+          ),
+        },
+        {
+          title: stats.sharedPrompts.label,
+          value: stats.sharedPrompts.value,
+          icon: <CheckCircle className="text-muted-foreground h-4 w-4" />,
+          description: (
+            <p className="text-muted-foreground text-xs">
+              <span
+                className={`${
+                  parseFloat(stats.sharedPrompts.trend) > 0 ? "text-green-500" : "text-red-500"
+                }`}
+              >
+                {stats.sharedPrompts.trend.split(" ")[0]}
+              </span>{" "}
+              {stats.sharedPrompts.trend.split(" ").slice(1).join(" ")}
+            </p>
+          ),
+        },
+      ]
+    : [];
 
   const [expandedPrompts, setExpandedPrompts] = useState<Record<string, boolean>>({});
 
@@ -108,25 +144,47 @@ export default function DashboardClient() {
         </Card>
 
         {/* Stat Cards */}
-        <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2">
-          {dashboardStats.map((stat, i) => (
-            <Card
-              key={i}
-              className="gap-1 rounded-2xl border-0 py-4 shadow-md transition-shadow duration-300 hover:shadow-xl"
-            >
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-muted-foreground text-sm font-semibold">
-                  {stat.title}
-                </CardTitle>
-                <div className="bg-muted rounded-full p-2">{stat.icon}</div>
-              </CardHeader>
-              <CardContent>
-                <div className="text-foreground text-2xl font-bold">{stat.value}</div>
-                {stat.description}
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+        {isStatsLoading ? (
+          <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2">
+            {[...Array(4)].map((_, i) => (
+              <Card
+                key={`stat-skeleton-${i}`}
+                className="gap-1 rounded-2xl border-0 py-4 shadow-md"
+              >
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <Skeleton className="h-4 w-24" />
+                  <div className="bg-muted rounded-full p-2">
+                    <Skeleton className="h-4 w-4" />
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  <Skeleton className="h-6 w-20" />
+                  <Skeleton className="h-3 w-28" />
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        ) : (
+          <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2">
+            {dashboardStats.map((stat, i) => (
+              <Card
+                key={i}
+                className="gap-1 rounded-2xl border-0 py-4 shadow-md transition-shadow duration-300 hover:shadow-xl"
+              >
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <CardTitle className="text-muted-foreground text-sm font-semibold">
+                    {stat.title}
+                  </CardTitle>
+                  <div className="bg-muted rounded-full p-2">{stat.icon}</div>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-foreground text-2xl font-bold">{stat.value}</div>
+                  {stat.description}
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="flex flex-wrap items-start gap-6">

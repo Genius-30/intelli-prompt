@@ -1,8 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { SharedPrompt } from '@/models/sharedPrompt.model';
-import connectDb from '@/lib/db';
-import { rateLimit } from '@/lib/rateLimit';
-import { getSetCache } from '@/lib/redisCache';
+import { NextRequest, NextResponse } from "next/server";
+
+import { SharedPrompt } from "@/models/sharedPrompt.model";
+import connectDb from "@/lib/db";
+import { getSetCache } from "@/lib/redisCache";
+import { rateLimit } from "@/lib/rateLimit";
 
 export async function GET(req: NextRequest) {
   try {
@@ -11,11 +12,11 @@ export async function GET(req: NextRequest) {
 
     await connectDb();
 
-    const data = await getSetCache('trendingUsersWeekly', 60, getTrendingUsers);
-    
-    return NextResponse.json({ message:'trending users fetched', data }, { status: 200 });
+    const data = await getSetCache("trendingUsersWeekly", 60, getTrendingUsers);
+
+    return NextResponse.json({ message: "trending users fetched", data }, { status: 200 });
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to fetch trending users' }, { status: 500 });
+    return NextResponse.json({ error: "Failed to fetch trending users" }, { status: 500 });
   }
 }
 
@@ -24,65 +25,65 @@ async function getTrendingUsers() {
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
   return await SharedPrompt.aggregate([
-      {
-        $match: {
-          createdAt: { $gte: sevenDaysAgo }
-        }
+    {
+      $match: {
+        createdAt: { $gte: sevenDaysAgo },
       },
-      {
-        $project: {
-          ownerId: 1,
-          likes: 1,
-          score: {
-            $add: [
-              { $multiply: [{ $size: { $ifNull: ['$likes', []] } }, 1] },
-              { $multiply: [{ $size: { $ifNull: ['$saves', []] } }, 3] },
-              { $multiply: [{ $size: { $ifNull: ['$comments', []] } }, 5] },
-              { $multiply: [{ $size: { $ifNull: ['$shares', []] } }, 8] }
-            ]
-          }
-        }
+    },
+    {
+      $project: {
+        ownerId: 1,
+        likes: 1,
+        score: {
+          $add: [
+            { $multiply: [{ $size: { $ifNull: ["$likes", []] } }, 1] },
+            { $multiply: [{ $size: { $ifNull: ["$saves", []] } }, 3] },
+            { $multiply: [{ $size: { $ifNull: ["$comments", []] } }, 5] },
+            { $multiply: [{ $size: { $ifNull: ["$shares", []] } }, 8] },
+          ],
+        },
       },
-      {
-        $group: {
-          _id: '$ownerId',
-          totalScore: { $sum: '$score' },
-          totalSharedPrompts: { $sum: 1 },
-          totalLikes: { $sum: { $size: { $ifNull: ['$likes', []] } } }
-        }
+    },
+    {
+      $group: {
+        _id: "$ownerId",
+        totalScore: { $sum: "$score" },
+        totalSharedPrompts: { $sum: 1 },
+        totalLikes: { $sum: { $size: { $ifNull: ["$likes", []] } } },
       },
-      {
-        $sort: { totalScore: -1 }
+    },
+    {
+      $sort: { totalScore: -1 },
+    },
+    {
+      $limit: 20,
+    },
+    {
+      $lookup: {
+        from: "users",
+        localField: "_id",
+        foreignField: "_id",
+        as: "user",
       },
-      {
-        $limit: 20
+    },
+    {
+      $unwind: {
+        path: "$user",
+        preserveNullAndEmptyArrays: true,
       },
-      {
-        $lookup: {
-          from: 'users',
-          localField: '_id',
-          foreignField: '_id',
-          as: 'user'
-        }
+    },
+    {
+      $project: {
+        _id: 0,
+        userId: "$_id",
+        totalScore: 1,
+        totalSharedPrompts: 1,
+        totalLikes: 1,
+        "user.username": 1,
+        "user.fullname": 1,
+        "user.avatar": 1,
+        "user.streak.best": 1,
       },
-      {
-        $unwind: {
-          path: '$user',
-          preserveNullAndEmptyArrays: true
-        }
-      },
-      {
-        $project: {
-          _id: 0,
-          userId: '$_id',
-          totalScore: 1,
-          totalSharedPrompts: 1,
-          totalLikes: 1,
-          'user.username': 1,
-          'user.fullname': 1,
-          'user.avatar': 1,
-          'user.rank': 1
-        }
-      }
-    ]);
+    },
+  ]);
 }

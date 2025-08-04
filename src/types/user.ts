@@ -6,7 +6,6 @@ export type User = {
   email: string;
   avatar?: string;
   plan: "Free" | "Premium" | "Enterprise";
-  rank: "Rookie" | "Cadet" | "Elite" | "Veteran" | "Master";
   subscriptionEnds: Date;
   streak: {
     current: number;
@@ -34,13 +33,47 @@ export interface SocialLink {
 }
 
 export type RankUser = {
-  _id: string;
-  rank: string;
-  name: string;
-  username: string;
-  avatar: string;
-  points: number;
-  prompts: number;
-  likes: number;
-  streak: number;
+  userId: string;
+  user: {
+    fullname: string;
+    username: string;
+    avatar?: string;
+    streak: {
+      best: number;
+    };
+  };
+  totalScore: number;
+  totalSharedPrompts: number;
+  totalLikes: number;
 };
+
+export type UserStats = {
+  totalPrompts: {
+    label: string;
+    value: number;
+    trend: string;
+  };
+  tokenUsage: {
+    label: string;
+    value: string;
+    progress: number;
+    progressLabel: string;
+  };
+  communityLikes: {
+    label: string;
+    value: number;
+    trend: string;
+  };
+  sharedPrompts: {
+    label: string;
+    value: number;
+    trend: string;
+  };
+};
+
+export interface CurrentUserRankData {
+  userId: string;
+  totalScore: number;
+  rank: number | null;
+  totalUsers: number;
+}

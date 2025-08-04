@@ -3,80 +3,69 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Share2, TrendingUp, Trophy } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  useLeaderboardOverallUsers,
+  useLeaderboardTrendingUsers,
+  useUserScoreAndRank,
+  useUserStats,
+} from "@/lib/queries/analytics";
 
 import { Button } from "@/components/ui/button";
+import { RankGuideModal } from "@/components/leaderboard/RankGuideModal";
 import { RankUser } from "@/types/user";
-import UserRankCard from "@/components/leaderboard/userRankCard";
-import { useTrendingUsers } from "@/lib/queries/analytics";
+import { Skeleton } from "@/components/ui/skeleton";
+import UserRankCard from "@/components/leaderboard/UserRankCard";
+import UserRankCardSkeleton from "@/components/skeletons/UserRankCardSkeleton";
+import { useAuth } from "@clerk/nextjs";
+import { useOpenAuthModal } from "@/hooks/useOpenAuthModal";
+import { useState } from "react";
 
-export default function LeaderboardClient() {
-  const { data: trendingUsers, isLoading: isLoadingTrendingUsers } = useTrendingUsers();
+export default function LeaderboardPage() {
+  const { isSignedIn } = useAuth();
+  const openAuthModal = useOpenAuthModal();
 
-  if (isLoadingTrendingUsers) {
-    return (
-      <div className="flex h-full items-center justify-center">
-        <p className="text-muted-foreground">Loading...</p>
-      </div>
-    );
-  }
+  const [isRankGuideOpen, setIsRankGuideOpen] = useState(false);
 
-  const topContributors = [
-    {
-      _id: "1",
-      rank: "Rookie",
-      name: "Techo Biz",
-      username: "techobiz",
-      avatar: "/placeholder.svg?height=40&width=40",
-      points: 2450,
-      prompts: 28,
-      likes: 2341,
-      streak: 15,
-    },
-    {
-      _id: "2",
-      rank: "Pro",
-      name: "Genius Porwal",
-      username: "thisisgenius",
-      avatar: "/placeholder.svg?height=40&width=40",
-      points: 2180,
-      prompts: 24,
-      likes: 1987,
-      streak: 12,
-    },
-    {
-      _id: "3",
-      rank: "Expert",
-      name: "Dr. Emily Watson",
-      username: "emilyw",
-      avatar: "/placeholder.svg?height=40&width=40",
-      points: 1950,
-      prompts: 19,
-      likes: 1654,
-      streak: 8,
-    },
-    {
-      _id: "4",
-      rank: "Master",
-      name: "Alex Rivera",
-      username: "alexr",
-      avatar: "/placeholder.svg?height=40&width=40",
-      points: 1820,
-      prompts: 22,
-      likes: 1432,
-      streak: 6,
-    },
-    {
-      _id: "5",
-      rank: "Champion",
-      name: "David Kim",
-      username: "davidk",
-      avatar: "/placeholder.svg?height=40&width=40",
-      points: 1650,
-      prompts: 18,
-      likes: 1298,
-      streak: 4,
-    },
-  ];
+  const { data: trendingUsers, isLoading: isLoadingTrendingUsers } = useLeaderboardTrendingUsers();
+  const { data: overallUsers, isLoading: isLoadingOverallUsers } = useLeaderboardOverallUsers();
+
+  const { data: userScoreAndRank, isLoading: isLoadingUserScoreAndRank } = useUserScoreAndRank({
+    enabled: isSignedIn,
+  });
+
+  const { data: userStats, isLoading: isLoadingUserStats } = useUserStats({
+    enabled: isSignedIn,
+  });
+
+  const handleShareStats = () => {
+    const baseUrl = window.location.origin;
+    const shareUrl = `${baseUrl}/leaderboard`;
+
+    const userRank = userScoreAndRank?.rank;
+    const totalScore = userScoreAndRank?.totalScore;
+
+    const shareText =
+      isSignedIn && userRank
+        ? `🚀 I'm ranked #${userRank} on IntelliPrompt with ${totalScore} points!\nJoin the leaderboard here:`
+        : "Check out the IntelliPrompt leaderboard! See top community contributors:";
+
+    const shareData = {
+      title: "My IntelliPrompt Stats",
+      text: `${shareText}\n${shareUrl}`,
+      url: shareUrl,
+    };
+
+    if (navigator.share) {
+      navigator.share(shareData).catch((err) => console.error("Sharing failed", err));
+    } else {
+      navigator.clipboard.writeText(`${shareText}\n${shareUrl}`);
+      alert("Share text copied to clipboard!");
+    }
+  };
+
+  const handleSignIn = () => {
+    openAuthModal();
+  };
 
   return (
     <div className="space-y-6">
@@ -89,24 +78,7 @@ export default function LeaderboardClient() {
           </p>
         </div>
 
-        <Button
-          variant="outline"
-          className="text-sm"
-          onClick={() => {
-            const shareData = {
-              title: "My IntelliPrompt Stats",
-              text: "Check out my leaderboard stats on IntelliPrompt!",
-              url: window.location.href,
-            };
-
-            if (navigator.share) {
-              navigator.share(shareData).catch((err) => console.error("Sharing failed", err));
-            } else {
-              navigator.clipboard.writeText(window.location.href);
-              alert("Link copied to clipboard!");
-            }
-          }}
-        >
+        <Button variant="outline" className="text-sm" onClick={handleShareStats}>
           <Share2 className="mr-2 h-4 w-4" />
           Share Stats
         </Button>
@@ -136,9 +108,11 @@ export default function LeaderboardClient() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4 p-4">
-                  {/* {trendingUsers.map((user: RankUser, index: number) => (
-                    <UserRankCard key={user._id} user={user} index={index} />
-                  ))} */}
+                  {isLoadingTrendingUsers
+                    ? Array.from({ length: 5 }).map((_, idx) => <UserRankCardSkeleton key={idx} />)
+                    : trendingUsers.map((user: RankUser, index: number) => (
+                        <UserRankCard key={user.userId} user={user} index={index} />
+                      ))}
                 </CardContent>
               </Card>
             </TabsContent>
@@ -152,45 +126,82 @@ export default function LeaderboardClient() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4 p-4">
-                  {topContributors.map((user: RankUser, index: number) => (
-                    <UserRankCard key={user._id} user={user} index={index} />
-                  ))}
+                  {isLoadingOverallUsers
+                    ? Array.from({ length: 5 }).map((_, idx) => <UserRankCardSkeleton key={idx} />)
+                    : overallUsers.map((user: RankUser, index: number) => (
+                        <UserRankCard key={user.userId} user={user} index={index} />
+                      ))}
                 </CardContent>
               </Card>
             </TabsContent>
           </Tabs>
         </div>
 
-        <div className="space-y-6">
-          {/* Your Rank */}
-          <Card>
-            <CardHeader>
+        <div className="w-full self-start">
+          <Card className="min-h-72 space-y-6">
+            <CardHeader className="m-0">
               <CardTitle>Your Rank</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="text-center">
-                <div className="text-3xl font-bold">#47</div>
-                <div className="text-muted-foreground">out of 2,341 users</div>
-              </div>
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span>Points</span>
-                  <span className="font-medium">890</span>
+
+            {isSignedIn ? (
+              <CardContent className="space-y-4">
+                {/* Rank */}
+                <div className="text-center">
+                  {isLoadingUserScoreAndRank ? (
+                    <>
+                      <Skeleton className="mx-auto h-8 w-12" />
+                      <Skeleton className="mx-auto mt-2 h-4 w-32" />
+                    </>
+                  ) : (
+                    <>
+                      <div className="text-3xl font-bold">#{userScoreAndRank?.rank ?? "-"}</div>
+                      <div className="text-muted-foreground">
+                        out of <span>{userScoreAndRank?.totalUsers}</span> users
+                      </div>
+                    </>
+                  )}
                 </div>
-                <div className="flex justify-between text-sm">
-                  <span>Prompts</span>
-                  <span className="font-medium">12</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span>Likes</span>
-                  <span className="font-medium">156</span>
-                </div>
-              </div>
-              <Button className="w-full">
-                <TrendingUp className="mr-2 h-4 w-4" />
-                Climb the Ranks
-              </Button>
-            </CardContent>
+
+                {/* Stats */}
+                {isLoadingUserStats ? (
+                  <div className="space-y-2">
+                    <Skeleton className="h-5 w-full" />
+                    <Skeleton className="h-5 w-full" />
+                    <Skeleton className="h-5 w-full" />
+                  </div>
+                ) : (
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span>Total Points</span>
+                      <span className="font-medium">{userScoreAndRank?.totalScore ?? 0}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Prompts Shared</span>
+                      <span className="font-medium">{userStats?.totalPrompts.value ?? 0}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Community Likes</span>
+                      <span className="font-medium">{userStats?.communityLikes.value ?? 0}</span>
+                    </div>
+                  </div>
+                )}
+
+                <Button className="mt-4 w-full" onClick={() => setIsRankGuideOpen(true)}>
+                  <TrendingUp className="mr-2 h-4 w-4" />
+                  Climb the Ranks
+                </Button>
+                <RankGuideModal open={isRankGuideOpen} onOpenChange={setIsRankGuideOpen} />
+              </CardContent>
+            ) : (
+              <CardContent className="my-auto flex h-full flex-col items-center justify-center space-y-4">
+                <span className="text-muted-foreground text-sm">
+                  Sign in to view your rank and stats
+                </span>
+                <Button variant="default" onClick={handleSignIn}>
+                  Login to Continue
+                </Button>
+              </CardContent>
+            )}
           </Card>
         </div>
       </div>

@@ -1,27 +1,26 @@
 import { NextRequest, NextResponse } from "next/server";
-import { rateLimit } from "@/lib/rateLimit";
-import { getAuthenticatedUser } from "@/utils/getAuthenticatedUser";
-import { getSetCache } from "@/lib/redisCache";
+
 import { Prompt } from "@/models/prompt.model";
 import { SharedPrompt } from "@/models/sharedPrompt.model";
 import { User } from "@/models/user.model";
 import connectDb from "@/lib/db";
+import { getAuthenticatedUser } from "@/utils/getAuthenticatedUser";
+import { getSetCache } from "@/lib/redisCache";
+import { rateLimit } from "@/lib/rateLimit";
 
 export async function POST(req: NextRequest) {
   try {
     const result = await rateLimit(req);
     if (result) return result;
 
-    // const { userId, error } = await getAuthenticatedUser();
-    // if (error) return error;
-    await connectDb()
-    const {userId} = await req.json()
-  
-    const data = await getSetCache(`userStats:${userId}`, 60 , () => getUserStats(userId)) 
+    const { userId, error } = await getAuthenticatedUser();
+    if (error) return error;
 
-    return NextResponse.json({ message: 'user stats fetched', data }, { status: 200 });
+    const data = await getSetCache(`userStats:${userId}`, 60, () => getUserStats(userId));
+
+    return NextResponse.json({ message: "user stats fetched", data }, { status: 200 });
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to fetch user stats' }, { status: 500 });
+    return NextResponse.json({ error: "Failed to fetch user stats" }, { status: 500 });
   }
 }
 
@@ -47,21 +46,27 @@ async function getUserStats(userId: string) {
     lastMonthSharedPrompts,
     user,
     sharedPromptLikes,
-    lastWeekLikes
+    lastWeekLikes,
   ] = await Promise.all([
     Prompt.countDocuments({ ownerId: userId }),
-    Prompt.countDocuments({ ownerId: userId, createdAt: { $gte: startOfLastMonth, $lte: endOfLastMonth } }),
+    Prompt.countDocuments({
+      ownerId: userId,
+      createdAt: { $gte: startOfLastMonth, $lte: endOfLastMonth },
+    }),
     SharedPrompt.countDocuments({ ownerId: userId }),
-    SharedPrompt.countDocuments({ ownerId: userId, createdAt: { $gte: startOfLastMonth, $lte: endOfLastMonth } }),
+    SharedPrompt.countDocuments({
+      ownerId: userId,
+      createdAt: { $gte: startOfLastMonth, $lte: endOfLastMonth },
+    }),
     User.findById({ _id: userId }, { tokensUsed: 1, tokenLimit: 1, _id: 0 }),
     SharedPrompt.aggregate([
       { $match: { ownerId: userId } },
-      { $group: { _id: null, totalLikes: { $sum: { $size: { $ifNull: ["$likes", []] } } } } }
+      { $group: { _id: null, totalLikes: { $sum: { $size: { $ifNull: ["$likes", []] } } } } },
     ]),
     SharedPrompt.aggregate([
       { $match: { ownerId: userId, createdAt: { $gte: startOfLastWeek, $lte: endOfLastWeek } } },
-      { $group: { _id: null, totalLikes: { $sum: { $size: { $ifNull: ["$likes", []] } } } } }
-    ])
+      { $group: { _id: null, totalLikes: { $sum: { $size: { $ifNull: ["$likes", []] } } } } },
+    ]),
   ]);
 
   const tokenUsage = user?.tokensUsed || 0;
@@ -70,7 +75,8 @@ async function getUserStats(userId: string) {
   const lastWeekTotalLikes = lastWeekLikes[0]?.totalLikes || 0;
 
   // Format values
-  const formattedTokenUsage = tokenUsage >= 1000 ? `${(tokenUsage / 1000).toFixed(1)}K` : tokenUsage.toString();
+  const formattedTokenUsage =
+    tokenUsage >= 1000 ? `${(tokenUsage / 1000).toFixed(1)}K` : tokenUsage.toString();
   // Calculate trends
   const promptsDiff = totalPrompts - lastMonthPrompts;
   const sharedPromptsDiff = totalSharedPrompts - lastMonthSharedPrompts;
@@ -81,25 +87,25 @@ async function getUserStats(userId: string) {
 
   return {
     totalPrompts: {
-      label: 'Total Prompts',
+      label: "Total Prompts",
       value: totalPrompts,
-      trend: `${promptsDiff >= 0 ? '+' : ''}${promptsDiff} from last month`
+      trend: `${promptsDiff >= 0 ? "+" : ""}${promptsDiff} from last month`,
     },
     tokenUsage: {
-      label: 'Token Usage',
+      label: "Token Usage",
       value: formattedTokenUsage,
       progress: tokenUsageProgress,
-      progressLabel: tokenUsageProgressLabel
+      progressLabel: tokenUsageProgressLabel,
     },
     communityLikes: {
-      label: 'Community Likes',
+      label: "Community Likes",
       value: totalLikes,
-      trend: `${likesDiff >= 0 ? '+' : ''}${likesDiff} this week`
+      trend: `${likesDiff >= 0 ? "+" : ""}${likesDiff} this week`,
     },
     sharedPrompts: {
-      label: 'Shared Prompts',
+      label: "Shared Prompts",
       value: totalSharedPrompts,
-      trend: `${sharedPromptsDiff >= 0 ? '+' : ''}${sharedPromptsDiff} this month`
-    }
+      trend: `${sharedPromptsDiff >= 0 ? "+" : ""}${sharedPromptsDiff} this month`,
+    },
   };
 }
