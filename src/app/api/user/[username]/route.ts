@@ -14,7 +14,7 @@ export async function GET(req: Request, { params }: { params: any }) {
 
     const user = await User.findOne({ username })
       .select(
-        "username fullname bio socials email avatar rank followerCount followeeCount createdAt"
+        "username fullname bio socials email avatar followerCount followeeCount createdAt"
       )
       .lean();
     if (!user) {

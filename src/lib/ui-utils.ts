@@ -11,17 +11,6 @@ export const getFollowButtonVariant = (followStatus?: {
   }
 };
 
-export const getRankColor = (rank: string): string => {
-  const colors = {
-    Rookie: "bg-gray-100 text-gray-700",
-    Cadet: "bg-blue-100 text-blue-700",
-    Elite: "bg-purple-100 text-purple-700",
-    Veteran: "bg-orange-100 text-orange-700",
-    Master: "bg-yellow-100 text-yellow-700",
-  };
-  return colors[rank as keyof typeof colors] || colors.Rookie;
-};
-
 export const getPlanColor = (plan: string): string => {
   const colors = {
     Free: "bg-gray-100 text-gray-700",

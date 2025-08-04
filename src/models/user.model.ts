@@ -8,7 +8,6 @@ export interface IUser extends Document {
   email: string;
   avatar: string;
   plan: "Free" | "Premium" | "Enterprise";
-  rank: "Rookie" | "Cadet" | "Elite" | "Veteran" | "Master";
   subscriptionEnds: Date;
   streak: {
     current: number;
@@ -24,6 +23,7 @@ export interface IUser extends Document {
     label: string;
     url: string;
   }[];
+  newsletter: boolean;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -40,11 +40,6 @@ const UserSchema: Schema<IUser> = new Schema(
       type: String,
       enum: ["Free", "Premium", "Enterprise"],
       default: "Free",
-    },
-    rank: {
-      type: String,
-      enum: ["Rookie", "Cadet", "Elite", "Veteran", "Master"],
-      default: "Rookie",
     },
     subscriptionEnds: {
       type: Date,
@@ -69,6 +64,7 @@ const UserSchema: Schema<IUser> = new Schema(
         },
       ],
     },
+    newsletter: { type: Boolean, default: false },
   },
   { _id: false, timestamps: true }
 );

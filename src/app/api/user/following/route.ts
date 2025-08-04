@@ -19,7 +19,7 @@ export async function POST(req: Request) {
 
     const followeeIds = followingList.map((follow) => follow.followeeId);
     const followees = await User.find({ _id: { $in: followeeIds } })
-      .select("_id fullname username avatar rank")
+      .select("_id fullname username avatar")
       .lean();
 
     return NextResponse.json(
