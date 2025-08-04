@@ -18,13 +18,13 @@ export async function POST( req: Request ) {
     // Set subscriptionEnds and tokenLimit based on plan
     if (plan === 'Premium') {
       user.subscriptionEnds = new Date(new Date().setMonth(new Date().getMonth() + 6))
-      user.tokenLimit = 100000
+      user.tokenLimit = 5000000
     } else if (plan === 'Enterprise') {
       user.subscriptionEnds = new Date(new Date().setMonth(new Date().getMonth() + 12))
-      user.tokenLimit = 10000000
+      user.tokenLimit = 25000000
     } else {
       user.subscriptionEnds = new Date(new Date().setMonth(new Date().getMonth() + 12))
-      user.tokenLimit = 1000
+      user.tokenLimit = 100000
     }
 
     user.plan = plan
