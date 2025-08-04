@@ -2,14 +2,27 @@ import { NextResponse } from 'next/server'
 import { User } from '@/models/user.model'
 import { getAuthenticatedUser } from '@/utils/getAuthenticatedUser'
 import { Subscription } from '@/models/subscription.model'
+import crypto from 'crypto'
 
 export async function POST( req: Request ) {
   try {
     const { userId, error } = await getAuthenticatedUser()
     if(error) return error
 
-    const { paymentId, amount, currency, plan } = await req.json()
-    
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature, plan, currency } = await req.json()
+    if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature || !plan || !currency) {
+      return NextResponse.json({ message: "Missing payment details" }, { status: 400 });
+    }
+
+    // verification of payment signature
+    const expectedSignature = crypto
+      .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET!)
+      .update(`${razorpay_order_id}|${razorpay_payment_id}`)
+      .digest("hex");
+    if (expectedSignature !== razorpay_signature) {
+      return NextResponse.json({ message: "Invalid payment signature" }, { status: 400 });
+    }
+
     const user = await User.findById({ _id: userId })
     if (!user) {
       return NextResponse.json({ message: 'user not found' }, { status: 404 })
@@ -34,8 +47,9 @@ export async function POST( req: Request ) {
 
     await Subscription.create({
       ownerId: userId,
-      paymentId,
-      amount,
+      razorpayOrderId: razorpay_order_id,
+      razorpayPaymentId: razorpay_payment_id,
+      amount: plan === 'Premium' ? 999 : 9999,
       currency,
       plan,
       subscriptionStart: new Date(),
