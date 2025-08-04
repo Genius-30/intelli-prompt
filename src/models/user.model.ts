@@ -23,6 +23,7 @@ export interface IUser extends Document {
     label: string;
     url: string;
   }[];
+  newsletter: boolean;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -63,6 +64,7 @@ const UserSchema: Schema<IUser> = new Schema(
         },
       ],
     },
+    newsletter: { type: Boolean, default: false },
   },
   { _id: false, timestamps: true }
 );
