@@ -1,44 +1,25 @@
 "use client";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle, Calendar, Edit3, Flame, Globe, Trophy, UserPlus, Users } from "lucide-react";
+import { AlertCircle, Calendar, Edit3, Flame, Globe, UserPlus, Users } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
-import { JSX, useState } from "react";
-import { SiGithub, SiInstagram, SiLinkedin, SiX } from "react-icons/si";
+import { SocialPlatform, User } from "@/types/user";
 import { getFollowButtonVariant, getPlanColor, getRankColor, socialColors } from "@/lib/ui-utils";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { EditProfileModal } from "./EditProfileModal";
 import Link from "next/link";
-import { SocialLink } from "@/types/user";
 import { UserProfileTabs } from "./UserProfileTabs";
 import { socialIcons } from "@/lib/constants/SOCIAL_PLATFORM";
 import { toast } from "sonner";
 import { useAuth } from "@clerk/nextjs";
+import { useState } from "react";
 import { useToggleFollow } from "@/lib/queries/user";
 
-interface DisplayUser {
-  _id: string;
-  fullname: string;
-  username: string;
-  bio: string;
-  socials?: SocialLink[];
-  avatar: string;
-  plan: string;
-  rank: string;
-  streak: {
-    current: number;
-    best: number;
-  };
-  followerCount: number;
-  followeeCount: number;
-  createdAt: string;
-}
-
 interface UserProfileDisplayProps {
-  readonly user: DisplayUser;
+  readonly user: User;
   readonly isOwnProfile: boolean;
   readonly followStatus?: { isFollowing: boolean; isFollowedBy: boolean };
 }
@@ -137,10 +118,6 @@ export function UserProfileDisplay({ user, isOwnProfile, followStatus }: UserPro
 
                 <div className="mt-4 flex flex-wrap justify-center gap-2 md:justify-start">
                   {isOwnProfile && <Badge className={getPlanColor(user.plan)}>{user.plan}</Badge>}
-                  <Badge className={getRankColor(user.rank)}>
-                    <Trophy className="mr-1 h-3 w-3" />
-                    {user.rank}
-                  </Badge>
                 </div>
               </div>
             </div>
@@ -265,8 +242,11 @@ export function UserProfileDisplay({ user, isOwnProfile, followStatus }: UserPro
       <EditProfileModal
         open={editProfileOpen}
         onClose={() => setEditProfileOpen(false)}
-        initialBio={user.bio}
-        initialLinks={user.socials || []}
+        initialBio={user.bio ?? ""}
+        initialLinks={(user.socials || []).map((social) => ({
+          ...social,
+          label: social.label as SocialPlatform,
+        }))}
       />
     </div>
   );

@@ -4,6 +4,7 @@ import { SharedPrompt } from "@/models/sharedPrompt.model";
 import connectDb from "@/lib/db";
 import { getAuthenticatedUser } from "@/utils/getAuthenticatedUser";
 import { getSetCache } from "@/lib/redisCache";
+import mongoose from "mongoose";
 import { rateLimit } from "@/lib/rateLimit";
 
 export async function GET(req: NextRequest) {
@@ -17,31 +18,42 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const page = parseInt(searchParams.get("page") || "1", 10);
     const limit = parseInt(searchParams.get("limit") || "10", 10);
+    const search = searchParams.get("search")?.trim();
     const skip = (page - 1) * limit;
 
     // Try to get userId from session (if logged in)
     let userId: string | null = null;
     try {
       const authResult = await getAuthenticatedUser();
-      if (authResult && !authResult.error && authResult.userId) {
-        userId = authResult.userId;
-      } else {
-        userId = null;
-      }
+      userId = authResult?.userId || null;
     } catch (e) {
       userId = null;
     }
 
-    // Get total count for pagination (not cached)
-    const total = await SharedPrompt.countDocuments();
-
     // Build a cache key that includes userId, page, and limit
     const cacheKey = userId
-      ? `trendingPromptsOverall:${userId}:page=${page}:limit=${limit}`
-      : `trendingPromptsOverall:page=${page}:limit=${limit}`;
+      ? `trendingPromptsOverall:${userId}:page=${page}:limit=${limit}:search=${search || ""}`
+      : `trendingPromptsOverall:page=${page}:limit=${limit}:search=${search || ""}`;
+
+    // Get total count for pagination
+    const total = await SharedPrompt.countDocuments(
+      search
+        ? {
+            $or: [
+              { title: { $regex: search, $options: "i" } },
+              { content: { $regex: search, $options: "i" } },
+              { tags: { $in: [new RegExp(search, "i")] } },
+            ],
+          }
+        : {},
+    );
 
     // Cache only the paginated data
-    const data = await getSetCache(cacheKey, 60, () => getTrendingPosts(userId, skip, limit));
+    const data = await getSetCache(cacheKey, 60, () =>
+      getTrendingPosts({ userId, skip, limit, search }),
+    );
+
+    const hasMore = page * limit < total;
 
     return NextResponse.json(
       {
@@ -52,6 +64,7 @@ export async function GET(req: NextRequest) {
           page,
           limit,
           totalPages: Math.ceil(total / limit),
+          hasMore,
         },
       },
       { status: 200 },
@@ -61,7 +74,29 @@ export async function GET(req: NextRequest) {
   }
 }
 
-async function getTrendingPosts(userId?: string | null, skip = 0, limit = 10) {
+async function getTrendingPosts({
+  userId,
+  skip = 0,
+  limit = 10,
+  search,
+}: {
+  userId?: string | null;
+  skip?: number;
+  limit?: number;
+  search?: string | null;
+}) {
+  const matchStage = search
+    ? {
+        $match: {
+          $or: [
+            { title: { $regex: search, $options: "i" } },
+            { content: { $regex: search, $options: "i" } },
+            { tags: { $in: [new RegExp(search, "i")] } },
+          ],
+        },
+      }
+    : null;
+
   const baseProject: any = {
     title: 1,
     content: 1,
@@ -76,15 +111,15 @@ async function getTrendingPosts(userId?: string | null, skip = 0, limit = 10) {
     "owner._id": 1,
     "owner.username": 1,
     "owner.avatar": 1,
+    isUserLiked: 1,
+    isUserSaved: 1,
+    isUserShared: 1,
+    isUserCommented: 1,
+    isUserOwned: 1,
   };
 
-  // If user is logged in, add isUserLiked and isUserSaved
-  if (userId) {
-    baseProject.isUserLiked = { $in: [userId, { $ifNull: ["$likes", []] }] };
-    baseProject.isUserSaved = { $in: [userId, { $ifNull: ["$saves", []] }] };
-  }
-
   return await SharedPrompt.aggregate([
+    ...(matchStage ? [matchStage] : []),
     { $sort: { createdAt: -1 } },
     { $skip: skip },
     { $limit: limit },
@@ -102,6 +137,29 @@ async function getTrendingPosts(userId?: string | null, skip = 0, limit = 10) {
         preserveNullAndEmptyArrays: true,
       },
     },
+    ...(userId
+      ? [
+          {
+            $addFields: {
+              isUserLiked: { $in: [userId, { $ifNull: ["$likes", []] }] },
+              isUserSaved: { $in: [userId, { $ifNull: ["$saves", []] }] },
+              isUserShared: { $in: [userId, { $ifNull: ["$shares", []] }] },
+              isUserCommented: { $in: [userId, { $ifNull: ["$comments", []] }] },
+              isUserOwned: { $eq: ["$ownerId", userId] },
+            },
+          },
+        ]
+      : [
+          {
+            $addFields: {
+              isUserLiked: { $literal: false },
+              isUserSaved: { $literal: false },
+              isUserShared: { $literal: false },
+              isUserCommented: { $literal: false },
+              isUserOwned: { $literal: false },
+            },
+          },
+        ]),
     { $project: baseProject },
   ]);
 }

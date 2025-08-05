@@ -1,19 +1,24 @@
 export interface SharedPrompt {
   _id: string;
-  owner: {
-    avatar: string;
-    username: string;
-  };
   title: string;
   content: string;
   tags: string[];
   modelUsed: string;
-  responseId?: Response;
+  responseId: string;
+  owner: {
+    _id: string;
+    avatar: string;
+    username: string;
+  };
   likeCount: number;
   saveCount: number;
   shareCount: number;
   commentCount: number;
-  latestComments: Comment[];
+  isUserLiked: boolean;
+  isUserSaved: boolean;
+  isUserShared: boolean;
+  isUserCommented: boolean;
+  isUserOwned: boolean;
   createdAt: string;
 }
 
@@ -35,6 +40,5 @@ export type Response = {
 
 export interface SharedPromptCardProps {
   readonly prompt: SharedPrompt;
-  readonly showTrendingIndicator?: boolean;
   readonly showUser?: boolean;
 }

@@ -3,8 +3,8 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { FileText, Grid3X3, Search, Share, TrendingUp } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useClerk, useUser } from "@clerk/nextjs";
 import { useEffect, useState } from "react";
+import { useOverallSharedPrompts, useTrendingSharedPrompts } from "@/lib/queries/community";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,160 +12,52 @@ import Link from "next/link";
 import { SharedPrompt } from "@/types/sharedPrompt";
 import { SharedPromptCard } from "@/components/community/SharedPromptCard";
 import { SharedPromptCardSkeleton } from "@/components/skeletons/SharedPromptCardSkeleton";
+import { useOpenAuthModal } from "@/hooks/useOpenAuthModal";
 import { useRouter } from "next/navigation";
-
-// Mock hook to simulate API call
-function useSharedPrompts() {
-  const [data, setData] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    // Simulate API call
-    const timer = setTimeout(() => {
-      setData([
-        // {
-        //   id: 1,
-        //   title: "Advanced Code Review Assistant",
-        //   description:
-        //     "Comprehensive code review with security, performance, and best practices analysis",
-        //   author: {
-        //     name: "Sarah Chen",
-        //     avatar: "/placeholder.svg?height=32&width=32",
-        //     username: "sarahc",
-        //   },
-        //   tags: ["development", "code-review", "security"],
-        //   likes: 234,
-        //   comments: 45,
-        //   saves: 89,
-        //   timeAgo: "2h ago",
-        // },
-        // {
-        //   id: 2,
-        //   title: "Email Marketing Campaign Generator",
-        //   description: "Create compelling email campaigns with subject lines, content, and CTAs",
-        //   author: {
-        //     name: "Mike Johnson",
-        //     avatar: "/placeholder.svg?height=32&width=32",
-        //     username: "mikej",
-        //   },
-        //   tags: ["marketing", "email", "copywriting"],
-        //   likes: 189,
-        //   comments: 32,
-        //   saves: 67,
-        //   timeAgo: "4h ago",
-        // },
-        // {
-        //   id: 3,
-        //   title: "Research Paper Summarizer",
-        //   description: "Extract key insights and create concise summaries from academic papers",
-        //   author: {
-        //     name: "Dr. Emily Watson",
-        //     avatar: "/placeholder.svg?height=32&width=32",
-        //     username: "emilyw",
-        //   },
-        //   tags: ["research", "academic", "summarization"],
-        //   likes: 156,
-        //   comments: 28,
-        //   saves: 94,
-        //   timeAgo: "6h ago",
-        // },
-        // {
-        //   id: 4,
-        //   title: "Creative Writing Companion",
-        //   description: "Generate story ideas, character development, and plot suggestions",
-        //   author: {
-        //     name: "Alex Rivera",
-        //     avatar: "/placeholder.svg?height=32&width=32",
-        //     username: "alexr",
-        //   },
-        //   tags: ["creative", "writing", "storytelling"],
-        //   likes: 298,
-        //   comments: 67,
-        //   saves: 123,
-        //   timeAgo: "8h ago",
-        // },
-        // {
-        //   id: 5,
-        //   title: "Data Analysis Helper",
-        //   description: "Analyze datasets and generate insights with statistical summaries",
-        //   author: {
-        //     name: "John Smith",
-        //     avatar: "/placeholder.svg?height=32&width=32",
-        //     username: "johns",
-        //   },
-        //   tags: ["data", "analysis", "statistics"],
-        //   likes: 167,
-        //   comments: 23,
-        //   saves: 78,
-        //   timeAgo: "10h ago",
-        // },
-        // {
-        //   id: 6,
-        //   title: "Social Media Content Creator",
-        //   description: "Generate engaging posts, captions, and hashtags for social platforms",
-        //   author: {
-        //     name: "Lisa Park",
-        //     avatar: "/placeholder.svg?height=32&width=32",
-        //     username: "lisap",
-        //   },
-        //   tags: ["social-media", "content", "engagement"],
-        //   likes: 201,
-        //   comments: 38,
-        //   saves: 92,
-        //   timeAgo: "12h ago",
-        // },
-      ]);
-      setIsLoading(false);
-    }, 1500); // Simulate 1.5s loading time
-
-    return () => clearTimeout(timer);
-  }, []);
-
-  return { data, isLoading };
-}
+import { useUser } from "@clerk/nextjs";
 
 export default function ExploreClient() {
+  const openAuthModal = useOpenAuthModal();
+
   const [searchQuery, setSearchQuery] = useState("");
-  const { data: prompts, isLoading } = useSharedPrompts();
+  const [tab, setTab] = useState<"all" | "trending">("all");
+
+  const [page, setPage] = useState(1);
+  const limit = 10;
+
+  const { data: overallDataResponse, isLoading: isLoadingOverall } = useOverallSharedPrompts({
+    page,
+    limit,
+    search: searchQuery,
+    enabled: tab === "all",
+  });
+
+  const { data: trendingData, isLoading: isLoadingTrending } = useTrendingSharedPrompts({
+    enabled: tab === "trending",
+  });
 
   const router = useRouter();
   const { isSignedIn } = useUser();
-  const { openSignIn } = useClerk();
 
-  // Filter prompts based on search query
-  const filteredPrompts = prompts.filter(
-    (prompt) =>
-      searchQuery === "" ||
-      prompt.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      prompt.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      prompt.author.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      prompt.tags.some((tag: string) => tag.toLowerCase().includes(searchQuery.toLowerCase())),
-  );
-
-  // Get trending prompts (top 4 by likes for demo)
-  const trendingPrompts = [...prompts].sort((a, b) => b.likes - a.likes).slice(0, 4);
-
-  const filteredTrendingPrompts = trendingPrompts.filter(
-    (prompt) =>
-      searchQuery === "" ||
-      prompt.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      prompt.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      prompt.author.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      prompt.tags.some((tag: string) => tag.toLowerCase().includes(searchQuery.toLowerCase())),
-  );
+  useEffect(() => {
+    setPage(1);
+  }, [searchQuery]);
 
   const handleSharePrompt = () => {
-    if (isSignedIn) {
-      openSignIn({ redirectUrl: window.location.href });
+    if (!isSignedIn) {
+      openAuthModal();
       return;
     }
     router.push("/folders");
   };
 
+  const overallPrompts = overallDataResponse?.data || [];
+  const hasMoreOverall = overallDataResponse?.pagination?.hasMore;
+
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-1">
         <div>
           <h1 className="text-foreground text-2xl font-bold tracking-tight">Explore Community</h1>
           <p className="text-muted-foreground mt-1 text-sm">
@@ -179,21 +71,32 @@ export default function ExploreClient() {
       </div>
 
       {/* Search and Tabs Row */}
-      <div className="flex items-center gap-4">
+      <div className="flex flex-wrap items-center gap-2">
         {/* Search */}
-        <div className="relative flex-1">
+        <div className="relative min-w-[200px] flex-1">
           <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform" />
           <Input
             placeholder="Search prompts, tags, or authors..."
-            className="border-primary/20 focus:border-primary/40 h-10 pl-10"
+            className="border-primary/20 focus:border-primary/40 text-md h-10 pl-10 sm:text-lg"
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              if (tab !== "all") setTab("all");
+            }}
           />
         </div>
 
         {/* Tabs */}
-        <Tabs defaultValue="all" className="w-auto">
-          <TabsList className="grid w-auto grid-cols-2">
+        <Tabs
+          value={tab}
+          onValueChange={(val) => {
+            setTab(val as "all" | "trending");
+            setSearchQuery("");
+            setPage(1);
+          }}
+          className="w-full sm:w-auto"
+        >
+          <TabsList className="grid w-full grid-cols-2 sm:h-10">
             <TabsTrigger value="all" className="flex items-center gap-2 px-4">
               <Grid3X3 className="h-4 w-4" />
               All
@@ -210,7 +113,7 @@ export default function ExploreClient() {
       <Tabs defaultValue="all" className="space-y-6">
         <TabsContent value="all" className="space-y-4">
           {(() => {
-            if (isLoading) {
+            if (isLoadingOverall) {
               return (
                 <div className="grid gap-4">
                   {Array.from({ length: 6 }).map((_, index) => (
@@ -218,7 +121,7 @@ export default function ExploreClient() {
                   ))}
                 </div>
               );
-            } else if (filteredPrompts.length === 0) {
+            } else if (overallPrompts.length === 0) {
               // Empty state
               return (
                 <Card className="border-primary/20 border-2 border-dashed">
@@ -263,13 +166,26 @@ export default function ExploreClient() {
                 </Card>
               );
             } else {
-              // Prompts list
               return (
-                <div className="grid gap-4">
-                  {filteredPrompts.map((prompt: SharedPrompt) => (
-                    <SharedPromptCard key={prompt._id} prompt={prompt} />
-                  ))}
-                </div>
+                <>
+                  <div className="grid gap-4">
+                    {overallPrompts.map((prompt: SharedPrompt) => (
+                      <SharedPromptCard key={prompt._id} prompt={prompt} />
+                    ))}
+                  </div>
+                  {hasMoreOverall && (
+                    <div className="text-center">
+                      <Button
+                        variant="outline"
+                        className="mt-4"
+                        onClick={() => setPage((prev) => prev + 1)}
+                        disabled={isLoadingOverall}
+                      >
+                        {isLoadingOverall ? "Loading..." : "Load More"}
+                      </Button>
+                    </div>
+                  )}
+                </>
               );
             }
           })()}
@@ -278,7 +194,7 @@ export default function ExploreClient() {
         {/* Extracted trending empty state */}
         <TabsContent value="trending" className="space-y-4">
           {(() => {
-            if (isLoading) {
+            if (isLoadingTrending) {
               // Loading skeleton
               return (
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -289,7 +205,7 @@ export default function ExploreClient() {
               );
             }
 
-            if (filteredTrendingPrompts.length === 0) {
+            if (trendingData && trendingData.length === 0) {
               // Empty state
               return (
                 <Card className="border-primary/20 border-2 border-dashed">
@@ -338,12 +254,8 @@ export default function ExploreClient() {
             // Trending prompts list
             return (
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                {filteredTrendingPrompts.map((prompt) => (
-                  <SharedPromptCard
-                    key={`trending-${prompt.id}`}
-                    prompt={prompt}
-                    showTrendingIndicator={true}
-                  />
+                {trendingData?.map((prompt) => (
+                  <SharedPromptCard key={`trending-${prompt._id}`} prompt={prompt} />
                 ))}
               </div>
             );

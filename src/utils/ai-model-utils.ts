@@ -8,3 +8,22 @@ export function getProviderByModelId(modelId: string): string | null {
   }
   return null;
 }
+
+export const getModelProviderDetails = (modelUsed: string) => {
+  for (const providerKey of Object.keys(AI_MODELS) as Array<keyof typeof AI_MODELS>) {
+    const provider = AI_MODELS[providerKey];
+
+    const model = provider.models.find((m) => m.name === modelUsed);
+
+    if (model) {
+      return {
+        modelName: model.name,
+        Icon: provider.icon,
+        color: provider.color,
+        providerName: provider.name,
+      };
+    }
+  }
+
+  return null;
+};

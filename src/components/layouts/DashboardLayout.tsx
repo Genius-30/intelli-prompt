@@ -69,7 +69,7 @@ export default function DashboardLayout({
                     </SidebarMenuButton>
                   </CollapsibleTrigger>
 
-                  <CollapsibleContent className="bg-muted/60 absolute bottom-full z-50 mb-2 w-full space-y-2 rounded-lg border px-1 py-2 shadow-lg">
+                  <CollapsibleContent className="bg-muted/60 absolute bottom-full z-50 mb-2 w-full space-y-1 rounded-lg border px-1 py-2 shadow-lg">
                     <Link
                       href="/profile"
                       className="hover:bg-muted-foreground/10 flex items-center gap-2 rounded-md px-2 py-1.5 text-sm transition"

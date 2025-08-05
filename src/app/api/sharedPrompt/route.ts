@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+
 import { SharedPrompt } from "@/models/sharedPrompt.model";
 import connectDb from "@/lib/db";
 import { getAuthenticatedUser } from "@/utils/getAuthenticatedUser";
@@ -13,10 +14,7 @@ export async function POST(req: Request) {
 
     const { title, content, tags, modelUsed, responseId } = await req.json();
     if (!title || !content || !modelUsed || !responseId) {
-      return NextResponse.json(
-        { error: "Missing required fields" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
     const newSharedPrompt = await SharedPrompt.create({
@@ -25,16 +23,19 @@ export async function POST(req: Request) {
       content,
       tags: tags || [],
       modelUsed,
-      responseId
+      responseId,
     });
 
-    return NextResponse.json({ message: "Prompt shared successfully", newSharedPrompt }, { status: 201 });
+    return NextResponse.json(
+      { message: "Prompt shared successfully", newSharedPrompt },
+      { status: 201 },
+    );
   } catch (error) {
     return NextResponse.json({ error: "Failed to share prompt" }, { status: 500 });
   }
 }
 
-// get all sharedPrompt for community section 
+// get all sharedPrompt for community section
 export async function GET(req: NextRequest) {
   try {
     const result = await rateLimit(req);
@@ -43,8 +44,8 @@ export async function GET(req: NextRequest) {
     await connectDb();
 
     const data = await getSetCache("allSharedPromptsByCommunity", 60, getAllSharedPrompts);
-    if(!data){
-      return NextResponse.json({ message: 'sharedPrompts not found' }, { status: 404 })
+    if (!data) {
+      return NextResponse.json({ message: "sharedPrompts not found" }, { status: 404 });
     }
 
     return NextResponse.json({ message: "all sharedPrompt fetched", data }, { status: 200 });
@@ -58,17 +59,17 @@ function getAllSharedPrompts() {
     { $sort: { createdAt: -1 } },
     {
       $lookup: {
-        from: 'users',
-        localField: 'ownerId',
-        foreignField: '_id',
-        as: 'owner' 
-      }
+        from: "users",
+        localField: "ownerId",
+        foreignField: "_id",
+        as: "owner",
+      },
     },
     {
       $unwind: {
-        path: '$owner',
-        preserveNullAndEmptyArrays: true
-      }
+        path: "$owner",
+        preserveNullAndEmptyArrays: true,
+      },
     },
     {
       $project: {
@@ -84,8 +85,8 @@ function getAllSharedPrompts() {
         "owner.username": 1,
         "owner.avatar": 1,
         "owner._id": 1,
-        "owner.rank": 1
-      }
-    }
-  ])
+        "owner.rank": 1,
+      },
+    },
+  ]);
 }

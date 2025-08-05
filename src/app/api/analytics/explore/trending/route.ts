@@ -55,15 +55,14 @@ async function getTrendingPosts(userId?: string | null) {
     "owner._id": 1,
     "owner.username": 1,
     "owner.avatar": 1,
+    isUserLiked: 1,
+    isUserSaved: 1,
+    isUserShared: 1,
+    isUserCommented: 1,
+    isUserOwned: 1,
   };
 
-  // If user is logged in, add isUserLiked and isUserSaved
-  if (userId) {
-    baseProject.isUserLiked = { $in: [userId, { $ifNull: ["$likes", []] }] };
-    baseProject.isUserSaved = { $in: [userId, { $ifNull: ["$saves", []] }] };
-  }
-
-  const prompts = await SharedPrompt.aggregate([
+  const pipeline: any[] = [
     {
       $match: {
         createdAt: { $gte: sevenDaysAgo },
@@ -83,6 +82,27 @@ async function getTrendingPosts(userId?: string | null) {
         preserveNullAndEmptyArrays: true,
       },
     },
+  ];
+
+  pipeline.push({
+    $addFields: userId
+      ? {
+          isUserLiked: { $in: [userId, { $ifNull: ["$likes", []] }] },
+          isUserSaved: { $in: [userId, { $ifNull: ["$saves", []] }] },
+          isUserShared: { $in: [userId, { $ifNull: ["$shares", []] }] },
+          isUserCommented: { $in: [userId, { $ifNull: ["$comments", []] }] },
+          isUserOwned: { $eq: ["$ownerId", userId] },
+        }
+      : {
+          isUserLiked: { $literal: false },
+          isUserSaved: { $literal: false },
+          isUserShared: { $literal: false },
+          isUserCommented: { $literal: false },
+          isUserOwned: { $literal: false },
+        },
+  });
+
+  pipeline.push(
     { $project: baseProject },
     {
       $addFields: {
@@ -98,7 +118,8 @@ async function getTrendingPosts(userId?: string | null) {
     },
     { $sort: { score: -1, createdAt: -1 } },
     { $limit: 10 },
-  ]);
+  );
 
+  const prompts = await SharedPrompt.aggregate(pipeline);
   return prompts;
 }

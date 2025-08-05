@@ -145,47 +145,50 @@ export default function LeaderboardPage() {
 
             {isSignedIn ? (
               <CardContent className="space-y-4">
-                {/* Rank */}
-                <div className="text-center">
-                  {isLoadingUserScoreAndRank ? (
-                    <>
+                {isLoadingUserScoreAndRank || isLoadingUserStats ? (
+                  <>
+                    {/* Rank Skeleton */}
+                    <div className="text-center">
                       <Skeleton className="mx-auto h-8 w-12" />
                       <Skeleton className="mx-auto mt-2 h-4 w-32" />
-                    </>
-                  ) : (
-                    <>
+                    </div>
+
+                    {/* Stats Skeleton */}
+                    <div className="space-y-2">
+                      <Skeleton className="h-5 w-full" />
+                      <Skeleton className="h-5 w-full" />
+                      <Skeleton className="h-5 w-full" />
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    {/* Rank */}
+                    <div className="text-center">
                       <div className="text-3xl font-bold">#{userScoreAndRank?.rank ?? "-"}</div>
                       <div className="text-muted-foreground">
                         out of <span>{userScoreAndRank?.totalUsers}</span> users
                       </div>
-                    </>
-                  )}
-                </div>
+                    </div>
 
-                {/* Stats */}
-                {isLoadingUserStats ? (
-                  <div className="space-y-2">
-                    <Skeleton className="h-5 w-full" />
-                    <Skeleton className="h-5 w-full" />
-                    <Skeleton className="h-5 w-full" />
-                  </div>
-                ) : (
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span>Total Points</span>
-                      <span className="font-medium">{userScoreAndRank?.totalScore ?? 0}</span>
+                    {/* Stats */}
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span>Total Points</span>
+                        <span className="font-medium">{userScoreAndRank?.totalScore ?? 0}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Prompts Shared</span>
+                        <span className="font-medium">{userStats?.totalPrompts.value ?? 0}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Community Likes</span>
+                        <span className="font-medium">{userStats?.communityLikes.value ?? 0}</span>
+                      </div>
                     </div>
-                    <div className="flex justify-between">
-                      <span>Prompts Shared</span>
-                      <span className="font-medium">{userStats?.totalPrompts.value ?? 0}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Community Likes</span>
-                      <span className="font-medium">{userStats?.communityLikes.value ?? 0}</span>
-                    </div>
-                  </div>
+                  </>
                 )}
 
+                {/* Always Visible Button + Modal */}
                 <Button className="mt-4 w-full" onClick={() => setIsRankGuideOpen(true)}>
                   <TrendingUp className="mr-2 h-4 w-4" />
                   Climb the Ranks

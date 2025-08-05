@@ -1,3 +1,4 @@
+import { Card } from "../ui/card";
 import { Skeleton } from "../ui/skeleton";
 
 export const VersionsSkeleton = ({ showDot = true }: { showDot?: boolean }) => {
@@ -10,8 +11,8 @@ export const VersionsSkeleton = ({ showDot = true }: { showDot?: boolean }) => {
         </span>
       )}
 
-      <div className="border-muted bg-background rounded-lg border px-6 py-4 shadow-sm">
-        <div className="flex items-start justify-between gap-4">
+      <Card className="py-4 shadow-sm">
+        <div className="flex items-start justify-between gap-4 px-6">
           <div className="flex-1 space-y-3">
             <div className="flex items-center gap-3">
               <Skeleton className="h-4 w-8 rounded-sm" />
@@ -42,7 +43,7 @@ export const VersionsSkeleton = ({ showDot = true }: { showDot?: boolean }) => {
             </div>
           </div>
         </div>
-      </div>
+      </Card>
     </div>
   );
 };

@@ -10,7 +10,7 @@ export async function GET(req: Request) {
     const { userId, error } = await getAuthenticatedUser();
     if (error) return error;
 
-    const data = await getSetCache("savedPrompts", 60, () => getSavedPrompts(userId));
+    const data = await getSetCache("savedPrompts:${userId}", 60, () => getSavedPrompts(userId));
 
     return NextResponse.json({ message: "user saved data fetched", data }, { status: 200 });
   } catch (err) {
@@ -24,7 +24,6 @@ async function getSavedPrompts(userId: any) {
   const savedSharedPrompts = await SharedPrompt.aggregate([
     {
       $match: {
-        ownerId: userId,
         saves: userId,
       },
     },
@@ -46,6 +45,9 @@ async function getSavedPrompts(userId: any) {
       $addFields: {
         isUserLiked: { $in: [userId, { $ifNull: ["$likes", []] }] },
         isUserSaved: { $in: [userId, { $ifNull: ["$saves", []] }] },
+        isUserShared: { $in: [userId, { $ifNull: ["$shares", []] }] },
+        isUserCommented: { $in: [userId, { $ifNull: ["$comments", []] }] },
+        isUserOwned: { $eq: ["$ownerId", userId] },
       },
     },
     {
@@ -62,6 +64,9 @@ async function getSavedPrompts(userId: any) {
         commentCount: { $size: { $ifNull: ["$comments", []] } },
         isUserLiked: 1,
         isUserSaved: 1,
+        isUserShared: 1,
+        isUserCommented: 1,
+        isUserOwned: 1,
         "owner.username": 1,
         "owner.avatar": 1,
       },

@@ -197,7 +197,7 @@ export function SharePromptModal({
                 </SelectTrigger>
                 <SelectContent>
                   {availableModels.map((model) => (
-                    <SelectItem key={model.id} value={model.id}>
+                    <SelectItem key={model.name} value={model.name}>
                       {model.name}{" "}
                       <Badge variant="outline" className="ml-2">
                         {model.provider}

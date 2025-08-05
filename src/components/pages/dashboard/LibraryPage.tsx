@@ -15,14 +15,7 @@ import { VersionsSkeleton } from "@/components/skeletons/VersionsSkeleton";
 import { useUserLibrary } from "@/lib/queries/user";
 
 export default function LibraryPage() {
-  const { data, isLoading, error } = useUserLibrary();
-
-  if (isLoading) return <p>Loading...</p>;
-  if (error) return <p>Error loading library</p>;
-
-  console.log("Library data:", data);
-
-  const { favPrompts, favVersions, savedSharedPrompts } = data;
+  const { data, isLoading } = useUserLibrary();
 
   return (
     <div className="space-y-8">

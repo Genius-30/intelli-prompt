@@ -151,6 +151,5 @@ export const useUserLibrary = () => {
       const res = await axiosInstance.get("/user/savedPrompts");
       return res.data.data;
     },
-    staleTime: 60 * 1000,
   });
 };

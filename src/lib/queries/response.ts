@@ -94,3 +94,19 @@ export const useSaveModelResponse = () => {
     },
   });
 };
+
+export const useModelResponse = (responseId?: string, options: { enabled?: boolean } = {}) => {
+  const { enabled = true } = options;
+
+  return useQuery({
+    queryKey: ["model-response", responseId],
+    queryFn: async () => {
+      if (!responseId) throw new Error("No responseId provided");
+
+      const res = await axiosInstance.get(`/testModel/${responseId}`);
+      return res.data.modelResponse;
+    },
+    enabled: !!responseId && enabled,
+    staleTime: 1000 * 60 * 5, // Optional: 5 minutes
+  });
+};

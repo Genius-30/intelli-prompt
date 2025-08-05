@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { SharedPrompt } from "@/models/sharedPrompt.model";
 import connectDb from "@/lib/db";
+import { getAuthenticatedUser } from "@/utils/getAuthenticatedUser";
 import { getSetCache } from "@/lib/redisCache";
 import { rateLimit } from "@/lib/rateLimit";
 
@@ -11,6 +12,8 @@ export async function GET(req: NextRequest, { params }: { params: any }) {
     const result = await rateLimit(req);
     if (result) return result;
 
+    const { userId, error } = await getAuthenticatedUser();
+
     await connectDb();
 
     const personId = (await params).id;
@@ -18,59 +21,60 @@ export async function GET(req: NextRequest, { params }: { params: any }) {
       return NextResponse.json({ message: "Invalid userId" }, { status: 400 });
     }
 
-    const data = await getSetCache(
-      `allSharedPromptsByUser_${personId}`,
-      60,
-      () => getAllSharedPrompts(personId)
+    const data = await getSetCache(`allSharedPromptsByUser_${personId}`, 60, () =>
+      getAllSharedPrompts(personId, userId),
     );
     if (!data) {
-      return NextResponse.json(
-        { message: "sharedPrompts not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ message: "sharedPrompts not found" }, { status: 404 });
     }
 
-    return NextResponse.json(
-      { message: "user details fetched", data },
-      { status: 200 }
-    );
+    return NextResponse.json({ message: "user details fetched", data }, { status: 200 });
   } catch (err) {
-    return NextResponse.json(
-      { message: "err fetching user details" },
-      { status: 500 }
-    );
+    return NextResponse.json({ message: "err fetching user details" }, { status: 500 });
   }
 }
 
-async function getAllSharedPrompts(personId: string) {
-  return await SharedPrompt.aggregate([
+async function getAllSharedPrompts(personId: string, userId?: string | null) {
+  const baseFields: any = {
+    title: 1,
+    content: 1,
+    tags: 1,
+    modelUsed: 1,
+    createdAt: 1,
+    responseId: 1,
+    likeCount: { $size: { $ifNull: ["$likes", []] } },
+    saveCount: { $size: { $ifNull: ["$saves", []] } },
+    shareCount: { $size: { $ifNull: ["$shares", []] } },
+    commentCount: { $size: { $ifNull: ["$comments", []] } },
+    isUserLiked: 1,
+    isUserSaved: 1,
+    isUserShared: 1,
+    isUserCommented: 1,
+    isUserOwned: 1,
+  };
+
+  const pipeline: any[] = [
+    { $match: { ownerId: personId } },
+    { $sort: { createdAt: -1 } },
     {
-      $match: { ownerId: personId }
+      $addFields: userId
+        ? {
+            isUserLiked: { $in: [userId, { $ifNull: ["$likes", []] }] },
+            isUserSaved: { $in: [userId, { $ifNull: ["$saves", []] }] },
+            isUserShared: { $in: [userId, { $ifNull: ["$shares", []] }] },
+            isUserCommented: { $in: [userId, { $ifNull: ["$comments", []] }] },
+            isUserOwned: { $eq: ["$ownerId", userId] },
+          }
+        : {
+            isUserLiked: { $literal: false },
+            isUserSaved: { $literal: false },
+            isUserShared: { $literal: false },
+            isUserCommented: { $literal: false },
+            isUserOwned: { $literal: false },
+          },
     },
-    {
-      $sort: { createdAt: -1 }
-    },
-    {
-      $addFields: {
-        isUserLiked: { $in: [personId, { $ifNull: ["$likes", []] }] },
-        isUserSaved: { $in: [personId, { $ifNull: ["$saves", []] }] }
-      }
-    },
-    {
-      $project: {
-        title: 1,
-        content: 1,
-        tags: 1,
-        modelUsed: 1,
-        createdAt: 1,
-        responseId: 1,
-        likeCount: { $size: { $ifNull: ["$likes", []] } },
-        saveCount: { $size: { $ifNull: ["$saves", []] } },
-        shareCount: { $size: { $ifNull: ["$shares", []] } },
-        commentCount: { $size: { $ifNull: ["$comments", []] } },
-        isUserLiked: 1,
-        isUserSaved: 1
-      }
-    }
-  ])
+    { $project: baseFields },
+  ];
+
+  return await SharedPrompt.aggregate(pipeline);
 }

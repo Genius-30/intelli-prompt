@@ -4,7 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useFollowers, useFollowing, useUserSharedPrompts } from "@/lib/queries/user";
 
 import { SharedPrompt } from "@/types/sharedPrompt";
-import { SharedPromptCard } from "./SharedPromptCardUser";
+import { SharedPromptCard } from "../community/SharedPromptCard";
 import { SharedPromptCardSkeleton } from "../skeletons/SharedPromptCardUserSkeleton";
 import { User } from "@/types/user";
 import { UserCard } from "./UserCard";
@@ -67,7 +67,7 @@ export function UserProfileTabs({ user, isOwnProfile }: UserProfileTabsProps) {
           promptsTabContent = (
             <div className="grid gap-4">
               {sharedPrompts.map((prompt: SharedPrompt) => (
-                <SharedPromptCard key={prompt._id} prompt={prompt} />
+                <SharedPromptCard key={prompt._id} prompt={prompt} showUser={false} />
               ))}
             </div>
           );

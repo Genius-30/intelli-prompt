@@ -11,16 +11,8 @@ import {
   Trash2,
 } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import {
-  useDeleteResponse,
-  useSaveModelResponse,
-} from "@/lib/queries/response";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { useDeleteResponse, useSaveModelResponse } from "@/lib/queries/response";
 import { useEffect, useState } from "react";
 
 import { AI_MODELS } from "@/lib/constants/AI_MODELS";
@@ -56,17 +48,12 @@ export function ModelResponseCard({
   const [isExpanded, setIsExpanded] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
   const [isSaved, setIsSaved] = useState(initiallySaved ?? false);
-  const [savedResponseId, setSavedResponseId] = useState<string | null>(
-    responseId || null
-  );
+  const [savedResponseId, setSavedResponseId] = useState<string | null>(responseId || null);
 
   const { versionId } = useParams();
 
-  const { mutate: saveModelResponse, isPending: isSaving } =
-    useSaveModelResponse();
-  const { mutate: deleteResponse, isPending: isDeleting } = useDeleteResponse(
-    versionId as string
-  );
+  const { mutate: saveModelResponse, isPending: isSaving } = useSaveModelResponse();
+  const { mutate: deleteResponse, isPending: isDeleting } = useDeleteResponse(versionId as string);
 
   const providerData = AI_MODELS[provider];
   const IconComponent = providerData?.icon;
@@ -121,7 +108,7 @@ export function ModelResponseCard({
         onError: () => {
           toast.error("Failed to save response");
         },
-      }
+      },
     );
   };
 
@@ -148,19 +135,14 @@ export function ModelResponseCard({
 
   return (
     <Card
-      className="group overflow-hidden transition-all duration-200 hover:shadow-lg border-l-4"
+      className="group overflow-hidden border-l-4 transition-all duration-200 hover:shadow-lg"
       style={{ borderLeftColor: color }}
     >
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div
-              className="p-2 rounded-lg"
-              style={{ backgroundColor: `${color}15` }}
-            >
-              {IconComponent && (
-                <IconComponent className="w-4 h-4" style={{ color: color }} />
-              )}
+            <div className="rounded-lg p-2" style={{ backgroundColor: `${color}15` }}>
+              {IconComponent && <IconComponent className="h-4 w-4" style={{ color: color }} />}
             </div>
             <div>
               <div className="flex items-center gap-2">
@@ -173,37 +155,23 @@ export function ModelResponseCard({
                 </Badge>
                 <span className="text-sm font-medium">{model}</span>
               </div>
-              <div className="flex items-center gap-2 mt-1">
-                <ThermometerSun className="w-3 h-3 text-muted-foreground" />
-                <span className="text-xs text-muted-foreground">
-                  Temperature: {temperature}
-                </span>
+              <div className="mt-1 flex items-center gap-2">
+                <ThermometerSun className="text-muted-foreground h-3 w-3" />
+                <span className="text-muted-foreground text-xs">Temperature: {temperature}</span>
               </div>
             </div>
           </div>
 
-          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+          <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
             <TooltipProvider>
               {/* Copy Button */}
               <Tooltip open={isCopied}>
                 <TooltipTrigger asChild>
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    className="h-8 w-8"
-                    onClick={handleCopy}
-                  >
-                    {isCopied ? (
-                      <CopyCheck className="w-3 h-3" />
-                    ) : (
-                      <Copy className="w-3 h-3" />
-                    )}
+                  <Button size="icon" variant="ghost" className="h-8 w-8" onClick={handleCopy}>
+                    {isCopied ? <CopyCheck className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent
-                  className="bg-muted"
-                  arrowClassName="bg-muted fill-muted"
-                >
+                <TooltipContent className="bg-muted" arrowClassName="bg-muted fill-muted">
                   {isCopied && "Copied!"}
                 </TooltipContent>
               </Tooltip>
@@ -215,17 +183,14 @@ export function ModelResponseCard({
                     <Button
                       size="icon"
                       variant="ghost"
-                      className="h-8 w-8 hover:text-destructive"
+                      className="hover:text-destructive h-8 w-8"
                       onClick={handleDelete}
                       disabled={isDeleting}
                     >
-                      <Trash2 className="w-3 h-3" />
+                      <Trash2 className="h-3 w-3" />
                     </Button>
                   </TooltipTrigger>
-                  <TooltipContent
-                    className="bg-muted"
-                    arrowClassName="bg-muted fill-muted"
-                  >
+                  <TooltipContent className="bg-muted" arrowClassName="bg-muted fill-muted">
                     Delete response
                   </TooltipContent>
                 </Tooltip>
@@ -239,13 +204,10 @@ export function ModelResponseCard({
                       onClick={handleSave}
                       disabled={isSaving}
                     >
-                      <Bookmark className="w-3 h-3" />
+                      <Bookmark className="h-3 w-3" />
                     </Button>
                   </TooltipTrigger>
-                  <TooltipContent
-                    className="bg-muted"
-                    arrowClassName="bg-muted fill-muted"
-                  >
+                  <TooltipContent className="bg-muted" arrowClassName="bg-muted fill-muted">
                     Save response
                   </TooltipContent>
                 </Tooltip>
@@ -258,16 +220,13 @@ export function ModelResponseCard({
                     <Button
                       size="icon"
                       variant="ghost"
-                      className="h-8 w-8 hover:text-destructive"
+                      className="hover:text-destructive h-8 w-8"
                       onClick={handleRemove}
                     >
-                      <CircleX className="w-3 h-3" />
+                      <CircleX className="h-3 w-3" />
                     </Button>
                   </TooltipTrigger>
-                  <TooltipContent
-                    className="bg-muted"
-                    arrowClassName="bg-muted fill-muted"
-                  >
+                  <TooltipContent className="bg-muted" arrowClassName="bg-muted fill-muted">
                     Remove response
                   </TooltipContent>
                 </Tooltip>
@@ -283,16 +242,13 @@ export function ModelResponseCard({
                     onClick={() => setIsExpanded(!isExpanded)}
                   >
                     {isExpanded ? (
-                      <ChevronUp className="w-3 h-3" />
+                      <ChevronUp className="h-3 w-3" />
                     ) : (
-                      <ChevronDown className="w-3 h-3" />
+                      <ChevronDown className="h-3 w-3" />
                     )}
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent
-                  className="bg-muted"
-                  arrowClassName="bg-muted fill-muted"
-                >
+                <TooltipContent className="bg-muted" arrowClassName="bg-muted fill-muted">
                   {isExpanded ? "Collapse" : "Expand"}
                 </TooltipContent>
               </Tooltip>
@@ -302,13 +258,9 @@ export function ModelResponseCard({
       </CardHeader>
 
       <CardContent className="pt-0">
-        <div className="prose prose-sm max-w-none dark:prose-invert">
+        <div className="prose prose-sm dark:prose-invert max-w-none">
           <ReactMarkdown>
-            {isExpanded
-              ? response
-              : isTruncated
-              ? `${previewText}...`
-              : previewText}
+            {isExpanded ? response : isTruncated ? `${previewText}...` : previewText}
           </ReactMarkdown>
         </div>
 

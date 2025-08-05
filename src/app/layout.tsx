@@ -48,7 +48,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`scrollbar-thin ${inter.className}`} cz-shortcut-listen="true">
+      <body className={`scrollbar-thin ${inter.className} bg-card`} cz-shortcut-listen="true">
         <Providers>
           {children}
           <CustomToaster />
