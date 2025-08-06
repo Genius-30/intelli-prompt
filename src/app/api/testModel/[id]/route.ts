@@ -19,7 +19,7 @@ export async function DELETE(req: NextRequest, { params }: { params: any }) {
 
     return NextResponse.json({ message: "modelResponse deleted" }, { status: 201 });
   } catch (err) {
-    return NextResponse.json({ error: "err deleting modelResponse" }, { status: 500 });
+    return NextResponse.json({ error: "err fetching modelResponse" }, { status: 500 });
   }
 }
 

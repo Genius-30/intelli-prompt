@@ -84,7 +84,6 @@ async function getSearchResults(query: any) {
         title: 1,
         content: 1,
         tags: 1,
-        modelUsed: 1,
         createdAt: 1,
         likeCount: { $size: { $ifNull: ["$likes", []] } },
         saveCount: { $size: { $ifNull: ["$saves", []] } },
@@ -93,7 +92,6 @@ async function getSearchResults(query: any) {
         "owner.username": 1,
         "owner.avatar": 1,
         "owner._id": 1,
-        "owner.rank": 1
       }
     }
   ]);

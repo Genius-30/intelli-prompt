@@ -5,7 +5,6 @@ import { Card, CardContent } from "@/components/ui/card";
 
 import { Badge } from "@/components/ui/badge";
 import { User } from "@/types/user";
-import { getRankColor } from "@/lib/ui-utils";
 import { useRouter } from "next/navigation";
 
 interface UserCardProps {
@@ -38,9 +37,6 @@ export function UserCard({ user }: UserCardProps) {
           <p className="font-medium">{user.fullname}</p>
           <p className="text-muted-foreground text-sm">@{user.username}</p>
         </div>
-        <Badge className={`select-none ${getRankColor(user.rank || "Rookie")}`}>
-          {user.rank || "Rookie"}
-        </Badge>
       </CardContent>
     </Card>
   );

@@ -1,13 +1,12 @@
 import mongoose, { Document, Model, Schema } from "mongoose";
-
 import { IUser } from "./user.model";
-
+import { IVersion } from "./version.model";
 export interface IShared extends Document {
   ownerId: IUser["_id"];
+  versionId: IVersion["_id"];
   title: string;
   content: string;
   tags: string[];
-  modelUsed: string;
   responseId: Schema.Types.ObjectId;
   likes: IUser["_id"][];
   saves: IUser["_id"][];
@@ -26,10 +25,10 @@ export interface IShared extends Document {
 const SharedPromptSchema: Schema<IShared> = new Schema(
   {
     ownerId: { type: String, required: true, index: true },
+    versionId: { type: Schema.Types.ObjectId, ref: "Version" },
     title: { type: String, required: true },
     content: { type: String, required: true },
     tags: { type: [String], default: [] },
-    modelUsed: { type: String, required: true },
     responseId: { type: Schema.Types.ObjectId, ref: "ModelResponse" },
     likes: { type: [String], default: [] },
     saves: { type: [String], default: [] },

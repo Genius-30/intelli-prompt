@@ -39,8 +39,8 @@ export async function PATCH(req: Request, { params }: { params: any }) {
       return NextResponse.json({ message: "invalid sharedPromptId" }, { status: 400 });
     }
 
-    const { newTitle, tags, responseId, modelUsed } = await req.json();
-    if (!newTitle || !responseId || !modelUsed || !tags || tags.length === 0) {
+    const { newTitle, tags, responseId } = await req.json();
+    if (!newTitle || !responseId || !tags || tags.length === 0) {
       return NextResponse.json({ message: "invalid input" }, { status: 400 });
     }
 
@@ -50,7 +50,6 @@ export async function PATCH(req: Request, { params }: { params: any }) {
         ...(newTitle && { title: newTitle }),
         ...(tags && { tags }),
         ...(responseId && { responseId }),
-        ...(modelUsed && { modelUsed }),
       },
     );
 
@@ -93,20 +92,6 @@ async function getSpecificSharedPrompt(id: string, userId: string) {
     },
     {
       $lookup: {
-        from: "modelresponses",
-        localField: "responseId",
-        foreignField: "_id",
-        as: "responseData",
-      },
-    },
-    {
-      $unwind: {
-        path: "$responseData",
-        preserveNullAndEmptyArrays: true,
-      },
-    },
-    {
-      $lookup: {
         from: "users",
         localField: "ownerId",
         foreignField: "_id",
@@ -121,10 +106,6 @@ async function getSpecificSharedPrompt(id: string, userId: string) {
     },
     {
       $addFields: {
-        response: "$responseData.response",
-        userId: "$owner._id",
-        username: "$owner.username",
-        avatar: "$owner.avatar",
         isUserOwned: { $eq: [userId, { $toString: "$owner._id" }] },
         isUserLiked: { $in: [userId, { $ifNull: ["$likes", []] }] },
         isUserSaved: { $in: [userId, { $ifNull: ["$saves", []] }] },
@@ -142,12 +123,11 @@ async function getSpecificSharedPrompt(id: string, userId: string) {
         versionId: 1,
         title: 1,
         content: 1,
+        "owner._id": 1,
+        "owner.username": 1,
+        "owner.avatar": 1,
         tags: 1,
-        modelUsed: 1,
         createdAt: 1,
-        userId: 1,
-        username: 1,
-        avatar: 1,
         isUserOwned: 1,
         likeCount: 1,
         saveCount: 1,
@@ -157,7 +137,7 @@ async function getSpecificSharedPrompt(id: string, userId: string) {
         isUserSaved: 1,
         isUserCommented: 1,
         isUserShared: 1,
-        response: 1,
+        responseId: 1,
       },
     },
   ]);

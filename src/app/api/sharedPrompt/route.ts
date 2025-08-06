@@ -12,24 +12,24 @@ export async function POST(req: Request) {
     const { userId, error } = await getAuthenticatedUser();
     if (error) return error;
 
-    const { title, content, tags, modelUsed, responseId } = await req.json();
-    if (!title || !content || !modelUsed || !responseId) {
+    const { title, content, tags, versionId, responseId } = await req.json();
+    if (!title || !content || !responseId) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
     const newSharedPrompt = await SharedPrompt.create({
       ownerId: userId,
+      versionId,
       title,
       content,
       tags: tags || [],
-      modelUsed,
       responseId,
     });
+    if (!newSharedPrompt) {
+      return NextResponse.json({ error: "Failed to create shared prompt" }, { status: 500 });
+    }
 
-    return NextResponse.json(
-      { message: "Prompt shared successfully", newSharedPrompt },
-      { status: 201 },
-    );
+    return NextResponse.json({ message: "Prompt shared successfully" }, { status: 201 });
   } catch (error) {
     return NextResponse.json({ error: "Failed to share prompt" }, { status: 500 });
   }
@@ -76,7 +76,8 @@ function getAllSharedPrompts() {
         title: 1,
         content: 1,
         tags: 1,
-        modelUsed: 1,
+        versionId: 1,
+        responseId: 1,
         createdAt: 1,
         likeCount: { $size: { $ifNull: ["$likes", []] } },
         saveCount: { $size: { $ifNull: ["$saves", []] } },
@@ -85,7 +86,6 @@ function getAllSharedPrompts() {
         "owner.username": 1,
         "owner.avatar": 1,
         "owner._id": 1,
-        "owner.rank": 1,
       },
     },
   ]);

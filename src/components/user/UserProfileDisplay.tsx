@@ -5,7 +5,7 @@ import { AlertCircle, Calendar, Edit3, Flame, Globe, UserPlus, Users } from "luc
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
 import { SocialPlatform, User } from "@/types/user";
-import { getFollowButtonVariant, getPlanColor, getRankColor, socialColors } from "@/lib/ui-utils";
+import { getFollowButtonVariant, getPlanColor } from "@/lib/ui-utils";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
