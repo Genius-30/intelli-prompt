@@ -45,7 +45,6 @@ async function getTrendingPosts(userId?: string | null) {
     title: 1,
     content: 1,
     tags: 1,
-    modelUsed: 1,
     createdAt: 1,
     responseId: 1,
     likeCount: { $size: { $ifNull: ["$likes", []] } },

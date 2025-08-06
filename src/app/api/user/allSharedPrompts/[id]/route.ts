@@ -61,7 +61,6 @@ async function getAllSharedPrompts(personId: string) {
         title: 1,
         content: 1,
         tags: 1,
-        modelUsed: 1,
         createdAt: 1,
         responseId: 1,
         likeCount: { $size: { $ifNull: ["$likes", []] } },

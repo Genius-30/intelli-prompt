@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { SharedPrompt } from "@/models/sharedPrompt.model";
 import connectDb from "@/lib/db";
+import { SharedPrompt } from "@/models/sharedPrompt.model";
 import { getAuthenticatedUser } from "@/utils/getAuthenticatedUser";
 import { getSetCache } from "@/lib/redisCache";
 import { rateLimit } from "@/lib/rateLimit";
@@ -11,8 +11,8 @@ export async function POST(req: Request) {
     const { userId, error } = await getAuthenticatedUser();
     if (error) return error;
 
-    const { title, content, tags, modelUsed, responseId } = await req.json();
-    if (!title || !content || !modelUsed || !responseId) {
+    const { title, content, tags, versionId, responseId } = await req.json();
+    if (!title || !content || !responseId) {
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 }
@@ -21,14 +21,17 @@ export async function POST(req: Request) {
 
     const newSharedPrompt = await SharedPrompt.create({
       ownerId: userId,
+      versionId,
       title,
       content,
       tags: tags || [],
-      modelUsed,
       responseId
     });
+    if(!newSharedPrompt) {
+      return NextResponse.json({ error: "Failed to create shared prompt" }, { status: 500 });
+    }
 
-    return NextResponse.json({ message: "Prompt shared successfully", newSharedPrompt }, { status: 201 });
+    return NextResponse.json({ message: "Prompt shared successfully" }, { status: 201 });
   } catch (error) {
     return NextResponse.json({ error: "Failed to share prompt" }, { status: 500 });
   }
@@ -75,7 +78,8 @@ function getAllSharedPrompts() {
         title: 1,
         content: 1,
         tags: 1,
-        modelUsed: 1,
+        versionId: 1,
+        responseId: 1,
         createdAt: 1,
         likeCount: { $size: { $ifNull: ["$likes", []] } },
         saveCount: { $size: { $ifNull: ["$saves", []] } },

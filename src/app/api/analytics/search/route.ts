@@ -84,7 +84,6 @@ async function getSearchResults(query: any) {
         title: 1,
         content: 1,
         tags: 1,
-        modelUsed: 1,
         createdAt: 1,
         likeCount: { $size: { $ifNull: ["$likes", []] } },
         saveCount: { $size: { $ifNull: ["$saves", []] } },

@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server';
 import { SharedPrompt } from '@/models/sharedPrompt.model';
 import { getAuthenticatedUser } from '@/utils/getAuthenticatedUser';
-import mongoose from 'mongoose';
+import { getSetCache } from '@/lib/redisCache';
 import '@/models/modelResponse.model';
+import mongoose from 'mongoose';
 
 // delete sharedPrompt
 export async function DELETE(
@@ -43,16 +44,17 @@ export async function PATCH(
       return NextResponse.json({ message: "invalid sharedPromptId" },{ status: 400 });
     }
 
-    const { newTitle, tags } = await req.json();
-    if (!newTitle && (!tags || tags.length === 0)) {
-      return NextResponse.json({ message: "invalid title" }, { status: 400 });
+    const { newTitle, tags, responseId } = await req.json();
+    if (!newTitle || !responseId || (!tags || tags.length === 0)) {
+      return NextResponse.json({ message: "invalid input" }, { status: 400 });
     }
 
     await SharedPrompt.updateOne(
       { _id: sharedPromptId, ownerId: userId },
       {
         ...(newTitle && { title: newTitle }),
-        ...(tags && { tags })
+        ...(tags && { tags }),
+        ...(responseId && { responseId }),
       }
     );
 
@@ -76,45 +78,73 @@ export async function GET(
       return NextResponse.json({ message: "invalid sharedPromptId" },{ status: 400 });
     }
     
-    const sharedPrompt = await SharedPrompt.aggregate([
+    const data = await getSetCache(`sharedPrompt:${sharedPromptId}`, 60, () => getSpecificSharedPrompt(sharedPromptId, userId));
+    if (!data || data.length === 0) {
+      return NextResponse.json({ message: "sharedPrompt not found" }, { status: 404 });
+    }
+
+    return NextResponse.json({ message: "sharedPrompt found", data: data[0] }, { status: 200 });
+  } catch (err) {
+    return NextResponse.json({ error: 'Failed fetching sharedPrompt', err }, { status: 500 });
+  }
+}
+
+async function getSpecificSharedPrompt(id: string, userId: string) {
+  return await SharedPrompt.aggregate([
       {
         $match: {
-          _id: new mongoose.Types.ObjectId(sharedPromptId),
+          _id: new mongoose.Types.ObjectId(id),
         },
       },
       {
         $lookup: {
-          from: 'modelresponses', 
-          localField: 'responseId',
+          from: 'users',
+          localField: 'ownerId',
           foreignField: '_id',
-          as: 'responseData',
+          as: 'owner',
         },
       },
       {
         $unwind: {
-          path: '$responseData',
-          preserveNullAndEmptyArrays: true, 
-        },
+          path: '$owner',
+          preserveNullAndEmptyArrays: true,
+        }
       },
       {
         $addFields: {
-          response: '$responseData.response',
+          isUserOwned: { $eq: [userId, { $toString: "$owner._id"}] },
+          isUserLiked: { $in: [userId, { $ifNull: ["$likes", []] }] },
+          isUserSaved: { $in: [userId, { $ifNull: ["$saves", []] }] },
+          isUserCommented: { $in: [userId, { $ifNull: ["$comments", []] }] },
+          isUserShared: { $in: [userId, { $ifNull: ["$shares", []] }] },
+          likeCount: { $size: { $ifNull: ["$likes", []] } },
+          saveCount: { $size: { $ifNull: ["$saves", []] } },
+          shareCount: { $size: { $ifNull: ["$shares", []] } },
+          commentCount: { $size: { $ifNull: ["$comments", []] } },
         },
       },
       {
         $project: {
-          responseData: 0,
-          responseId: 0, 
-          __v: 0,
+          _id: 1,
+          versionId: 1,
+          title: 1,
+          content: 1,
+          'owner._id': 1,
+          'owner.username': 1, 
+          'owner.avatar': 1,
+          tags: 1,
+          createdAt: 1,
+          isUserOwned: 1,
+          likeCount: 1,
+          saveCount: 1, 
+          shareCount: 1,
+          commentCount: 1,
+          isUserLiked: 1,
+          isUserSaved: 1,
+          isUserCommented: 1,
+          isUserShared: 1,
+          responseId: 1,
         },
       },
     ]);
-    if (!sharedPrompt) {
-      return NextResponse.json({ message: "sharedPrompt not found" }, { status: 404 });
-    }
-
-    return NextResponse.json({ message: "sharedPrompt found", sharedPrompt }, { status: 200 });
-  } catch (err) {
-    return NextResponse.json({ error: 'Failed fetching sharedPrompt', err }, { status: 500 });
-  }
 }
