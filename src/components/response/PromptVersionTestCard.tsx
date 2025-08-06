@@ -8,7 +8,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import FavoriteButton from "../common/FavoriteButton";
 import { SetActiveVersionButton } from "../common/SetActiveVersionButton";
-import { SharePromptModal } from "../community/SharePromptModal";
+import { SharePromptModal } from "../sharedPrompt/SharePromptModal";
 import { Skeleton } from "@/components/ui/skeleton";
 import { estimateTokens } from "@/utils/tokeEstimate";
 import { toast } from "sonner";
@@ -39,8 +39,7 @@ export function PromptVersionTestCard({
     }
   }, [version?.content, onTokenEstimated]);
 
-  if (isLoading || !version)
-    return <Skeleton className="h-32 w-full rounded-lg" />;
+  if (isLoading || !version) return <Skeleton className="h-32 w-full rounded-lg" />;
 
   const handleToggleFavorite = () => {
     toggleFavorite(versionId, {
@@ -54,12 +53,12 @@ export function PromptVersionTestCard({
   const tokenCount = estimateTokens(version.content);
 
   return (
-    <div className="border rounded-lg">
+    <div className="rounded-lg border">
       {/* Header */}
-      <div className="flex items-center justify-between px-3 py-2 border-b bg-muted/30">
+      <div className="bg-muted/30 flex items-center justify-between border-b px-3 py-2">
         <div className="flex items-center gap-2">
-          <FileText className="w-3 h-3 text-muted-foreground" />
-          <span className="text-xs text-muted-foreground">
+          <FileText className="text-muted-foreground h-3 w-3" />
+          <span className="text-muted-foreground text-xs">
             Prompt Content - Version {version.versionNumber}
           </span>
         </div>
@@ -74,13 +73,8 @@ export function PromptVersionTestCard({
             promptId={version.promptId}
             isActive={version.isActive}
           />
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => router.back()}
-            title="Edit Prompt"
-          >
-            <Pencil className="w-5 h-5" />
+          <Button variant="ghost" size="icon" onClick={() => router.back()} title="Edit Prompt">
+            <Pencil className="h-5 w-5" />
           </Button>
           <Button
             variant="ghost"
@@ -88,27 +82,25 @@ export function PromptVersionTestCard({
             onClick={() => setIsShareModalOpen(true)}
             title="Share Prompt"
           >
-            <Share className="w-5 h-5" />
+            <Share className="h-5 w-5" />
           </Button>
         </div>
       </div>
 
       {/* Content */}
-      <div className="py-3 px-4">
+      <div className="px-4 py-3">
         <div className="max-h-48 overflow-y-auto">
-          <pre className="whitespace-pre-wrap text-sm leading-relaxed">
+          <pre className="text-sm leading-relaxed whitespace-pre-wrap">
             {version.content || "No content available"}
           </pre>
         </div>
       </div>
 
       {/* Footer */}
-      <div className="flex items-center justify-between px-3 py-2 border-t bg-muted/30">
+      <div className="bg-muted/30 flex items-center justify-between border-t px-3 py-2">
         <div className="flex items-center gap-2">
           {showTokenEstimate && version.content && (
-            <p className="text-xs text-muted-foreground">
-              ~{tokenCount} tokens
-            </p>
+            <p className="text-muted-foreground text-xs">~{tokenCount} tokens</p>
           )}
         </div>
 
@@ -118,11 +110,9 @@ export function PromptVersionTestCard({
               variant="ghost"
               size="sm"
               className="h-6 px-2 text-xs"
-              onClick={() =>
-                router.push(pathname.replace("/test", "/responses"))
-              }
+              onClick={() => router.push(pathname.replace("/test", "/responses"))}
             >
-              <Eye className="w-3 h-3 mr-1" />
+              <Eye className="mr-1 h-3 w-3" />
               Responses
             </Button>
           )}
@@ -131,11 +121,9 @@ export function PromptVersionTestCard({
               variant="ghost"
               size="sm"
               className="h-6 px-2 text-xs"
-              onClick={() =>
-                router.push(pathname.replace("/responses", "/test"))
-              }
+              onClick={() => router.push(pathname.replace("/responses", "/test"))}
             >
-              <Zap className="w-3 h-3 mr-1" />
+              <Zap className="mr-1 h-3 w-3" />
               Test
             </Button>
           )}

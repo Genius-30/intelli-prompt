@@ -196,25 +196,25 @@ export function SharedPromptCard({ prompt, showUser = true }: Readonly<SharedPro
           >
             {prompt.title}
           </Link>
-
-          <div className="flex flex-wrap items-center gap-2">
-            {prompt.tags.map((tag) => (
-              <Badge key={tag} variant="secondary">
-                #{tag}
-              </Badge>
-            ))}
-          </div>
         </div>
 
         {/* Content */}
         <div>
           {renderPromptContent()}
 
-          <div className="flex justify-end">
+          <div className="flex items-start justify-between gap-2">
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+              {prompt.tags.map((tag) => (
+                <Badge key={tag} variant="secondary">
+                  #{tag}
+                </Badge>
+              ))}
+            </div>
+
             {prompt.content.length > 200 && (
               <button
                 onClick={() => setIsExpanded((prev) => !prev)}
-                className="text-primary hover:text-primary/80 mt-1 cursor-pointer self-end text-xs font-medium"
+                className="text-primary hover:text-primary/80 cursor-pointer self-end text-xs font-medium"
               >
                 {isExpanded ? "Show less" : "Show more"}
               </button>

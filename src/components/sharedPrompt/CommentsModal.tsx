@@ -5,6 +5,7 @@ import { useAddComment, useComments } from "@/lib/queries/shared-prompt";
 
 import { Button } from "@/components/ui/button";
 import { CommentItem } from "./CommentItem";
+import { CommentItemSkeleton } from "../skeletons/CommentItemSkeleton";
 import { ExternalLinkIcon } from "lucide-react";
 import { Loader } from "../ui/loader";
 import { Textarea } from "@/components/ui/textarea";
@@ -51,7 +52,6 @@ export function CommentsDialog({
             commentCount: (prev.commentCount || 0) + 1,
           }));
         },
-        onError: () => toast.error("Failed to add comment"),
       },
     );
   };
@@ -71,8 +71,10 @@ export function CommentsDialog({
           {(() => {
             if (isLoading) {
               return (
-                <div className="text-muted-foreground flex items-center gap-2 text-sm">
-                  <Loader /> Loading comments...
+                <div className="space-y-4">
+                  <CommentItemSkeleton />
+                  <CommentItemSkeleton />
+                  <CommentItemSkeleton />
                 </div>
               );
             }
@@ -120,8 +122,8 @@ export function CommentsDialog({
               value={comment}
               onChange={(e) => setComment(e.target.value)}
             />
-            <Button onClick={handleAddComment} className="w-full">
-              Add Comment
+            <Button onClick={handleAddComment} disabled={addComment.isPending} className="w-full">
+              {addComment.isPending ? "Adding..." : "Add Comment"}
             </Button>
           </div>
         )}

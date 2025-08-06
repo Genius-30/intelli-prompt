@@ -4,7 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useFollowers, useFollowing, useUserSharedPrompts } from "@/lib/queries/user";
 
 import { SharedPrompt } from "@/types/sharedPrompt";
-import { SharedPromptCard } from "../community/SharedPromptCard";
+import { SharedPromptCard } from "../sharedPrompt/SharedPromptCard";
 import { SharedPromptCardSkeleton } from "../skeletons/SharedPromptCardUserSkeleton";
 import { User } from "@/types/user";
 import { UserCard } from "./UserCard";

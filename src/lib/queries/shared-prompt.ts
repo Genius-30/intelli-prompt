@@ -54,6 +54,9 @@ export function useUpdateSharedPrompt() {
       });
       return res.data;
     },
+    onError: (error: any) => {
+      toast.error(error?.response?.data?.message || "Failed to update prompt");
+    },
   });
 }
 
@@ -126,7 +129,7 @@ export const useAddComment = (sharedPromptId: string) => {
       return response.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [] });
+      queryClient.invalidateQueries({ queryKey: ["comments", sharedPromptId] });
     },
     onError: (error: any) => {
       toast.error(error?.response?.data?.message || "Failed to add comment");

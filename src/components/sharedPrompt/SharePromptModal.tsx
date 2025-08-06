@@ -3,32 +3,13 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
 import {
-  ChevronDown,
-  ChevronUp,
-  FileText,
-  Loader2,
-  Share,
-  Share2,
-  Sparkles,
-  Tag,
-  X,
-} from "lucide-react";
-import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from "../ui/select";
+import { FileText, Loader2, Share, Share2, Sparkles } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
@@ -36,7 +17,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Loader } from "../ui/loader";
-import { PROMPT_TAGS } from "@/lib/constants/PROMPT_TAGS";
 import { TagMultiSelect } from "../common/TagMultiSelect";
 import { Textarea } from "@/components/ui/textarea";
 import { flattenPromptTags } from "@/utils/flattenPromptTags";
@@ -81,7 +61,6 @@ export function SharePromptModal({
     useGetAllResponsesForVersion(versionId);
 
   const router = useRouter();
-  const MAX_TAGS = 5;
 
   useEffect(() => {
     if (isEdit && initialData?.responseId && responses.length > 0) {
@@ -99,24 +78,38 @@ export function SharePromptModal({
       {
         title: title.trim(),
         content: promptContent,
+        versionId,
         tags: selectedTags,
         responseId: selectedResponseId,
       },
       {
-        onSuccess: () => {
-          toast.success("Prompt shared successfully!");
+        onSuccess: (data) => {
+          toast.success("Prompt shared successfully!", {
+            action: {
+              label: "View Prompt",
+              onClick: () => {
+                router.push(`/prompt/${data.newSharedPromptId}`);
+              },
+            },
+            duration: 5000,
+          });
+
+          setTitle("");
+          setSelectedTags([]);
+          setSelectedResponseId(null);
           onClose();
-          router.push("/profile");
-        },
-        onError: () => {
-          toast.error("Failed to share prompt");
         },
       },
     );
   };
 
   const handleUpdateShare = async () => {
-    if (!title.trim() || selectedTags.length === 0 || !selectedResponseId || !sharedPromptId)
+    if (
+      !title.trim() ||
+      selectedTags.length === 0 ||
+      (versionId && !selectedResponseId) ||
+      !sharedPromptId
+    )
       return;
 
     updatePrompt(
@@ -124,22 +117,18 @@ export function SharePromptModal({
         _id: sharedPromptId,
         newTitle: title.trim(),
         tags: selectedTags,
-        responseId: selectedResponseId,
+        responseId: selectedResponseId || "",
       },
       {
         onSuccess: () => {
           toast.success("Prompt updated successfully!");
           onClose();
-          router.refresh();
-        },
-        onError: () => {
-          toast.error("Failed to update prompt");
         },
       },
     );
   };
 
-  const isFormValid = title.trim() && selectedTags.length > 0 && selectedResponseId;
+  const isFormValid = title.trim() && selectedTags.length > 0 && versionId && selectedResponseId;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>

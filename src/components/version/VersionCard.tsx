@@ -18,7 +18,7 @@ import {
 import { Button } from "@/components/ui/button";
 import FavoriteButton from "../common/FavoriteButton";
 import Link from "next/link";
-import { SharePromptModal } from "../community/SharePromptModal";
+import { SharePromptModal } from "../sharedPrompt/SharePromptModal";
 import { VersionCardProps } from "@/types/version";
 import { formatDistanceToNow } from "date-fns";
 import { toast } from "sonner";

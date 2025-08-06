@@ -1,8 +1,16 @@
 "use client";
 
+import {
+  AlertTriangle,
+  Bookmark,
+  Heart,
+  MessageCircle,
+  Pencil,
+  Play,
+  Share2,
+  Trash2,
+} from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Bookmark, Heart, MessageCircle, Pencil, Play, Share2, Trash2 } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
 import { useEffect, useState } from "react";
 import {
   useGetSharedPrompt,
@@ -14,18 +22,18 @@ import { useParams, useRouter } from "next/navigation";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CommentsDialog } from "@/components/community/CommentsModal";
-import { ConfirmDeleteSharedPrompt } from "@/components/community/ConfirmDeleteSharedPrompt";
+import { CommentsSection } from "@/components/sharedPrompt/CommentsSection";
+import { ConfirmDeleteSharedPrompt } from "@/components/sharedPrompt/ConfirmDeleteSharedPrompt";
 import Link from "next/link";
-import { SharePromptModal } from "@/components/community/SharePromptModal";
+import { ModelResponseSection } from "@/components/sharedPrompt/ModelResponseSection";
+import { Separator } from "@/components/ui/separator";
+import { SharePromptModal } from "@/components/sharedPrompt/SharePromptModal";
+import SharedPromptDetailsSkeleton from "@/components/skeletons/SharedPromptDetailsSkeleton";
 import { cn } from "@/lib/utils";
 import { formatDistanceToNow } from "date-fns";
-import { getModelProviderDetails } from "@/utils/ai-model-utils";
 import { toast } from "sonner";
 import { useAuth } from "@clerk/nextjs";
 import { useOpenAuthModal } from "@/hooks/useOpenAuthModal";
-
-// import { ModelResponse } from "@/components/shared/ModelResponse";
 
 export default function SharedPromptDetailsPage() {
   const { id } = useParams();
@@ -43,7 +51,6 @@ export default function SharedPromptDetailsPage() {
   });
 
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
-  const [commentsOpen, setCommentsOpen] = useState(true);
 
   const [likeData, setLikeData] = useState({ isLiked: false, likeCount: 0 });
   const [saveData, setSaveData] = useState({ isSaved: false, saveCount: 0 });
@@ -63,8 +70,18 @@ export default function SharedPromptDetailsPage() {
     }
   }, [prompt]);
 
-  if (isLoading) return <div>Loading...</div>;
-  if (isError || !prompt) return <div>Failed to load prompt</div>;
+  if (isLoading) return <SharedPromptDetailsSkeleton />;
+  if (isError || !prompt)
+    return (
+      <div className="border-destructive bg-destructive/10 text-destructive flex flex-col items-center justify-center rounded-xl border p-6 shadow-sm">
+        <AlertTriangle className="mb-2 h-10 w-10" />
+        <h2 className="text-lg font-semibold">Prompt Not Found</h2>
+        <p className="text-muted-foreground mt-1 text-center text-sm">
+          We couldn’t find the prompt you’re looking for. It might have been removed or never
+          existed.
+        </p>
+      </div>
+    );
 
   const handleLike = () => {
     if (!isSignedIn) return openAuthModal();
@@ -103,119 +120,118 @@ export default function SharedPromptDetailsPage() {
     }
   };
 
-  if (isLoading) return <div className="p-6">Loading...</div>;
-  if (isError || !prompt) return <div className="text-destructive p-6">Prompt not found.</div>;
-
   return (
-    <Card className="border-border/50 mx-auto mt-6 max-w-3xl border p-6 shadow-sm">
-      <CardContent className="p-0">
-        {/* Header */}
-        <div className="mb-4 flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <Avatar>
-              <AvatarImage src={prompt.owner.avatar || ""} alt={prompt.owner.username} />
-              <AvatarFallback className="bg-primary/10 text-primary font-medium">
-                {prompt.owner.username
-                  .split(" ")
-                  .map((n: string) => n[0])
-                  .join("")}
-              </AvatarFallback>
-            </Avatar>
-            <div>
-              <Link
-                href={`/u/${prompt.owner.username}`}
-                className="hover:text-primary text-sm font-medium"
-              >
-                @{prompt.owner.username}
-              </Link>
-              <p className="text-muted-foreground text-xs">
-                {formatDistanceToNow(new Date(prompt.createdAt))} ago
-              </p>
-            </div>
+    <div>
+      {/* Header */}
+      <div className="mb-6 flex items-center justify-between">
+        <div className="flex items-center space-x-3">
+          <Avatar className="h-10 w-10">
+            <AvatarImage src={prompt.owner.avatar || ""} alt={prompt.owner.username} />
+            <AvatarFallback className="bg-primary/10 text-primary font-medium">
+              {prompt.owner.username
+                .split(" ")
+                .map((n: string) => n[0])
+                .join("")}
+            </AvatarFallback>
+          </Avatar>
+          <div>
+            <Link
+              href={`/u/${prompt.owner.username}`}
+              className="hover:text-primary text-md font-medium"
+            >
+              @{prompt.owner.username}
+            </Link>
+            <p className="text-muted-foreground text-xs">
+              {formatDistanceToNow(new Date(prompt.createdAt))} ago
+            </p>
           </div>
-          {prompt.isUserOwned && (
-            <div className="flex gap-2">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setIsShareModalOpen(true)}
-                title="Edit"
-              >
-                <Pencil className="h-4 w-4" />
+        </div>
+        {prompt.isUserOwned && (
+          <div className="flex gap-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setIsShareModalOpen(true)}
+              title="Edit"
+              className="hover:text-blue-500"
+            >
+              <Pencil className="h-4 w-4" />
+            </Button>
+            <ConfirmDeleteSharedPrompt promptId={prompt._id}>
+              <Button variant="ghost" size="icon" title="Delete" className="hover:text-destructive">
+                <Trash2 className="h-4 w-4" />
               </Button>
-              <ConfirmDeleteSharedPrompt promptId={prompt._id}>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  title="Delete"
-                  className="hover:text-destructive"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </ConfirmDeleteSharedPrompt>
-            </div>
-          )}
-        </div>
-
-        {/* Title & Tags */}
-        <h1 className="mb-2 text-2xl font-bold">{prompt.title}</h1>
-        <div className="mb-4 flex flex-wrap gap-2">
-          {prompt.tags.map((tag: string) => (
-            <Badge key={tag} variant="secondary">
-              #{tag}
-            </Badge>
-          ))}
-        </div>
-
-        {/* Prompt Content */}
-        <pre className="bg-muted/50 overflow-x-auto rounded-lg border px-4 py-3 font-mono text-sm whitespace-pre-wrap">
-          {prompt.content}
-        </pre>
-
-        {/* Actions */}
-        <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center space-x-1">
-            <Button variant="ghost" size="sm" onClick={handleLike}>
-              <Heart className={cn("mr-1 h-4 w-4", likeData.isLiked && "fill-foreground")} />
-              <span>{likeData.likeCount}</span>
-            </Button>
-
-            <Button variant="ghost" size="sm">
-              <MessageCircle
-                className={cn("mr-1 h-4 w-4", commentData.isCommented && "fill-foreground")}
-              />
-              <span>{commentData.commentCount}</span>
-            </Button>
-
-            <Button variant="ghost" size="sm" onClick={handleShare}>
-              <Share2 className={cn("mr-1 h-4 w-4", shareData.isShared && "fill-foreground")} />
-              <span>{shareData.shareCount}</span>
-            </Button>
-
-            <Button variant="ghost" size="sm" onClick={handleSave}>
-              <Bookmark className={cn("mr-1 h-4 w-4", saveData.isSaved && "fill-foreground")} />
-              <span>{saveData.saveCount}</span>
-            </Button>
+            </ConfirmDeleteSharedPrompt>
           </div>
+        )}
+      </div>
 
-          <Button variant="outline" size="sm" onClick={() => router.push(`/run/${prompt._id}`)}>
-            <Play className="mr-1 h-4 w-4" /> Test Prompt
+      {/* Title & Tags */}
+      <h1 className="mb-2 font-bold sm:text-2xl">{prompt.title}</h1>
+
+      {/* Prompt Content */}
+      <pre className="bg-muted/50 sm:text-md overflow-x-auto rounded-lg border px-4 py-2 text-justify">
+        <code className="text-foreground font-mono whitespace-pre-wrap">{prompt.content}</code>
+      </pre>
+
+      <div className="my-4 flex flex-wrap gap-2">
+        {prompt.tags.map((tag: string) => (
+          <Badge key={tag} variant="secondary">
+            #{tag}
+          </Badge>
+        ))}
+      </div>
+
+      {/* Actions */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center space-x-1">
+          <Button variant="ghost" size="sm" onClick={handleLike}>
+            <Heart className={cn("mr-1 h-4 w-4", likeData.isLiked && "fill-foreground")} />
+            <span>{likeData.likeCount}</span>
+          </Button>
+
+          <Button variant="ghost" size="sm">
+            <MessageCircle
+              className={cn("mr-1 h-4 w-4", commentData.isCommented && "fill-foreground")}
+            />
+            <span>{commentData.commentCount}</span>
+          </Button>
+
+          <Button variant="ghost" size="sm" onClick={handleShare}>
+            <Share2 className={cn("mr-1 h-4 w-4", shareData.isShared && "fill-foreground")} />
+            <span>{shareData.shareCount}</span>
+          </Button>
+
+          <Button variant="ghost" size="sm" onClick={handleSave}>
+            <Bookmark className={cn("mr-1 h-4 w-4", saveData.isSaved && "fill-foreground")} />
+            <span>{saveData.saveCount}</span>
           </Button>
         </div>
 
-        {/* Model Response */}
-        <div className="mt-6">{/* <ModelResponse responseId={prompt.responseId} /> */}</div>
-      </CardContent>
+        <Button variant="outline" size="sm" onClick={() => router.push(`/run/${prompt._id}`)}>
+          <Play className="mr-1 h-4 w-4" /> Test Prompt
+        </Button>
+      </div>
 
-      {/* Comments section always open */}
-      <CommentsDialog
-        promptId={prompt._id}
-        open={commentsOpen}
-        onOpenChange={setCommentsOpen}
-        setCommentData={setCommentData}
-      />
+      <Separator className="my-6" />
 
-      {/* Edit Modal */}
+      {/* Model Response */}
+      <div>
+        <h2 className="text-lg font-semibold">Model Response</h2>
+        <p className="text-muted-foreground mb-2 text-sm">
+          This is the response generated by the model when this prompt was run.
+        </p>
+        <ModelResponseSection responseId={prompt.responseId} />
+      </div>
+
+      <Separator className="my-6" />
+
+      {/* Comments Section */}
+      <div>
+        <CommentsSection promptId={id as string} />
+      </div>
+
+      {/* Share/Edit Modal */}
       <SharePromptModal
         isOpen={isShareModalOpen}
         onClose={() => setIsShareModalOpen(false)}
@@ -229,6 +245,6 @@ export default function SharedPromptDetailsPage() {
           responseId: prompt.responseId,
         }}
       />
-    </Card>
+    </div>
   );
 }
