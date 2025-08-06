@@ -8,18 +8,16 @@ type SharePromptPayload = {
   title: string;
   content: string;
   tags?: string[];
-  modelUsed: string;
   responseId: string;
 };
 
 export const useSharePrompt = () => {
   return useMutation({
-    mutationFn: async ({ title, content, tags, modelUsed, responseId }: SharePromptPayload) => {
+    mutationFn: async ({ title, content, tags, responseId }: SharePromptPayload) => {
       const { data } = await axiosInstance.post("/sharedPrompt", {
         title,
         content,
         tags,
-        modelUsed,
         responseId,
       });
       return data.newSharedPrompt;

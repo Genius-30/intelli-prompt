@@ -61,9 +61,7 @@ export function SidebarFolderSection() {
   }>({ type: null });
   const [folderToDelete, setFolderToDelete] = useState<string | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [expandedFolders, setExpandedFolders] = useState<Set<string>>(
-    new Set()
-  );
+  const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set());
 
   const { data: folders = [], isLoading } = useGetAllFolders();
   const { mutate: createFolder, isPending: isCreating } = useCreateFolder();
@@ -111,14 +109,13 @@ export function SidebarFolderSection() {
   };
 
   const FolderPrompts = ({ folderId }: { folderId: string }) => {
-    const { data: prompts = [], isLoading: isLoadingPrompts } =
-      useGetPromptsByFolder(folderId);
+    const { data: prompts = [], isLoading: isLoadingPrompts } = useGetPromptsByFolder(folderId);
 
     if (isLoadingPrompts) {
       return (
         <SidebarMenuSub className="gap-2 py-2">
           {Array.from({ length: 2 }).map((_, i) => (
-            <div key={i} className="flex items-center px-2 gap-1">
+            <div key={i} className="flex items-center gap-1 px-2">
               <Skeleton className="h-4 w-4 rounded" />
               <Skeleton className="h-4 flex-1 rounded" />
             </div>
@@ -128,7 +125,7 @@ export function SidebarFolderSection() {
     }
 
     return (
-      <SidebarMenuSub className="w-full mr-0 pr-3">
+      <SidebarMenuSub className="mr-0 w-full pr-3">
         {prompts.map((prompt: any) => (
           <SidebarMenuSubItem key={prompt._id}>
             <SidebarMenuSubButton
@@ -137,7 +134,7 @@ export function SidebarFolderSection() {
               onClick={() => navigateToPrompt(folderId, prompt._id)}
               className="w-full"
             >
-              <div className="w-full flex items-center gap-2 cursor-pointer">
+              <div className="flex w-full cursor-pointer items-center gap-2">
                 <FileText className="h-3 w-3 flex-shrink-0" />
                 <p className="truncate">{prompt.title}</p>
               </div>
@@ -147,7 +144,7 @@ export function SidebarFolderSection() {
         <SidebarMenuSubItem>
           <Link
             href={`/folders/${folderId}/prompts/new`}
-            className="text-xs px-2 py-1 hover:text-primary text-muted-foreground"
+            className="hover:text-primary text-muted-foreground px-2 py-1 text-xs"
           >
             + Add Prompt
           </Link>
@@ -161,7 +158,7 @@ export function SidebarFolderSection() {
       <SidebarGroupLabel>
         <Link
           href="/folders"
-          className="flex items-center gap-2 hover:text-sidebar-accent-foreground transition-colors"
+          className="hover:text-sidebar-accent-foreground flex items-center gap-2 transition-colors"
         >
           Folders
         </Link>
@@ -171,17 +168,13 @@ export function SidebarFolderSection() {
         <div className="space-y-1">
           {(() => {
             if (isLoading) {
-              return Array.from({ length: 3 }).map((_, i) => (
-                <SidebarSkeletonItem key={i} />
-              ));
+              return Array.from({ length: 3 }).map((_, i) => <SidebarSkeletonItem key={i} />);
             }
 
             if (folders.length === 0) {
               return (
                 <div className="px-2 py-3">
-                  <p className="text-xs text-muted-foreground">
-                    No folders yet
-                  </p>
+                  <p className="text-muted-foreground text-xs">No folders yet</p>
                 </div>
               );
             }
@@ -194,13 +187,13 @@ export function SidebarFolderSection() {
               return (
                 <div key={folder._id}>
                   <SidebarMenuItem>
-                    <div className="flex items-center w-full group">
+                    <div className="group flex w-full items-center">
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
                           toggleFolder(folder._id);
                         }}
-                        className="flex-shrink-0 p-0.5 hover:bg-sidebar-accent rounded-sm transition-colors mr-1"
+                        className="hover:bg-sidebar-accent mr-1 flex-shrink-0 rounded-sm p-0.5 transition-colors"
                       >
                         {isExpanded ? (
                           <ChevronDown className="h-3 w-3" />
@@ -212,19 +205,19 @@ export function SidebarFolderSection() {
                       <SidebarMenuButton
                         asChild
                         isActive={isActive}
-                        className="flex-1 min-w-0 pr-0"
+                        className="min-w-0 flex-1 pr-0"
                       >
                         <button
                           onClick={() => navigateToFolder(folder)}
-                          className="flex items-center gap-2 w-full"
+                          className="flex w-full items-center gap-2"
                         >
                           <Folder className="h-4 w-4 flex-shrink-0" />
 
-                          <div className="flex items-center justify-between w-full min-w-0">
+                          <div className="flex w-full min-w-0 items-center justify-between">
                             <p className="truncate">{folder.title}</p>
 
                             {promptCount > 0 && (
-                              <span className="text-xs text-muted-foreground bg-foreground/10 px-1.5 py-0.5 rounded-full ml-2 flex-shrink-0">
+                              <span className="text-muted-foreground bg-foreground/10 ml-2 flex-shrink-0 rounded-full px-1.5 py-0.5 text-xs">
                                 {promptCount}
                               </span>
                             )}
@@ -235,7 +228,7 @@ export function SidebarFolderSection() {
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <SidebarMenuAction
-                            className="opacity-0 group-hover:opacity-100 transition-opacity"
+                            className="opacity-0 transition-opacity group-hover:opacity-100"
                             showOnHover
                           >
                             <MoreVertical className="h-4 w-4" />
@@ -243,9 +236,7 @@ export function SidebarFolderSection() {
                           </SidebarMenuAction>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent side="right" align="start">
-                          <DropdownMenuItem
-                            onClick={() => openRenameModal(folder)}
-                          >
+                          <DropdownMenuItem onClick={() => openRenameModal(folder)}>
                             <Edit2Icon className="mr-2 h-4 w-4" />
                             Rename
                           </DropdownMenuItem>
@@ -256,7 +247,7 @@ export function SidebarFolderSection() {
                             }}
                             className="text-destructive focus:text-destructive"
                           >
-                            <TrashIcon className="mr-2 h-4 w-4 text-destructive" />
+                            <TrashIcon className="text-destructive mr-2 h-4 w-4" />
                             Delete
                           </DropdownMenuItem>
                         </DropdownMenuContent>
@@ -299,29 +290,21 @@ export function SidebarFolderSection() {
             }
           }}
         >
-          <AlertDialogContent
-            onEscapeKeyDown={(e) => isDeleting && e.preventDefault()}
-          >
+          <AlertDialogContent onEscapeKeyDown={(e) => isDeleting && e.preventDefault()}>
             <AlertDialogHeader>
               <AlertDialogTitle>Delete folder?</AlertDialogTitle>
               <AlertDialogDescription>
                 This will permanently delete the folder and{" "}
-                <strong>all its prompts and versions</strong>. This action
-                cannot be undone.
+                <strong>all its prompts and versions</strong>. This action cannot be undone.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel
-                disabled={isDeleting}
-                onClick={() => setDialogOpen(false)}
-              >
+              <AlertDialogCancel disabled={isDeleting} onClick={() => setDialogOpen(false)}>
                 Cancel
               </AlertDialogCancel>
               <AlertDialogAction
                 disabled={isDeleting}
-                onClick={() =>
-                  folderToDelete && handleDeleteFolder(folderToDelete)
-                }
+                onClick={() => folderToDelete && handleDeleteFolder(folderToDelete)}
                 className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               >
                 {isDeleting ? "Deleting..." : "Delete"}
@@ -336,9 +319,7 @@ export function SidebarFolderSection() {
         <FolderCreateModal
           open={true}
           onClose={closeModal}
-          defaultTitle={
-            modalState.type === "rename" ? modalState.folder?.title : ""
-          }
+          defaultTitle={modalState.type === "rename" ? modalState.folder?.title : ""}
           submitText={modalState.type === "rename" ? "Rename" : "Create"}
           isPending={modalState.type === "rename" ? isRenaming : isCreating}
           onSubmit={(title) => {
@@ -361,7 +342,7 @@ export function SidebarFolderSection() {
                 {
                   onSuccess: () => toast.success("Folder renamed"),
                   onError: () => toast.error("Failed to rename folder"),
-                }
+                },
               );
             }
             closeModal();

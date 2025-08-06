@@ -144,7 +144,15 @@ async function getTrendingPosts({
               isUserLiked: { $in: [userId, { $ifNull: ["$likes", []] }] },
               isUserSaved: { $in: [userId, { $ifNull: ["$saves", []] }] },
               isUserShared: { $in: [userId, { $ifNull: ["$shares", []] }] },
-              isUserCommented: { $in: [userId, { $ifNull: ["$comments", []] }] },
+              isUserCommented: {
+                $anyElementTrue: {
+                  $map: {
+                    input: { $ifNull: ["$comments", []] },
+                    as: "comment",
+                    in: { $eq: ["$$comment.userId", userId] },
+                  },
+                },
+              },
               isUserOwned: { $eq: ["$ownerId", userId] },
             },
           },

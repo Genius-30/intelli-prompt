@@ -18,14 +18,16 @@ export function PromptVersionsPage() {
   const activeVersionRef = useRef<HTMLDivElement | null>(null);
   const versionRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
 
-  const { data: versions, isLoading: versionsLoading } = useGetAllVersions(promptId as string);
+  const { data: versions = [], isLoading: versionsLoading } = useGetAllVersions(promptId as string);
 
   const activeVersion = versions?.find((v: Version) => v.isActive);
   const activeVersionId = activeVersion?._id;
 
-  const latestVersion = versions?.reduce((latest: Version, current: Version) => {
-    return new Date(current.createdAt) > new Date(latest.createdAt) ? current : latest;
-  });
+  const latestVersion = versions?.length
+    ? versions?.reduce((latest: Version, current: Version) => {
+        return new Date(current.createdAt) > new Date(latest.createdAt) ? current : latest;
+      })
+    : null;
 
   useEffect(() => {
     if (activeVersionRef.current && !versionsLoading) {

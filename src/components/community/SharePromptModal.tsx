@@ -12,7 +12,6 @@ import {
   Sparkles,
   Tag,
   X,
-  Zap,
 } from "lucide-react";
 import {
   Dialog,
@@ -24,32 +23,42 @@ import {
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "../ui/select";
+import { useEffect, useState } from "react";
 
-import { AI_MODELS } from "@/lib/constants/AI_MODELS";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Loader } from "../ui/loader";
 import { PROMPT_TAGS } from "@/lib/constants/PROMPT_TAGS";
-import { Response } from "@/types/sharedPrompt";
+import { TagMultiSelect } from "../common/TagMultiSelect";
 import { Textarea } from "@/components/ui/textarea";
+import { flattenPromptTags } from "@/utils/flattenPromptTags";
 import { toast } from "sonner";
 import { useCurrentUser } from "@/lib/queries/user";
 import { useGetAllResponsesForVersion } from "@/lib/queries/response";
 import { useRouter } from "next/navigation";
 import { useSharePrompt } from "@/lib/queries/community";
-import { useState } from "react";
+import { useUpdateSharedPrompt } from "@/lib/queries/shared-prompt";
 
 interface SharePromptModalProps {
   readonly isOpen: boolean;
   readonly onClose: () => void;
   readonly promptContent: string;
   readonly versionId: string;
+  readonly isEdit?: boolean;
+  readonly sharedPromptId?: string;
+  readonly initialData?: {
+    readonly title: string;
+    readonly tags: string[];
+    readonly responseId: string;
+  };
 }
 
 export function SharePromptModal({
@@ -57,81 +66,80 @@ export function SharePromptModal({
   onClose,
   promptContent,
   versionId,
+  isEdit = false,
+  sharedPromptId,
+  initialData,
 }: SharePromptModalProps) {
-  const [title, setTitle] = useState("");
-  const [selectedModel, setSelectedModel] = useState("");
-  const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  const [expandedCategories, setExpandedCategories] = useState<string[]>([]);
-
-  const [selectedResponse, setSelectedResponse] = useState<Response | null>(null);
+  const [title, setTitle] = useState(initialData?.title || "");
+  const [selectedTags, setSelectedTags] = useState<string[]>(initialData?.tags || []);
+  const [selectedResponseId, setSelectedResponseId] = useState<string | null>(null);
 
   const { data: currentUser } = useCurrentUser();
   const { mutate: sharePrompt, isPending: isSharing } = useSharePrompt();
+  const { mutate: updatePrompt, isPending: isUpdating } = useUpdateSharedPrompt();
   const { data: responses = [], isLoading: isLoadingResponses } =
     useGetAllResponsesForVersion(versionId);
 
   const router = useRouter();
-
   const MAX_TAGS = 5;
 
-  const handleSelectTag = (tag: string) => {
-    if (!selectedTags.includes(tag) && selectedTags.length < MAX_TAGS) {
-      setSelectedTags((prev) => [...prev, tag]);
+  useEffect(() => {
+    if (isEdit && initialData?.responseId && responses.length > 0) {
+      const matchingResponse = responses.find((r) => r._id === initialData.responseId);
+      if (matchingResponse) {
+        setSelectedResponseId(matchingResponse._id);
+      }
     }
-  };
+  }, [isEdit, initialData, responses]);
 
-  const handleRemoveTag = (tag: string) => {
-    setSelectedTags((prev) => prev.filter((t) => t !== tag));
-  };
-
-  const toggleCategory = (category: string) => {
-    setExpandedCategories((prev) =>
-      prev.includes(category) ? prev.filter((c) => c !== category) : [...prev, category],
-    );
-  };
-
-  const handleShare = async () => {
-    if (!title.trim() || selectedTags.length === 0 || !selectedModel || !selectedResponse) return;
+  const handleCreateShare = async () => {
+    if (!title.trim() || selectedTags.length === 0 || !selectedResponseId) return;
 
     sharePrompt(
       {
         title: title.trim(),
         content: promptContent,
         tags: selectedTags,
-        modelUsed: selectedModel,
-        responseId: selectedResponse._id,
+        responseId: selectedResponseId,
       },
       {
-        onSuccess: (data) => {
-          toast.success("Prompt shared successfully!", {
-            action: {
-              label: "View Prompt",
-              onClick: () => {
-                router.push(`/profile`);
-              },
-            },
-            duration: 5000,
-          });
-
-          setTitle("");
-          setSelectedTags([]);
-          setSelectedModel("");
-          setExpandedCategories([]);
+        onSuccess: () => {
+          toast.success("Prompt shared successfully!");
           onClose();
+          router.push("/profile");
+        },
+        onError: () => {
+          toast.error("Failed to share prompt");
         },
       },
     );
   };
 
-  const isFormValid = title.trim() && selectedTags.length > 0 && selectedModel;
+  const handleUpdateShare = async () => {
+    if (!title.trim() || selectedTags.length === 0 || !selectedResponseId || !sharedPromptId)
+      return;
 
-  const availableModels = Object.values(AI_MODELS).flatMap((provider) =>
-    provider.models.map((model) => ({
-      id: model.id,
-      name: model.name,
-      provider: provider.name,
-    })),
-  );
+    updatePrompt(
+      {
+        _id: sharedPromptId,
+        newTitle: title.trim(),
+        tags: selectedTags,
+        responseId: selectedResponseId,
+      },
+      {
+        onSuccess: () => {
+          toast.success("Prompt updated successfully!");
+          onClose();
+          router.refresh();
+        },
+        onError: () => {
+          toast.error("Failed to update prompt");
+        },
+      },
+    );
+  };
+
+  const isFormValid = title.trim() && selectedTags.length > 0 && selectedResponseId;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -188,28 +196,6 @@ export function SharePromptModal({
 
             <div className="space-y-2">
               <Label className="flex items-center gap-1">
-                <Zap className="text-primary h-4 w-4" />
-                Best Performing Model <span className="text-destructive">*</span>
-              </Label>
-              <Select value={selectedModel} onValueChange={setSelectedModel}>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select model..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {availableModels.map((model) => (
-                    <SelectItem key={model.name} value={model.name}>
-                      {model.name}{" "}
-                      <Badge variant="outline" className="ml-2">
-                        {model.provider}
-                      </Badge>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label className="flex items-center gap-1">
                 <FileText className="text-primary h-4 w-4" /> Prompt Preview
               </Label>
               <Textarea
@@ -220,21 +206,17 @@ export function SharePromptModal({
             </div>
 
             {/* Tags Selection */}
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <Label className="flex items-center gap-1">
-                  <Tag className="text-primary h-4 w-4" />
-                  Select Tags <span className="text-destructive">*</span>
-                </Label>
-                <div className="text-muted-foreground text-xs">
-                  {selectedTags.length}/{MAX_TAGS} selected
-                </div>
-              </div>
+            <div className="space-y-2">
+              <TagMultiSelect
+                tags={flattenPromptTags()}
+                selected={selectedTags}
+                setSelected={setSelectedTags}
+                maxSelected={5}
+              />
 
-              {/* Selected Tags Display */}
               {selectedTags.length > 0 && (
-                <div className="bg-muted/30 border-muted-foreground/20 rounded-lg border-2 border-dashed p-3">
-                  <p className="text-muted-foreground mb-2 text-sm font-medium">Selected Tags:</p>
+                <div className="bg-muted/30 border-muted-foreground/20 flex items-center gap-4 rounded-lg border-2 border-dashed p-3">
+                  <p className="text-muted-foreground text-sm font-medium">Selected Tags:</p>
                   <div className="flex flex-wrap gap-2">
                     {selectedTags.map((tag) => (
                       <Badge
@@ -243,73 +225,10 @@ export function SharePromptModal({
                         className="flex items-center gap-1 px-2 py-1"
                       >
                         {tag}
-                        <button
-                          onClick={() => handleRemoveTag(tag)}
-                          className="hover:text-destructive ml-1 transition-colors"
-                        >
-                          <X className="h-3 w-3" />
-                        </button>
                       </Badge>
                     ))}
                   </div>
                 </div>
-              )}
-
-              {/* Tag Categories */}
-              <div className="rounded-lg border p-0">
-                {PROMPT_TAGS.map((category) => (
-                  <div
-                    key={category.category}
-                    className={`border-b last:border-b-0 ${expandedCategories.includes(category.category) ? "mb-2" : "mb-0"}`}
-                  >
-                    <button
-                      onClick={() => toggleCategory(category.category)}
-                      className="hover:bg-muted/50 flex w-full items-center justify-between p-3 transition-colors"
-                    >
-                      <span className="text-sm font-medium">{category.category}</span>
-                      {expandedCategories.includes(category.category) ? (
-                        <ChevronUp className="h-4 w-4" />
-                      ) : (
-                        <ChevronDown className="h-4 w-4" />
-                      )}
-                    </button>
-
-                    {expandedCategories.includes(category.category) && (
-                      <div className="px-3 pb-3">
-                        <div className="flex flex-wrap gap-2">
-                          {category.tags.map((tag) => {
-                            const isSelected = selectedTags.includes(tag);
-                            const isDisabled = !isSelected && selectedTags.length >= MAX_TAGS;
-
-                            const tagButtonClass = isSelected
-                              ? "bg-primary text-primary-foreground border-primary"
-                              : isDisabled
-                                ? "bg-muted/50 text-muted-foreground border-muted cursor-not-allowed opacity-50"
-                                : "bg-background hover:bg-muted border-border hover:border-primary/50";
-
-                            return (
-                              <button
-                                key={tag}
-                                onClick={() => handleSelectTag(tag)}
-                                disabled={isDisabled}
-                                className={`rounded-md border px-2 py-1 text-xs transition-all ${tagButtonClass}`}
-                              >
-                                {tag}
-                              </button>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-
-              {selectedTags.length >= MAX_TAGS && (
-                <p className="flex items-center gap-1 text-xs text-amber-600 dark:text-amber-400">
-                  <span className="h-1 w-1 rounded-full bg-amber-500"></span>
-                  Maximum {MAX_TAGS} tags selected. Remove a tag to add another.
-                </p>
               )}
             </div>
           </div>
@@ -340,19 +259,11 @@ export function SharePromptModal({
                 <div className="grid gap-3">
                   {responses.map((resp) => {
                     // Ensure resp is of type Response
-                    const isSelected = selectedResponse?._id === resp._id;
+                    const isSelected = selectedResponseId === resp._id;
                     return (
                       <button
                         key={resp._id}
-                        onClick={() =>
-                          setSelectedResponse({
-                            _id: resp._id,
-                            model: resp.model,
-                            temperature: resp.temperature,
-                            createdAt: resp.createdAt,
-                            responseId: resp._id,
-                          })
-                        }
+                        onClick={() => setSelectedResponseId(resp._id)}
                         className={`rounded-lg border p-4 text-left transition-all ${
                           isSelected
                             ? "border-primary bg-primary/5 shadow-sm"
@@ -388,17 +299,22 @@ export function SharePromptModal({
             )}
           </span>
           <div className="flex gap-2">
-            <Button variant="outline" onClick={onClose} disabled={isSharing}>
+            <Button variant="outline" onClick={onClose} disabled={isSharing || isUpdating}>
               Cancel
             </Button>
-            <Button onClick={handleShare} disabled={!isFormValid || isSharing} className="gap-2">
-              {isSharing ? (
+            <Button
+              onClick={isEdit ? handleUpdateShare : handleCreateShare}
+              disabled={!isFormValid || isSharing || isUpdating}
+              className="gap-2"
+            >
+              {(isEdit ? isUpdating : isSharing) ? (
                 <>
-                  <Loader2 className="h-3 w-3 animate-spin" /> Sharing...
+                  <Loader2 className="h-3 w-3 animate-spin" />{" "}
+                  {isEdit ? "Updating..." : "Sharing..."}
                 </>
               ) : (
                 <>
-                  <Share className="h-3 w-3" /> Share Prompt
+                  <Share className="h-3 w-3" /> {isEdit ? "Update Prompt" : "Share Prompt"}
                 </>
               )}
             </Button>

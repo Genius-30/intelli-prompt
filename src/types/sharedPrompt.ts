@@ -2,8 +2,8 @@ export interface SharedPrompt {
   _id: string;
   title: string;
   content: string;
+  versionId: string;
   tags: string[];
-  modelUsed: string;
   responseId: string;
   owner: {
     _id: string;
@@ -41,4 +41,18 @@ export type Response = {
 export interface SharedPromptCardProps {
   readonly prompt: SharedPrompt;
   readonly showUser?: boolean;
+}
+
+export interface Comment {
+  _id: string;
+  author: {
+    _id: string;
+    username: string;
+    avatar: string;
+  };
+  content: string;
+  likeCount: number;
+  isUserLiked: boolean;
+  isUserOwned: boolean;
+  createdAt: string;
 }

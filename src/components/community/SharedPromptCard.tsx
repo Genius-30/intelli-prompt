@@ -1,9 +1,8 @@
 "use client";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Bookmark, Heart, MessageCircle, Play, Share2, TrendingUp } from "lucide-react";
+import { Bookmark, Heart, MessageCircle, Pencil, Play, Share2, Trash2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import { useCallback, useState } from "react";
 import {
   useMarkSharedPromptAsShared,
   useToggleLikeSharedPrompt,
@@ -12,23 +11,28 @@ import {
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { CommentsDialog } from "./CommentsModal";
+import { ConfirmDeleteSharedPrompt } from "./ConfirmDeleteSharedPrompt";
 import Link from "next/link";
-import { ModelResponseDialog } from "./ModelResponseDialog";
+import { ModelResponseModal } from "./ModelResponseModal";
 import type React from "react";
+import { SharePromptModal } from "./SharePromptModal";
 import type { SharedPromptCardProps } from "@/types/sharedPrompt";
 import { cn } from "@/lib/utils";
 import { formatDistanceToNow } from "date-fns";
-import { getModelProviderDetails } from "@/utils/ai-model-utils";
 import { toast } from "sonner";
 import { useAuth } from "@clerk/nextjs";
 import { useOpenAuthModal } from "@/hooks/useOpenAuthModal";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 export function SharedPromptCard({ prompt, showUser = true }: Readonly<SharedPromptCardProps>) {
   const router = useRouter();
   const { isSignedIn } = useAuth();
   const openAuthModal = useOpenAuthModal();
 
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [commentsOpen, setCommentsOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [likeData, setLikeData] = useState({
     isLiked: prompt.isUserLiked,
@@ -78,9 +82,7 @@ export function SharedPromptCard({ prompt, showUser = true }: Readonly<SharedPro
   };
 
   const handleComment = (e: React.MouseEvent) => {
-    e.preventDefault();
-    if (!isSignedIn) return openAuthModal();
-    router.push(`/prompts/${prompt._id}`);
+    setCommentsOpen(true);
   };
 
   const handleShare = (e: React.MouseEvent) => {
@@ -135,9 +137,8 @@ export function SharedPromptCard({ prompt, showUser = true }: Readonly<SharedPro
     <Card className="group border-border/50 hover:border-border relative overflow-hidden border py-3 transition-all duration-300 hover:shadow-lg sm:py-4">
       <CardContent className="px-3 sm:px-4">
         {/* Header: Author Info */}
-
-        {showUser && (
-          <div className="mb-4 flex items-center justify-between">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-1">
+          {showUser && (
             <div className="flex items-center space-x-3">
               <Avatar className="ring-primary/20 group-hover:ring-primary/30 h-8 w-8 ring-2 transition-all">
                 <AvatarImage src={prompt.owner.avatar || ""} alt={prompt.owner.username} />
@@ -149,27 +150,48 @@ export function SharedPromptCard({ prompt, showUser = true }: Readonly<SharedPro
                     .toUpperCase()}
                 </AvatarFallback>
               </Avatar>
-              <div>
-                <div className="flex items-center space-x-2">
-                  <Link
-                    href={`/u/${prompt.owner.username}`}
-                    className="text-foreground hover:text-primary text-sm font-medium transition-colors"
-                  >
-                    @{prompt.owner.username}
-                  </Link>
-                  <span className="text-muted-foreground text-xs">
-                    • {formatDistanceToNow(new Date(prompt.createdAt))} ago
-                  </span>
-                </div>
+              <div className="flex flex-wrap items-center space-x-2">
+                <Link
+                  href={`/u/${prompt.owner.username}`}
+                  className="text-foreground hover:text-primary text-sm font-medium transition-colors"
+                >
+                  @{prompt.owner.username}
+                </Link>
+                <span className="text-muted-foreground text-xs">
+                  • {formatDistanceToNow(new Date(prompt.createdAt))} ago
+                </span>
               </div>
             </div>
-          </div>
-        )}
+          )}
+          {prompt.isUserOwned && (
+            <div className="flex gap-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setIsShareModalOpen(true)}
+                title="Edit"
+                className="hover:text-blue-500"
+              >
+                <Pencil className="h-4 w-4" />
+              </Button>
+              <ConfirmDeleteSharedPrompt promptId={prompt._id}>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  title="Delete"
+                  className="hover:text-destructive"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </ConfirmDeleteSharedPrompt>
+            </div>
+          )}
+        </div>
 
         {/* Title & Tags*/}
         <div className="mb-2 flex flex-wrap items-center justify-between">
           <Link
-            href={`/prompts/${prompt._id}`}
+            href={`/prompt/${prompt._id}`}
             className="text-foreground hover:text-primary xs:text-xl block rounded text-lg font-bold transition-colors"
           >
             {prompt.title}
@@ -188,26 +210,7 @@ export function SharedPromptCard({ prompt, showUser = true }: Readonly<SharedPro
         <div>
           {renderPromptContent()}
 
-          <div className="flex flex-wrap-reverse items-center justify-between">
-            <div>
-              {prompt.modelUsed &&
-                (() => {
-                  const provider = getModelProviderDetails(prompt.modelUsed);
-                  if (!provider) return null;
-                  const { modelName, Icon, color } = provider;
-
-                  return (
-                    <Badge
-                      variant="outline"
-                      className="mt-2 flex items-center space-x-1"
-                      style={{ color }}
-                    >
-                      <Icon className="h-4 w-4" />
-                      <span>{modelName}</span>
-                    </Badge>
-                  );
-                })()}
-            </div>
+          <div className="flex justify-end">
             {prompt.content.length > 200 && (
               <button
                 onClick={() => setIsExpanded((prev) => !prev)}
@@ -220,20 +223,15 @@ export function SharedPromptCard({ prompt, showUser = true }: Readonly<SharedPro
         </div>
 
         {/* Actions */}
-        <div className="border-border/50 flex flex-wrap items-center justify-between gap-3 pt-4">
+        <div className="border-border/50 flex flex-wrap items-center justify-between gap-3 pt-2">
           <div className="flex items-center space-x-1">
             <Button
               variant="ghost"
               size="sm"
               onClick={handleLike}
-              className={cn(
-                "h-9 px-3 text-sm transition-all",
-                likeData.isLiked
-                  ? "bg-red-50 text-red-600 hover:bg-red-100 dark:bg-red-950/20 dark:hover:bg-red-950/30"
-                  : "hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/20",
-              )}
+              className="text-foreground h-9 px-3 text-sm transition-all"
             >
-              <Heart className={cn("mr-1 h-4 w-4", likeData.isLiked && "fill-current")} />
+              <Heart className={cn("mr-1 h-4 w-4", likeData.isLiked && "fill-foreground")} />
               <span>{likeData.likeCount}</span>
             </Button>
 
@@ -241,15 +239,10 @@ export function SharedPromptCard({ prompt, showUser = true }: Readonly<SharedPro
               variant="ghost"
               size="sm"
               onClick={handleComment}
-              className={cn(
-                "h-9 px-3 text-sm transition-all",
-                commentData.isCommented
-                  ? "bg-blue-50 text-blue-600 hover:bg-blue-100 dark:bg-blue-950/20 dark:hover:bg-blue-950/30"
-                  : "hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-950/20",
-              )}
+              className="text-foreground h-9 px-3 text-sm transition-all"
             >
               <MessageCircle
-                className={cn("mr-1 h-4 w-4", commentData.isCommented && "fill-current")}
+                className={cn("mr-1 h-4 w-4", commentData.isCommented && "fill-foreground")}
               />
               <span>{commentData.commentCount}</span>
             </Button>
@@ -258,14 +251,9 @@ export function SharedPromptCard({ prompt, showUser = true }: Readonly<SharedPro
               variant="ghost"
               size="sm"
               onClick={handleShare}
-              className={
-                (cn("h-9 px-3 text-sm transition-all"),
-                shareData.isShared
-                  ? "bg-primary/5 text-primary hover:bg-primary/10"
-                  : "hover:bg-primary/5 hover:text-primary")
-              }
+              className="text-foreground h-9 px-3 text-sm transition-all"
             >
-              <Share2 className={cn("mr-1 h-4 w-4", shareData.isShared && "fill-current")} />
+              <Share2 className={cn("mr-1 h-4 w-4", shareData.isShared && "fill-for")} />
               <span>{shareData.shareCount}</span>
             </Button>
 
@@ -273,21 +261,16 @@ export function SharedPromptCard({ prompt, showUser = true }: Readonly<SharedPro
               variant="ghost"
               size="sm"
               onClick={handleSave}
-              className={cn(
-                "h-9 px-3 text-sm transition-all",
-                saveData.isSaved
-                  ? "bg-yellow-50 text-yellow-600 hover:bg-yellow-100 dark:bg-yellow-950/20 dark:hover:bg-yellow-950/30"
-                  : "hover:bg-yellow-50 hover:text-yellow-600 dark:hover:bg-yellow-950/20",
-              )}
+              className="text-foreground h-9 px-3 text-sm transition-all"
             >
-              <Bookmark className={cn("mr-1 h-4 w-4", saveData.isSaved && "fill-current")} />
+              <Bookmark className={cn("mr-1 h-4 w-4", saveData.isSaved && "fill-foreground")} />
               <span>{saveData.saveCount}</span>
             </Button>
           </div>
 
           <div className="flex items-center space-x-2">
             {/* Model Response Modal */}
-            <ModelResponseDialog responseId={prompt.responseId} />
+            <ModelResponseModal responseId={prompt.responseId} />
 
             <Button variant="outline" size="sm" onClick={() => router.push(`/run/${prompt._id}`)}>
               <Play className="mr-1 h-4 w-4" />
@@ -296,6 +279,25 @@ export function SharedPromptCard({ prompt, showUser = true }: Readonly<SharedPro
           </div>
         </div>
       </CardContent>
+      <CommentsDialog
+        promptId={prompt._id}
+        open={commentsOpen}
+        onOpenChange={setCommentsOpen}
+        setCommentData={setCommentData}
+      />
+      <SharePromptModal
+        isOpen={isShareModalOpen}
+        onClose={() => setIsShareModalOpen(false)}
+        promptContent={prompt.content}
+        versionId={prompt.versionId}
+        isEdit={true}
+        sharedPromptId={prompt._id}
+        initialData={{
+          title: prompt.title,
+          tags: prompt.tags,
+          responseId: prompt.responseId,
+        }}
+      />
     </Card>
   );
 }

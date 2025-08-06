@@ -16,7 +16,7 @@ import { getModelProviderDetails } from "@/utils/ai-model-utils";
 import { useModelResponse } from "@/lib/queries/response";
 import { useState } from "react";
 
-export const ModelResponseDialog = ({ responseId }: { responseId: string }) => {
+export const ModelResponseModal = ({ responseId }: { responseId: string }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const { data: modelResponse, isLoading } = useModelResponse(responseId, {
@@ -37,7 +37,7 @@ export const ModelResponseDialog = ({ responseId }: { responseId: string }) => {
           Response
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-h-[80vh] max-w-4xl overflow-hidden">
+      <DialogContent className="max-h-[90vh] w-full max-w-screen-xl overflow-hidden sm:max-w-[60vw]">
         <DialogHeader>
           <DialogTitle className="flex items-center">
             <span className="mr-2">🤖</span> Model Response

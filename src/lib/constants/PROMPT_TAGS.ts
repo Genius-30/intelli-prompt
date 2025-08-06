@@ -48,13 +48,7 @@ export const PROMPT_TAGS = [
   },
   {
     category: "Education",
-    tags: [
-      "Study Help",
-      "Assignment Help",
-      "Presentation",
-      "Language Learning",
-      "Teaching Tools",
-    ],
+    tags: ["Study Help", "Assignment Help", "Presentation", "Language Learning", "Teaching Tools"],
   },
   {
     category: "Writing",
@@ -69,33 +63,14 @@ export const PROMPT_TAGS = [
   },
   {
     category: "Career & Job",
-    tags: [
-      "Resume",
-      "Cover Letter",
-      "Job Interview",
-      "Career Advice",
-      "LinkedIn Optimization",
-    ],
+    tags: ["Resume", "Cover Letter", "Job Interview", "Career Advice", "LinkedIn Optimization"],
   },
   {
     category: "Finance & Legal",
-    tags: [
-      "Investing",
-      "Tax Planning",
-      "Contracts",
-      "Budgeting",
-      "Personal Finance",
-    ],
+    tags: ["Investing", "Tax Planning", "Contracts", "Budgeting", "Personal Finance"],
   },
   {
     category: "Lifestyle",
-    tags: [
-      "Health",
-      "Fitness",
-      "Travel",
-      "Relationships",
-      "Spirituality",
-      "Fashion",
-    ],
+    tags: ["Health", "Fitness", "Travel", "Relationships", "Spirituality", "Fashion"],
   },
 ];
