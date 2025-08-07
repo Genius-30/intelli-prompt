@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
+import connectDb from "@/lib/db";
 import { User } from "@/models/user.model";
 import { WebhookEvent } from "@clerk/nextjs/server";
-import connectDb from "@/lib/db";
 import { rateLimit } from "@/lib/rateLimit";
 import { verifyWebhook } from "@clerk/nextjs/webhooks";
 

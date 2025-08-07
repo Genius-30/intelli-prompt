@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
+import connectDb from "@/lib/db";
 import { SharedPrompt } from "@/models/sharedPrompt.model";
 import { User } from "@/models/user.model";
-import connectDb from "@/lib/db";
 import { getSetCache } from "@/lib/redisCache";
 import { rateLimit } from "@/lib/rateLimit";
 

@@ -1,3 +1,5 @@
+import dotenv from 'dotenv'
+dotenv.config()
 import { Resend } from 'resend';
 import NewPostEmail from './mailTemplates/newPost'
 import AnnouncementEmail from './mailTemplates/announce';
@@ -22,15 +24,16 @@ export async function sendMail({ to, subject, template, data = {} }: SendMailPro
   if (!EmailComponent) throw new Error(`Template "${template}" not found`);
 
   try {
-    const response = await resend.emails.send({
-      from: 'IntelliPrompt <updates@intelliprompt.com>',
+    await resend.emails.send({
+      from: 'intelliprompt@resend.dev',
       to,
       subject,
       react: EmailComponent(data),
     });
 
-    return { success: true, response };
-  } catch (error) {
-    return { success: false, error };
+    return { success: true };
+  } catch (err) {
+    console.error('Error sending email:', err);
+    return { success: false, err };
   }
 }

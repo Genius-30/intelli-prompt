@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-
 import { Folder } from "@/models/folder.model";
 import { Prompt } from "@/models/prompt.model";
 import { getAuthenticatedUser } from "@/utils/getAuthenticatedUser";

@@ -1,4 +1,3 @@
-
 import { NextResponse } from "next/server";
 import { getAuthenticatedUser } from "@/utils/getAuthenticatedUser";
 import { User } from "@/models/user.model";

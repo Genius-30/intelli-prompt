@@ -1,5 +1,3 @@
-// Unfollow a user
-
 import { Follow } from "@/models/follow.model";
 import { NextResponse } from "next/server";
 import { User } from "@/models/user.model";
