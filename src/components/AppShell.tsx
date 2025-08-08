@@ -30,7 +30,8 @@ export default function AppShell({ children }: { readonly children: ReactNode })
 
   const { mutate: updateStreak } = useUpdateStreak();
 
-  const afterSignInRedirectUrl = process.env.NEXT_PUBLIC_CLERK_SIGN_IN_REDIRECT_URL || "/explore";
+  const afterSignInRedirectUrl =
+    process.env.NEXT_PUBLIC_CLERK_SIGN_IN_FORCE_REDIRECT_URL || "/explore";
 
   useEffect(() => {
     setMounted(true);

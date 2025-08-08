@@ -1,14 +1,15 @@
-import { Metadata } from "next";
 import { SITE_URL } from "@/lib/constants/SITE_URL";
 import UserProfilePage from "@/components/pages/public/UserProfilePage";
 import { getUserByUsername } from "@/lib/actions/user";
 
-type Props = {
-  readonly params: { username: string };
-};
+interface PageProps {
+  params: {
+    username: string;
+  };
+}
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { username } = await params;
+export async function generateMetadata({ params }: PageProps) {
+  const { username } = params;
   const user = await getUserByUsername(username);
 
   if (!user) {
@@ -47,8 +48,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default async function Page({ params }: Props) {
-  const { username } = await params;
-
-  return <UserProfilePage username={username} />;
+export default async function Page({ params }: PageProps) {
+  return <UserProfilePage username={params.username} />;
 }

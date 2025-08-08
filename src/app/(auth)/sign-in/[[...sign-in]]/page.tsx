@@ -13,7 +13,7 @@ export default function SignInPage() {
         path="/sign-in"
         routing="path"
         signUpUrl={process.env.NEXT_PUBLIC_CLERK_SIGN_UP_URL ?? "/sign-up"}
-        fallbackRedirectUrl={process.env.NEXT_PUBLIC_CLERK_SIGN_IN_REDIRECT_URL ?? "/explore"}
+        fallbackRedirectUrl={process.env.NEXT_PUBLIC_CLERK_SIGN_IN_FORCE_REDIRECT_URL ?? "/explore"}
         appearance={{
           baseTheme: resolvedTheme === "dark" ? dark : undefined,
         }}
