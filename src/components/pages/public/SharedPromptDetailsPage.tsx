@@ -6,11 +6,11 @@ import {
   Heart,
   MessageCircle,
   Pencil,
-  Play,
   Share2,
   Trash2,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useEffect, useState } from "react";
 import {
   useGetSharedPrompt,
@@ -18,28 +18,41 @@ import {
   useToggleLikeSharedPrompt,
   useToggleSaveSharedPrompt,
 } from "@/lib/queries/shared-prompt";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { CommentsSection } from "@/components/sharedPrompt/CommentsSection";
 import { ConfirmDeleteSharedPrompt } from "@/components/sharedPrompt/ConfirmDeleteSharedPrompt";
 import Link from "next/link";
-import { ModelResponseSection } from "@/components/sharedPrompt/ModelResponseSection";
+import { ModelResponseCard } from "@/components/response/ModelResponseCard";
+import { ModelResponseCardSkeleton } from "@/components/skeletons/ModelResponseCardSkeleton";
+import ModelTestRunner from "@/components/common/ModelTestRunner";
 import { Separator } from "@/components/ui/separator";
 import { SharePromptModal } from "@/components/sharedPrompt/SharePromptModal";
 import SharedPromptDetailsSkeleton from "@/components/skeletons/SharedPromptDetailsSkeleton";
 import { cn } from "@/lib/utils";
+import { estimateTokens } from "@/utils/tokeEstimate";
 import { formatDistanceToNow } from "date-fns";
 import { toast } from "sonner";
 import { useAuth } from "@clerk/nextjs";
+import { useModelResponse } from "@/lib/queries/response";
 import { useOpenAuthModal } from "@/hooks/useOpenAuthModal";
 
 export default function SharedPromptDetailsPage() {
   const { id } = useParams();
-  const router = useRouter();
+  const searchParams = useSearchParams();
+  const initialTab = searchParams.get("tab") || "response";
   const { isSignedIn } = useAuth();
   const openAuthModal = useOpenAuthModal();
+
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [currentTab, setCurrentTab] = useState(initialTab as "test" | "response" | "comments");
+
+  const [likeData, setLikeData] = useState({ isLiked: false, likeCount: 0 });
+  const [saveData, setSaveData] = useState({ isSaved: false, saveCount: 0 });
+  const [commentData, setCommentData] = useState({ isCommented: false, commentCount: 0 });
+  const [shareData, setShareData] = useState({ isShared: false, shareCount: 0 });
 
   const {
     data: prompt,
@@ -49,13 +62,12 @@ export default function SharedPromptDetailsPage() {
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
   });
-
-  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
-
-  const [likeData, setLikeData] = useState({ isLiked: false, likeCount: 0 });
-  const [saveData, setSaveData] = useState({ isSaved: false, saveCount: 0 });
-  const [commentData, setCommentData] = useState({ isCommented: false, commentCount: 0 });
-  const [shareData, setShareData] = useState({ isShared: false, shareCount: 0 });
+  const { data: modelResponse, isLoading: isModelResponseLoading } = useModelResponse(
+    prompt?.responseId as string,
+    {
+      enabled: (!isLoading && !!prompt?.responseId) || currentTab === "response",
+    },
+  );
 
   const toggleLike = useToggleLikeSharedPrompt(id as string);
   const toggleSave = useToggleSaveSharedPrompt(id as string);
@@ -83,6 +95,8 @@ export default function SharedPromptDetailsPage() {
       </div>
     );
 
+  const tokenEstimated = estimateTokens(prompt.content);
+
   const handleLike = () => {
     if (!isSignedIn) return openAuthModal();
     toggleLike.mutate(undefined, {
@@ -97,8 +111,18 @@ export default function SharedPromptDetailsPage() {
     });
   };
 
+  const handleComment = () => {
+    setCurrentTab("comments");
+  };
+
   const handleShare = () => {
     const url = `${window.location.origin}/prompts/${id}`;
+
+    if (!isSignedIn) {
+      openAuthModal();
+      return;
+    }
+
     const maybeMarkShared = () => {
       if (!shareData.isShared) {
         markShared.mutate(undefined, {
@@ -146,7 +170,7 @@ export default function SharedPromptDetailsPage() {
             </p>
           </div>
         </div>
-        {prompt.isUserOwned && (
+        {isSignedIn && prompt.isUserOwned && (
           <div className="flex gap-2">
             <Button
               variant="ghost"
@@ -170,7 +194,7 @@ export default function SharedPromptDetailsPage() {
       <h1 className="mb-2 font-bold sm:text-2xl">{prompt.title}</h1>
 
       {/* Prompt Content */}
-      <pre className="bg-muted/50 sm:text-md overflow-x-auto rounded-lg border px-4 py-2 text-justify">
+      <pre className="bg-muted/50 sm:text-md overflow-x-auto rounded-lg border px-4 py-2">
         <code className="text-foreground font-mono whitespace-pre-wrap">{prompt.content}</code>
       </pre>
 
@@ -190,7 +214,7 @@ export default function SharedPromptDetailsPage() {
             <span>{likeData.likeCount}</span>
           </Button>
 
-          <Button variant="ghost" size="sm">
+          <Button variant="ghost" size="sm" onClick={handleComment}>
             <MessageCircle
               className={cn("mr-1 h-4 w-4", commentData.isCommented && "fill-foreground")}
             />
@@ -207,44 +231,89 @@ export default function SharedPromptDetailsPage() {
             <span>{saveData.saveCount}</span>
           </Button>
         </div>
-
-        <Button variant="outline" size="sm" onClick={() => router.push(`/run/${prompt._id}`)}>
-          <Play className="mr-1 h-4 w-4" /> Test Prompt
-        </Button>
       </div>
 
       <Separator className="my-6" />
 
-      {/* Model Response */}
-      <div>
-        <h2 className="text-lg font-semibold">Model Response</h2>
-        <p className="text-muted-foreground mb-2 text-sm">
-          This is the response generated by the model when this prompt was run.
-        </p>
-        <ModelResponseSection responseId={prompt.responseId} />
-      </div>
+      {/* Prompt Response, Comments, Run Test Tabs */}
+      <Tabs
+        value={currentTab}
+        onValueChange={(value) => setCurrentTab(value as "test" | "response" | "comments")}
+        className="space-y-2"
+      >
+        <TabsList className="overflow-x-auto">
+          <TabsTrigger value="test" className="md:px-4">
+            Run Prompt
+          </TabsTrigger>
+          <TabsTrigger value="response" className="md:px-4">
+            Model Response
+          </TabsTrigger>
+          <TabsTrigger value="comments" className="md:px-4">
+            Comments
+          </TabsTrigger>
+        </TabsList>
 
-      <Separator className="my-6" />
+        {/* Prompt Test Tab */}
+        {currentTab === "test" && (
+          <TabsContent value="test">
+            <ModelTestRunner
+              versionId={prompt.versionId || ""}
+              content={prompt.content}
+              tokenEstimated={tokenEstimated}
+            />
+          </TabsContent>
+        )}
 
-      {/* Comments Section */}
-      <div>
-        <CommentsSection promptId={id as string} />
-      </div>
+        {/* Model Response Tab */}
+        {currentTab === "response" && (
+          <TabsContent value="response">
+            <div>
+              <h2 className="text-lg font-semibold">Model Response</h2>
+              <p className="text-muted-foreground mb-2 text-sm">
+                This is the response generated by the model when this prompt was run.
+              </p>
+              {isModelResponseLoading ? (
+                <ModelResponseCardSkeleton />
+              ) : (
+                <ModelResponseCard
+                  model={modelResponse.model}
+                  temperature={modelResponse.temperature}
+                  response={modelResponse.response}
+                  isInitiallyExpanded
+                />
+              )}
+            </div>
+          </TabsContent>
+        )}
+
+        {/* Comments Tab */}
+        {currentTab === "comments" && (
+          <TabsContent value="comments">
+            <CommentsSection
+              promptId={id as string}
+              isSignedIn={isSignedIn}
+              openAuthModal={openAuthModal}
+            />
+          </TabsContent>
+        )}
+      </Tabs>
 
       {/* Share/Edit Modal */}
-      <SharePromptModal
-        isOpen={isShareModalOpen}
-        onClose={() => setIsShareModalOpen(false)}
-        promptContent={prompt.content}
-        versionId={prompt.versionId}
-        isEdit
-        sharedPromptId={prompt._id}
-        initialData={{
-          title: prompt.title,
-          tags: prompt.tags,
-          responseId: prompt.responseId,
-        }}
-      />
+      {isSignedIn && prompt.isUserOwned && (
+        <SharePromptModal
+          isOpen={isShareModalOpen}
+          onClose={() => setIsShareModalOpen(false)}
+          promptContent={prompt.content}
+          versionId={prompt.versionId || ""}
+          isEdit
+          sharedPromptId={prompt._id}
+          initialData={{
+            title: prompt.title,
+            tags: prompt.tags,
+            responseId: prompt.responseId,
+          }}
+        />
+      )}
     </div>
   );
 }

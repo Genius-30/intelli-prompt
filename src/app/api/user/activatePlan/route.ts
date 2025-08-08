@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server'
-import { User } from '@/models/user.model'
-import { getAuthenticatedUser } from '@/utils/getAuthenticatedUser'
 import { Subscription } from '@/models/subscription.model'
+import { User } from '@/models/user.model'
 import crypto from 'crypto'
+import { getAuthenticatedUser } from '@/utils/getAuthenticatedUser'
 
 export async function POST( req: Request ) {
   try {

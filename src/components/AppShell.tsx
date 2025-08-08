@@ -82,7 +82,7 @@ export default function AppShell({ children }: { readonly children: ReactNode })
 
   let shell: ReactNode;
 
-  // Signed‑in always wins
+  // Signed‑in users get the DashboardLayout
   if (isSignedIn) {
     shell = <DashboardLayout>{children}</DashboardLayout>;
   }

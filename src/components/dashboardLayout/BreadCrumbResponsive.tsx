@@ -47,7 +47,7 @@ export function BreadcrumbResponsive() {
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbPage className="sm:text-lg">Main</BreadcrumbPage>
+            <BreadcrumbPage>Main</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>

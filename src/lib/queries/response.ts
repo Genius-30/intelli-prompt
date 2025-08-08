@@ -11,17 +11,20 @@ interface ModelOption {
 }
 
 interface TestPromptInput {
-  versionId: string;
+  versionId?: string;
+  content?: string;
   models: ModelOption[];
   tokenEstimated?: number;
 }
 
 export function useGetResponse() {
   return useMutation({
-    mutationFn: async ({ versionId, models, tokenEstimated = 100 }: TestPromptInput) => {
+    mutationFn: async ({ versionId, models, content, tokenEstimated = 100 }: TestPromptInput) => {
       const res = await axiosInstance.post(`/version/${versionId}/testModel`, {
         models,
         tokenEstimated,
+        content: content || "",
+        versionId: versionId || "",
       });
       return res.data.results;
     },

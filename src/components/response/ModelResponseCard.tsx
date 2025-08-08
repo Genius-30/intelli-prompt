@@ -15,37 +15,37 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { useDeleteResponse, useSaveModelResponse } from "@/lib/queries/response";
 import { useEffect, useState } from "react";
 
-import { AI_MODELS } from "@/lib/constants/AI_MODELS";
 import { Badge } from "../ui/badge";
 import { Button } from "@/components/ui/button";
 import ReactMarkdown from "react-markdown";
+import { getModelProviderDetails } from "@/utils/ai-model-utils";
 import { toast } from "sonner";
 import { useParams } from "next/navigation";
 
-type ProviderKey = keyof typeof AI_MODELS;
-
 interface ModelResponseCardProps {
   readonly responseId?: string;
-  readonly provider: ProviderKey;
   readonly model: string;
   readonly temperature: number;
   readonly response: string;
   readonly onRemove?: (id: string) => void;
   readonly showRemoveButton?: boolean;
+  readonly showSaveDeleteButton?: boolean;
   readonly initiallySaved?: boolean;
+  readonly isInitiallyExpanded?: boolean;
 }
 
 export function ModelResponseCard({
   responseId,
-  provider,
   model,
   temperature,
   response,
   onRemove,
   showRemoveButton = false,
+  showSaveDeleteButton = false,
   initiallySaved = false,
+  isInitiallyExpanded = false,
 }: ModelResponseCardProps) {
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(isInitiallyExpanded);
   const [isCopied, setIsCopied] = useState(false);
   const [isSaved, setIsSaved] = useState(initiallySaved ?? false);
   const [savedResponseId, setSavedResponseId] = useState<string | null>(responseId || null);
@@ -55,8 +55,8 @@ export function ModelResponseCard({
   const { mutate: saveModelResponse, isPending: isSaving } = useSaveModelResponse();
   const { mutate: deleteResponse, isPending: isDeleting } = useDeleteResponse(versionId as string);
 
-  const providerData = AI_MODELS[provider];
-  const IconComponent = providerData?.icon;
+  const providerData = getModelProviderDetails(model);
+  const IconComponent = providerData?.Icon;
   const color = providerData?.color || "#6b7280";
 
   const MAX_CHARS = 400;
@@ -151,7 +151,7 @@ export function ModelResponseCard({
                   className="text-xs font-medium"
                   style={{ backgroundColor: `${color}20`, color: color }}
                 >
-                  {providerData?.name || provider.toUpperCase()}
+                  {providerData?.providerName}
                 </Badge>
                 <span className="text-sm font-medium">{model}</span>
               </div>
@@ -177,40 +177,44 @@ export function ModelResponseCard({
               </Tooltip>
 
               {/* Save/Delete Button */}
-              {isSaved ? (
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      className="hover:text-destructive h-8 w-8"
-                      onClick={handleDelete}
-                      disabled={isDeleting}
-                    >
-                      <Trash2 className="h-3 w-3" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent className="bg-muted" arrowClassName="bg-muted fill-muted">
-                    Delete response
-                  </TooltipContent>
-                </Tooltip>
-              ) : (
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      className="h-8 w-8"
-                      onClick={handleSave}
-                      disabled={isSaving}
-                    >
-                      <Bookmark className="h-3 w-3" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent className="bg-muted" arrowClassName="bg-muted fill-muted">
-                    Save response
-                  </TooltipContent>
-                </Tooltip>
+              {showSaveDeleteButton && (
+                <>
+                  {isSaved ? (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          className="hover:text-destructive h-8 w-8"
+                          onClick={handleDelete}
+                          disabled={isDeleting}
+                        >
+                          <Trash2 className="h-3 w-3" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent className="bg-muted" arrowClassName="bg-muted fill-muted">
+                        Delete response
+                      </TooltipContent>
+                    </Tooltip>
+                  ) : (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          className="h-8 w-8"
+                          onClick={handleSave}
+                          disabled={isSaving}
+                        >
+                          <Bookmark className="h-3 w-3" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent className="bg-muted" arrowClassName="bg-muted fill-muted">
+                        Save response
+                      </TooltipContent>
+                    </Tooltip>
+                  )}
+                </>
               )}
 
               {/* Remove Button */}

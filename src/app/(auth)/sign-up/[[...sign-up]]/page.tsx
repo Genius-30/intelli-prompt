@@ -8,7 +8,7 @@ export default function SignUpPage() {
   const { resolvedTheme } = useTheme();
 
   return (
-    <div className="bg-background flex items-center justify-center">
+    <div className="flex items-center justify-center bg-transparent">
       <SignUp
         path="/sign-up"
         routing="path"

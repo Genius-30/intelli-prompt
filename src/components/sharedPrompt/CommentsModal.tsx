@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { CommentItem } from "./CommentItem";
 import { CommentItemSkeleton } from "../skeletons/CommentItemSkeleton";
 import { ExternalLinkIcon } from "lucide-react";
-import { Loader } from "../ui/loader";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
@@ -130,7 +129,7 @@ export function CommentsDialog({
 
         {/* View More Button */}
         <div className="mt-6 flex justify-center">
-          <Button variant="outline" onClick={() => router.push(`/prompt/${promptId}`)}>
+          <Button variant="outline" onClick={() => router.push(`/prompt/${promptId}?tab=comments`)}>
             View Full Discussion <ExternalLinkIcon className="ml-1 h-4 w-4" />
           </Button>
         </div>
