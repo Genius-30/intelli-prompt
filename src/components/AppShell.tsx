@@ -37,7 +37,7 @@ export default function AppShell({ children }: { readonly children: ReactNode })
   }, []);
 
   useEffect(() => {
-    if (isSignedIn) return;
+    if (!isSignedIn && !isLoaded) return;
 
     const hasUpdatedStreak = sessionStorage.getItem("streak-updated");
 
@@ -60,7 +60,7 @@ export default function AppShell({ children }: { readonly children: ReactNode })
         },
       });
     }
-  }, [isSignedIn, updateStreak]);
+  }, [isSignedIn, updateStreak, isLoaded]);
 
   if (!mounted || !isLoaded) {
     return (
