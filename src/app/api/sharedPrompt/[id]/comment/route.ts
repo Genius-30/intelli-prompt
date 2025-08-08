@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
+import connectDb from "@/lib/db";
+import mongoose from "mongoose";
 import { SharedPrompt } from "@/models/sharedPrompt.model";
 import { getAuthenticatedUser } from "@/utils/getAuthenticatedUser";
-import mongoose from "mongoose";
+import { getSetCache } from "@/lib/redisCache";
 
 // add a comment to the sharedPrompt
 export async function POST(req: Request, { params }: { params: any }) {
@@ -60,20 +62,50 @@ export async function POST(req: Request, { params }: { params: any }) {
 
 export async function GET(req: Request, { params }: { params: any }) {
   try {
-    const { userId, error } = await getAuthenticatedUser();
-    if (error) return error;
+    await connectDb();
+
+    const url = new URL(req.url);
+    const limitParam = url.searchParams.get("limit");
+    const limit = limitParam ? parseInt(limitParam) : 3;
+
+    // Try to get userId from session (if logged in)
+    let userId: string | null = null;
+    try {
+      const authResult = await getAuthenticatedUser();
+      userId = authResult?.userId || null;
+    } catch (e) {
+      userId = null;
+    }
 
     const sharedPromptId = (await params).id;
     if (!mongoose.Types.ObjectId.isValid(sharedPromptId)) {
       return NextResponse.json({ message: "invalid sharedPromptId" }, { status: 400 });
     }
 
-    const url = new URL(req.url);
-    const limitParam = url.searchParams.get("limit");
-    const limit = limitParam ? parseInt(limitParam) : null;
+    const cacheKey = userId
+      ? `sharedPromptComments:${sharedPromptId}upto${limit}:user=${userId}`
+      : `sharedPromptComments:${sharedPromptId}upto${limit}`;
 
-    // Aggregation to get comments with populated author details
-    const comments = await SharedPrompt.aggregate([
+    const data = await getSetCache(cacheKey, 60, () => getComments(
+      { sharedPromptId, userId, limit })
+    );
+
+    return NextResponse.json({ message: "Comments fetched", comments: data }, { status: 200 });
+  } catch (err) {
+    return NextResponse.json({ message: "Error fetching comments" }, { status: 500 });
+  }
+}
+
+async function getComments({
+  sharedPromptId,
+  userId, 
+  limit
+}: {
+  sharedPromptId: string;
+  userId?: string | null;
+  limit: number;
+}) {
+  const comments = await SharedPrompt.aggregate([
       { $match: { _id: mongoose.Types.ObjectId.createFromHexString(sharedPromptId) } },
       { $unwind: "$comments" },
       {
@@ -92,41 +124,40 @@ export async function GET(req: Request, { params }: { params: any }) {
           createdAt: "$comments.createdAt",
           likes: "$comments.likes",
           likeCount: { $size: "$comments.likes" },
-          isUserLiked: { $in: [userId, "$comments.likes"] },
-          isUserOwned: { $eq: ["$comments.userId", userId] },
           userId: "$comments.userId",
           author: {
             _id: "$author._id",
             username: "$author.username",
             avatar: "$author.avatar",
           },
+          ...(userId && {
+            isUserLiked: { $in: [userId, "$comments.likes"] },
+            isUserOwned: { $eq: ["$comments.userId", userId] },
+          }),
         },
       },
     ]);
 
     const transformedComments = comments
-      .map((comment: any) => ({
-        _id: comment._id,
-        userId: comment.userId,
-        content: comment.content,
-        createdAt: comment.createdAt,
-        likeCount: comment.likeCount,
-        isUserLiked: comment.isUserLiked,
-        isUserOwned: comment.isUserOwned,
-        author: comment.author,
-      }))
+      .map((comment: any) => {
+        const base = {
+          _id: comment._id,
+          userId: comment.userId,
+          content: comment.content,
+          createdAt: comment.createdAt,
+          likeCount: comment.likeCount,
+          author: comment.author,
+        };
+        if (userId) {
+          return {
+            ...base,
+            isUserLiked: comment.isUserLiked,
+            isUserOwned: comment.isUserOwned,
+          };
+        }
+        return base;
+      })
       .sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
-    const limitedComments = limit ? transformedComments.slice(0, limit) : transformedComments;
-
-    return NextResponse.json(
-      {
-        message: "Comments fetched",
-        comments: limitedComments,
-      },
-      { status: 200 },
-    );
-  } catch (err) {
-    return NextResponse.json({ message: "Error fetching comments" }, { status: 500 });
-  }
+    return limit ? transformedComments.slice(0, limit) : transformedComments;
 }

@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
 import { Folder } from "@/models/folder.model";
-import mongoose from "mongoose";
 import { getAuthenticatedUser } from "@/utils/getAuthenticatedUser";
 import { Prompt } from "@/models/prompt.model";
 import { ModelResponse } from "@/models/modelResponse.model";
 import { Version } from "@/models/version.model";
+import mongoose from "mongoose";
 
 // renames folder
 export async function PATCH(

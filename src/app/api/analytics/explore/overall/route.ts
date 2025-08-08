@@ -1,10 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-
-import { SharedPrompt } from "@/models/sharedPrompt.model";
 import connectDb from "@/lib/db";
+import { SharedPrompt } from "@/models/sharedPrompt.model";
 import { getAuthenticatedUser } from "@/utils/getAuthenticatedUser";
 import { getSetCache } from "@/lib/redisCache";
-import mongoose from "mongoose";
 import { rateLimit } from "@/lib/rateLimit";
 
 export async function GET(req: NextRequest) {
@@ -50,7 +48,7 @@ export async function GET(req: NextRequest) {
 
     // Cache only the paginated data
     const data = await getSetCache(cacheKey, 60, () =>
-      getTrendingPosts({ userId, skip, limit, search }),
+      getTrendingPosts({ userId, skip, limit, search })
     );
 
     const hasMore = page * limit < total;

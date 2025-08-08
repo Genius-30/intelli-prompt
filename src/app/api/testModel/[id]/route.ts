@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-
 import { ModelResponse } from "@/models/modelResponse.model";
 import { getAuthenticatedUser } from "@/utils/getAuthenticatedUser";
 import mongoose from "mongoose";

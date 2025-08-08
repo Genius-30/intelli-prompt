@@ -1,4 +1,4 @@
-import { sendMail } from '@/lib/sendMail';
+import { emailQueue } from '@/lib/emailQueue';
 import { User } from '@/models/user.model';
 import { getAuthenticatedUser } from '@/utils/getAuthenticatedUser';
 
@@ -16,16 +16,15 @@ export async function POST(req: Request) {
       return new Response('No newsletter subscribers found', { status: 404 });
     }
   
+    // Add jobs to the emailQueue for each user
     for (const user of users) {
-      await sendMail({
-        to: user.email,
-        subject: 'New announcement',
-        template: 'announcement',
-        data: { message },
+      await emailQueue.add('announcement', {
+        user,
+        message
       });
     }
   
-    return new Response('Notifications sent', { status: 200 });
+    return new Response('email queued!', { status: 200 });
   } catch (error) {
     return new Response('Internal Server Error', { status: 500 });
   }

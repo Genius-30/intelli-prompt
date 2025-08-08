@@ -1,14 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-
 import { Prompt } from "@/models/prompt.model";
 import { SharedPrompt } from "@/models/sharedPrompt.model";
 import { User } from "@/models/user.model";
-import connectDb from "@/lib/db";
 import { getAuthenticatedUser } from "@/utils/getAuthenticatedUser";
 import { getSetCache } from "@/lib/redisCache";
 import { rateLimit } from "@/lib/rateLimit";
 
-export async function POST(req: NextRequest) {
+export async function GET(req: NextRequest) {
   try {
     const result = await rateLimit(req);
     if (result) return result;

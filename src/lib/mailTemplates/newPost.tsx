@@ -1,3 +1,4 @@
+import React from 'react';
 import { Html } from '@react-email/html';
 
 export default function NewPostEmail({ postTitle, postLink }: { postTitle: string; postLink: string }) {

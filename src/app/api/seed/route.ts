@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
+import connectDb from '@/lib/db' 
+import mongoose from "mongoose";
 import { Folder } from "@/models/folder.model";
 import { Prompt } from "@/models/prompt.model";
 import { Version } from "@/models/version.model";
 import { ModelResponse } from "@/models/modelResponse.model";
-import connectDb from '@/lib/db' 
-import mongoose from "mongoose";
 import { SharedPrompt } from "@/models/sharedPrompt.model";
 
 const TUTORIAL_FOLDER_ID = new mongoose.Types.ObjectId("6882f28409b30abc32e77c46");

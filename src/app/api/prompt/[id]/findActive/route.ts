@@ -3,7 +3,6 @@ import { getAuthenticatedUser } from "@/utils/getAuthenticatedUser";
 import mongoose from "mongoose";
 import { Version } from "@/models/version.model";
 
-
 // get active version
 export async function GET(
   req: Request, 

@@ -1,41 +1,42 @@
-import { sendMail } from '@/lib/sendMail';
+import { emailQueue } from '@/lib/emailQueue';
 import { Follow } from '@/models/follow.model';
 import { User } from '@/models/user.model';
 import { getAuthenticatedUser } from '@/utils/getAuthenticatedUser';
+import { NextResponse } from 'next/server';
 
 export async function POST(req: Request) {
   try {
     const { userId, error } = await getAuthenticatedUser();
     if (error) return error;
-  
-    const { ownerId, postTitle, postLink } = await req.json();
-    if (!ownerId || !postTitle || !postLink) {
-      return new Response('Missing required fields', { status: 400 });
+
+    const { postTitle, postLink } = await req.json();
+    if (!postTitle || !postLink) {
+      return NextResponse.json({ message: 'Missing required fields' }, { status: 400 });
     }
-  
-    const follows = await Follow.find({ followeeId: ownerId }).lean();
+
+    const follows = await Follow.find({ followeeId: userId }).lean();
     if (!follows.length) {
-      return new Response('No followers found', { status: 404 });
+      return NextResponse.json({ message: 'No followers found' }, { status: 404 });
     }
-  
+
     const followerIds = follows.map(f => f.followerId);
-  
+
     const users = await User.find({ _id: { $in: followerIds }, newsletter: true }).select('email').lean();
     if (!users.length) {
-      return new Response('No newsletter subscribers among followers', { status: 404 });
+      return NextResponse.json({ message: 'No newsletter subscribers among followers' }, { status: 404 });
     }
-  
+
+    // Add jobs to the emailQueue for each user
     for (const user of users) {
-      await sendMail({
-        to: user.email,
-        subject: 'New post from someone you follow',
-        template: 'newPost',
-        data: { postTitle, postLink },
+      await emailQueue.add('notifyFollowers', {
+        user,
+        postTitle,
+        postLink,
       });
     }
   
-    return new Response('Notifications sent', { status: 200 });
+    return NextResponse.json({ message: 'email queued!' }, { status: 200 });
   } catch (error) {
-    return new Response('Internal Server Error', { status: 500 });
+    return NextResponse.json({ message: 'Internal Server Error', error }, { status: 500 });
   }
 }

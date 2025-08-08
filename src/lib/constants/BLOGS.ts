@@ -11,6 +11,68 @@ interface Article {
   content: string;
 }
 
+export const improvePromting: Article = {
+  _id: "2",
+  title: "Ask Smarter Than the Top 1%: 5 AI Prompting Habits That Actually Work",
+  excerpt:
+    "Want to get better answers from AI tools like IntelliPrompt? Learn 5 elite-level prompting habits that help you think clearer, debug faster, and build smarter.",
+  category: "prompting",
+  author: "Mohd Zaid",
+  date: "August 7, 2025",
+  readTime: "6 min read",
+  image: "/images/article2.jpeg",
+  slug: "ask-better-questions-with-ai",
+  content: `<div class="article-content">
+
+  <h1 class="text-3xl font-bold mb-6">Ask Smarter Than the Top 1%: 5 AI Prompting Habits That Actually Work</h1>
+
+  <p class="mb-4">In a world where AI tools like IntelliPrompt are becoming your second brain, <strong>asking better questions</strong> isn't just a skill—it’s your productivity multiplier. Whether you're debugging, learning, or designing, your prompt is your blueprint. So how do the top 1% ask better—and how can you ask even better than them?</p>
+
+  <p class="mb-4">Here are 5 elite-level strategies that will instantly improve the way you interact with AI.</p>
+
+  <h2 class="text-2xl font-bold mt-8 mb-4">1. 🎯 Start With the Goal, Not the Term</h2>
+  <p class="mb-4"><strong>Common mistake:</strong> Asking “What is X?” without explaining what you're trying to achieve.</p>
+  <p class="mb-4"><strong>Better:</strong> “I want my Next.js app to load faster on poor networks. Would edge caching help here?”</p>
+  <p class="mb-4">Goal-driven prompts lead to focused, actionable responses. You’re not just curious—you’re building.</p>
+
+  <h2 class="text-2xl font-bold mt-8 mb-4">2. 🛠 Frame It Like a GitHub Issue</h2>
+  <p class="mb-4"><strong>Common mistake:</strong> Vague questions like “My API isn’t working.”</p>
+  <p class="mb-4"><strong>Better:</strong> “In my Next.js route using OpenRouter, I get a 401 only with Gemini. Auth headers seem fine—what could I be missing?”</p>
+  <p class="mb-4">The more precise your setup, the more precise the fix. Treat prompts like bug reports.</p>
+
+  <h2 class="text-2xl font-bold mt-8 mb-4">3. 🧭 Ask for Direction, Not Just Answers</h2>
+  <p class="mb-4"><strong>Common mistake:</strong> “Give me a system design for my app.”</p>
+  <p class="mb-4"><strong>Better:</strong> “Here’s the current architecture for IntelliPrompt. What would a FAANG engineer suggest to scale this to 1M users?”</p>
+  <p class="mb-4">Good questions get answers. Great ones spark ideas and better questions.</p>
+
+  <h2 class="text-2xl font-bold mt-8 mb-4">4. ⚙️ Mention Your Stack or Tools Up Front</h2>
+  <p class="mb-4"><strong>Common mistake:</strong> Leaving out your tech stack and asking generic queries.</p>
+  <p class="mb-4"><strong>Better:</strong> “How do I queue and send verification emails in Next.js 14 using Resend and Redis?”</p>
+  <p class="mb-4">One line of context can save you 10 irrelevant responses.</p>
+
+  <h2 class="text-2xl font-bold mt-8 mb-4">5. 🔁 Recap to Lock It In</h2>
+  <p class="mb-4"><strong>Pro move:</strong> Paraphrase what you learned to validate your understanding.</p>
+  <p class="mb-4"><strong>Example:</strong> “So if I’m understanding correctly, I need to switch to a \`.js\` worker because ESM modules don’t run inside \`.ts\` workers in native Node.js?”</p>
+  <p class="mb-4">This confirms you got it right—and shows where you might’ve missed something.</p>
+
+  <h2 class="text-2xl font-bold mt-8 mb-4">🧠 Bonus: The “Smart Prompt” Template</h2>
+  <p class="mb-4">Here’s a high-impact format you can start using right away in IntelliPrompt:</p>
+
+  <pre class="bg-gray-100 p-4 rounded mb-4 text-sm overflow-auto"><code>
+I'm building [project] using [tools]. I’m trying to [goal], but hitting [problem].
+
+Here’s what I’ve tried: [your effort]
+
+Can you help me understand [specific ask] or guide me on [what to explore]?
+  </code></pre>
+
+  <h2 class="text-2xl font-bold mt-8 mb-4">Conclusion: Ask Like a Builder</h2>
+  <p class="mb-4">The smartest users don’t ask perfect questions—they ask <strong>evolving questions</strong> that unlock deeper learning and better results.</p>
+  <p class="mb-4">Start using these habits inside IntelliPrompt and watch your thinking compound—<a href="#" class="text-indigo-600 underline">start prompting smarter now</a>.</p>
+
+  </div>`,
+};
+
 export const topChatGPTPrompts: Article = {
   _id: "1",
   title: "Top 10 ChatGPT Prompts for Developers in 2025",

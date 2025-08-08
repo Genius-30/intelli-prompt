@@ -1,5 +1,4 @@
 import "@/models/modelResponse.model";
-
 import { NextResponse } from "next/server";
 import { SharedPrompt } from "@/models/sharedPrompt.model";
 import { getAuthenticatedUser } from "@/utils/getAuthenticatedUser";
