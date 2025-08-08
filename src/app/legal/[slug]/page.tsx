@@ -7,12 +7,12 @@ import matter from "gray-matter";
 import { marked } from "marked";
 
 interface LegalPageProps {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }
 
 export async function generateStaticParams() {
   // Scan both policy and terms folders
-  const legalFolders = ["content/policy", "content/terms"];
+  const legalFolders = ["lib/content/policy", "lib/content/terms"];
   const slugs: { slug: string }[] = [];
 
   legalFolders.forEach((folder) => {
@@ -28,9 +28,9 @@ export async function generateStaticParams() {
 
 export default async function LegalPage({ params }: LegalPageProps) {
   // Check in both folders
-  let filePath = path.join(process.cwd(), "src", "content", "policy", `${params.slug}.md`);
+  let filePath = path.join(process.cwd(), "src", "lib", "content", "policy", `${(await params).slug}.md`);
   if (!fs.existsSync(filePath)) {
-    filePath = path.join(process.cwd(), "src", "content", "terms", `${params.slug}.md`);
+    filePath = path.join(process.cwd(), "src", "lib", "content", "terms", `${(await params).slug}.md`);
   }
 
   const fileContent = fs.readFileSync(filePath, "utf-8");

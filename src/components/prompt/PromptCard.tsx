@@ -63,10 +63,7 @@ export default function PromptCard({
           <FavoriteButton
             isFavorite={isFavorite ?? false}
             isPending={isPending}
-            onClick={(e) => {
-              e.stopPropagation();
-              handleFavorite();
-            }}
+            onClick={handleFavorite}
           />
 
           <UpdatePromptTitleModal promptId={_id} currentTitle={title} />

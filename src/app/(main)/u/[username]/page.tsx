@@ -2,14 +2,12 @@ import { SITE_URL } from "@/lib/constants/SITE_URL";
 import UserProfilePage from "@/components/pages/public/UserProfilePage";
 import { getUserByUsername } from "@/lib/actions/user";
 
-interface PageProps {
-  params: {
-    username: string;
-  };
-}
+type Props = {
+  readonly params: Promise<{ username: string }>;
+};
 
-export async function generateMetadata({ params }: PageProps) {
-  const { username } = params;
+export async function generateMetadata({ params }: Props) {
+  const { username } = await params;
   const user = await getUserByUsername(username);
 
   if (!user) {
@@ -48,6 +46,8 @@ export async function generateMetadata({ params }: PageProps) {
   };
 }
 
-export default async function Page({ params }: PageProps) {
-  return <UserProfilePage username={params.username} />;
+export default async function Page({ params }: Props) {
+  const { username } = await params;
+
+  return <UserProfilePage username={username} />;
 }

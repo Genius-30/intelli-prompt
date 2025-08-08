@@ -16,7 +16,7 @@ interface SendMailProps {
   to: string | string[];
   subject: string;
   template: keyof typeof templates;
-  data?: Record<string, any>;
+  data?: any;
 }
 
 export async function sendMail({ to, subject, template, data = {} }: SendMailProps) {

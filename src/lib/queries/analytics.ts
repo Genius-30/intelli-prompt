@@ -85,7 +85,7 @@ export const useUserStats = ({ enabled }: { enabled?: boolean } = {}) => {
   return useQuery({
     queryKey: ["userStats"],
     queryFn: async () => {
-      const res = await axiosInstance.post("/analytics/stats");
+      const res = await axiosInstance.get("/analytics/stats");
       return res.data.data as UserStats;
     },
     enabled,
