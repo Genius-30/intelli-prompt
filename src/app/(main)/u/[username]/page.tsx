@@ -4,7 +4,7 @@ import UserProfilePage from "@/components/pages/public/UserProfilePage";
 import { getUserByUsername } from "@/lib/actions/user";
 
 type Props = {
-  readonly params: { username: string };
+  readonly params: Promise<{ username: string }>;
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

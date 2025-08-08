@@ -108,7 +108,7 @@ export default function PublicNavbar() {
             ))}
             <div className="flex flex-col items-start gap-2">
               <NavbarButton variant="secondary" className="p-0">
-                <ThemeToggle showLabel />
+                <ThemeToggle />
               </NavbarButton>
               <NavbarButton
                 onClick={() => route("/sign-in")}

@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@clerk/clerk-js": "^5.80.0",
     "@clerk/clerk-sdk-node": "^4.13.23",
     "@clerk/nextjs": "^6.23.0",
     "@clerk/themes": "^2.2.51",
@@ -38,10 +39,12 @@
     "@tailwindcss/typography": "^0.5.16",
     "@tanstack/react-query": "^5.81.2",
     "@vercel/og": "^0.8.5",
+    "antd": "^5.26.7",
     "axios": "^1.10.0",
     "bullmq": "^5.56.9",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "cmdk": "^1.1.1",
     "crypto": "^1.0.1",
     "date-fns": "^4.1.0",
     "dotenv": "^17.2.1",
