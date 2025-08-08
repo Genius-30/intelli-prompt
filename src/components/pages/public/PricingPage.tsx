@@ -96,7 +96,6 @@ export default function PricingPage() {
                   plan.title === "Pro"
                     ? "border-primary scale-105 hover:scale-[103%]"
                     : "hover:scale-[98%]",
-                  isCurrentPlan && "ring-1 ring-green-500",
                 )}
               >
                 <CardHeader className="text-center">

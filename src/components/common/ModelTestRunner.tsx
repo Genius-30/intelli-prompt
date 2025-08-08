@@ -1,4 +1,4 @@
-import { Eye, Loader2, Play, ThermometerSun } from "lucide-react";
+import { CircleX, Eye, Loader2, Play, ThermometerSun } from "lucide-react";
 import React, { useState } from "react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
 
@@ -18,12 +18,14 @@ type ModelTestRunnerProps = {
   readonly versionId?: string;
   readonly tokenEstimated: number;
   readonly content?: string;
+  readonly showActions?: boolean;
 };
 
 export default function ModelTestRunner({
   versionId,
   tokenEstimated,
   content,
+  showActions = true,
 }: ModelTestRunnerProps) {
   const [globalTemperature, setGlobalTemperature] = useState(1.5);
   const [selectedModels, setSelectedModels] = useState<
@@ -213,7 +215,7 @@ export default function ModelTestRunner({
                   return (
                     <div key={`${res.model}-${res.provider}`}>
                       {hasError ? (
-                        <div className="border-destructive/50 bg-destructive/5 rounded-lg border p-4">
+                        <div className="border-destructive/50 bg-destructive/5 flex items-center justify-between rounded-lg border p-4">
                           <div className="mb-2 flex items-center gap-2">
                             <div className="bg-destructive h-2 w-2 rounded-full" />
                             <span className="text-sm font-semibold">
@@ -235,6 +237,24 @@ export default function ModelTestRunner({
                               );
                             })()}
                           </p>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                className="hover:text-destructive ml-auto h-8 w-8"
+                                onClick={() => handleRemoveResponse(res._id as string)}
+                              >
+                                <CircleX className="h-3 w-3" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent
+                              className="bg-muted"
+                              arrowClassName="bg-muted fill-muted"
+                            >
+                              Remove response
+                            </TooltipContent>
+                          </Tooltip>
                         </div>
                       ) : (
                         <ModelResponseCard
@@ -243,7 +263,7 @@ export default function ModelTestRunner({
                           response={res.response}
                           onRemove={handleRemoveResponse}
                           showRemoveButton
-                          showSaveDeleteButton
+                          showSaveDeleteButton={showActions}
                         />
                       )}
                     </div>

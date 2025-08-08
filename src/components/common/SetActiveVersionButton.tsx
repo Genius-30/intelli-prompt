@@ -1,10 +1,6 @@
 "use client";
 
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 import { Button } from "@/components/ui/button";
 import { CheckCircle } from "lucide-react";
@@ -35,10 +31,7 @@ export const SetActiveVersionButton = ({
       <TooltipTrigger asChild>
         <Button variant="ghost" size="icon" type="button" onClick={handleClick}>
           <CheckCircle
-            className={cn(
-              "w-5 h-5",
-              isActive ? "text-blue-500" : "text-muted-foreground"
-            )}
+            className={cn("h-5 w-5", isActive ? "text-blue-500" : "text-muted-foreground")}
           />
         </Button>
       </TooltipTrigger>

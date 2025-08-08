@@ -23,7 +23,6 @@ import { flattenPromptTags } from "@/utils/flattenPromptTags";
 import { toast } from "sonner";
 import { useCurrentUser } from "@/lib/queries/user";
 import { useGetAllResponsesForVersion } from "@/lib/queries/response";
-import { useRouter } from "next/navigation";
 import { useSharePrompt } from "@/lib/queries/community";
 import { useUpdateSharedPrompt } from "@/lib/queries/shared-prompt";
 
@@ -60,8 +59,6 @@ export function SharePromptModal({
   const { data: responses = [], isLoading: isLoadingResponses } =
     useGetAllResponsesForVersion(versionId);
 
-  const router = useRouter();
-
   useEffect(() => {
     if (isEdit && initialData?.responseId && responses.length > 0) {
       const matchingResponse = responses.find((r) => r._id === initialData.responseId);
@@ -88,7 +85,7 @@ export function SharePromptModal({
             action: {
               label: "View Prompt",
               onClick: () => {
-                router.push(`/prompt/${data.newSharedPromptId}`);
+                window.location.href = `/prompt/${data.newSharedPromptId}`;
               },
             },
             duration: 5000,
@@ -128,7 +125,7 @@ export function SharePromptModal({
     );
   };
 
-  const isFormValid = title.trim() && selectedTags.length > 0 && versionId && selectedResponseId;
+  const isFormValid = title.trim() && selectedTags.length > 0 && isEdit && selectedResponseId;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>

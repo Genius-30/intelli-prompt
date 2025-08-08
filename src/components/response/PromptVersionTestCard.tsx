@@ -3,7 +3,7 @@
 import { Eye, FileText, Pencil, Share, Zap } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useGetVersion, useToggleFavoriteVersion } from "@/lib/queries/version";
-import { usePathname, useRouter } from "next/navigation";
+import { useParams, usePathname, useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import FavoriteButton from "../common/FavoriteButton";
@@ -24,6 +24,7 @@ export function PromptVersionTestCard({
   showTokenEstimate = true,
   onTokenEstimated,
 }: Readonly<PromptVersionViewerProps>) {
+  const { folderId } = useParams();
   const router = useRouter();
   const pathname = usePathname();
 
@@ -69,11 +70,18 @@ export function PromptVersionTestCard({
             onClick={handleToggleFavorite}
           />
           <SetActiveVersionButton
-            versionId={version.id}
+            versionId={versionId}
             promptId={version.promptId}
             isActive={version.isActive}
           />
-          <Button variant="ghost" size="icon" onClick={() => router.back()} title="Edit Prompt">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() =>
+              router.push(`/folders/${folderId}/prompts/${version.promptId}/versions/${versionId}`)
+            }
+            title="Edit Prompt"
+          >
             <Pencil className="h-5 w-5" />
           </Button>
           <Button

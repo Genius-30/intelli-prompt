@@ -49,9 +49,11 @@ export default function DashboardClient() {
               <p className="text-muted-foreground mt-1 text-xs">
                 <span
                   className={`${
-                    parseFloat(stats.tokenUsage.progressLabel) > 0
-                      ? "text-red-500"
-                      : "text-yellow-500"
+                    parseFloat(stats.tokenUsage.progressLabel) === 0
+                      ? "text-green-500"
+                      : parseFloat(stats.tokenUsage.progressLabel) < 50
+                        ? "text-yellow-500"
+                        : "text-red-500"
                   }`}
                 >
                   {stats.tokenUsage.progressLabel.split(" ")[0]}

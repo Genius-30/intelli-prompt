@@ -174,7 +174,7 @@ export function SharedPromptCard({ prompt, showUser = true }: Readonly<SharedPro
             </div>
           )}
           {prompt.isUserOwned && (
-            <div className="flex gap-2">
+            <div className="ml-auto flex gap-2">
               <Button
                 variant="ghost"
                 size="icon"

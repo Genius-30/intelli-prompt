@@ -16,7 +16,7 @@ export const useGetSharedPrompt = (id: string, options = {}) => {
   });
 };
 
-export const useDeleteSharedPrompt = () => {
+export const useDeleteSharedPrompt = ({ userId }: { userId: string }) => {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -25,9 +25,10 @@ export const useDeleteSharedPrompt = () => {
       return res.data;
     },
     onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["overall-shared-prompts"] });
       queryClient.invalidateQueries({ queryKey: ["trending-shared-prompts"] });
       queryClient.invalidateQueries({ queryKey: ["userLibrary"] });
-      queryClient.invalidateQueries({ queryKey: ["userSharedPrompts"] });
+      queryClient.invalidateQueries({ queryKey: ["userSharedPrompts", userId] });
     },
     onError: (error: any) => {
       toast.error(

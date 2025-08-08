@@ -254,15 +254,14 @@ export default function SharedPromptDetailsPage() {
         </TabsList>
 
         {/* Prompt Test Tab */}
-        {currentTab === "test" && (
-          <TabsContent value="test">
-            <ModelTestRunner
-              versionId={prompt.versionId || ""}
-              content={prompt.content}
-              tokenEstimated={tokenEstimated}
-            />
-          </TabsContent>
-        )}
+        <TabsContent value="test">
+          <ModelTestRunner
+            versionId={prompt.versionId || ""}
+            content={prompt.content}
+            tokenEstimated={tokenEstimated}
+            showActions={false}
+          />
+        </TabsContent>
 
         {/* Model Response Tab */}
         {currentTab === "response" && (
