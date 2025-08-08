@@ -7,7 +7,7 @@ import { Prompt } from "@/types/prompt";
 import PromptCard from "@/components/prompt/PromptCard";
 import PromptCardSkeleton from "@/components/skeletons/PromptCardSkeleton";
 import { SharedPrompt } from "@/types/sharedPrompt";
-import { SharedPromptCard } from "@/components/community/SharedPromptCard";
+import { SharedPromptCard } from "@/components/sharedPrompt/SharedPromptCard";
 import { SharedPromptCardSkeleton } from "@/components/skeletons/SharedPromptCardSkeleton";
 import { Version } from "@/types/version";
 import { VersionCard } from "@/components/version/VersionCard";

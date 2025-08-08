@@ -12,7 +12,7 @@ export async function POST(req: Request) {
     if (error) return error;
 
     const { title, content, tags, versionId, responseId } = await req.json();
-    if (!title || !content || !responseId) {
+    if (!title || !content || !responseId || !versionId) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
@@ -28,7 +28,10 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Failed to create shared prompt" }, { status: 500 });
     }
 
-    return NextResponse.json({ message: "Prompt shared successfully" }, { status: 201 });
+    return NextResponse.json(
+      { message: "Prompt shared successfully", newSharedPromptId: newSharedPrompt._id },
+      { status: 201 },
+    );
   } catch (error) {
     return NextResponse.json({ error: "Failed to share prompt" }, { status: 500 });
   }

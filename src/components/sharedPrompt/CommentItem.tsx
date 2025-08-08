@@ -17,7 +17,6 @@ interface CommentItemProps {
 }
 
 export const CommentItem = ({ comment, promptId, onDelete }: CommentItemProps) => {
-  const [isDeleting, setIsDeleting] = useState(false);
   const [likeData, setLikeData] = useState({
     isUserLiked: comment.isUserLiked,
     likeCount: comment.likeCount,
@@ -38,14 +37,10 @@ export const CommentItem = ({ comment, promptId, onDelete }: CommentItemProps) =
   };
 
   const handleDelete = () => {
-    setIsDeleting(true);
     deleteComment.mutate(undefined, {
       onSuccess: (data) => {
         toast.success(data.message);
         onDelete();
-      },
-      onSettled: () => {
-        setIsDeleting(false);
       },
     });
   };
@@ -73,7 +68,7 @@ export const CommentItem = ({ comment, promptId, onDelete }: CommentItemProps) =
             size="icon"
             onClick={handleDelete}
             className="text-destructive hover:text-destructive/80 ml-auto"
-            disabled={isDeleting}
+            disabled={deleteComment.isPending}
           >
             <Trash2 className="h-4 w-4" />
           </Button>

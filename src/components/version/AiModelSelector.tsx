@@ -9,11 +9,11 @@ import { Button } from "../ui/button";
 import { toast } from "sonner";
 
 interface ModelSelectorProps {
-  provider: string;
-  selectedModel: string | undefined;
-  isUserPremium: boolean;
-  onSelect: (provider: string, modelId: string) => void;
-  onDeselect: (provider: string) => void;
+  readonly provider: string;
+  readonly selectedModel: string | undefined;
+  readonly isUserPremium: boolean;
+  readonly onSelect: (provider: string, modelId: string) => void;
+  readonly onDeselect: (provider: string) => void;
 }
 
 export function AIModelSelector({

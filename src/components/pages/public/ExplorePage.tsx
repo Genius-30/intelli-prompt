@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { SharedPrompt } from "@/types/sharedPrompt";
-import { SharedPromptCard } from "@/components/community/SharedPromptCard";
+import { SharedPromptCard } from "@/components/sharedPrompt/SharedPromptCard";
 import { SharedPromptCardSkeleton } from "@/components/skeletons/SharedPromptCardSkeleton";
 import { useOpenAuthModal } from "@/hooks/useOpenAuthModal";
 import { useRouter } from "next/navigation";

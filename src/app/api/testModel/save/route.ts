@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+
 import { ModelResponse } from "@/models/modelResponse.model";
 import { getAuthenticatedUser } from "@/utils/getAuthenticatedUser";
 
@@ -10,10 +11,7 @@ export async function POST(req: NextRequest) {
 
     const { versionId, model, temperature, response } = await req.json();
     if (!versionId || !model || temperature == null || !response) {
-      return NextResponse.json(
-        { message: "missing required fields" },
-        { status: 400 }
-      );
+      return NextResponse.json({ message: "missing required fields" }, { status: 400 });
     }
 
     const modelResponse = await ModelResponse.create({
@@ -24,14 +22,8 @@ export async function POST(req: NextRequest) {
       response,
     });
 
-    return NextResponse.json(
-      { message: "modelResponse saved", modelResponse },
-      { status: 201 }
-    );
+    return NextResponse.json({ message: "modelResponse saved", modelResponse }, { status: 201 });
   } catch (err) {
-    return NextResponse.json(
-      { error: "err saving modelResponse" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "err saving modelResponse" }, { status: 500 });
   }
 }

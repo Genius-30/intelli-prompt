@@ -5,8 +5,8 @@ import { useAddComment, useComments } from "@/lib/queries/shared-prompt";
 
 import { Button } from "@/components/ui/button";
 import { CommentItem } from "./CommentItem";
+import { CommentItemSkeleton } from "../skeletons/CommentItemSkeleton";
 import { ExternalLinkIcon } from "lucide-react";
-import { Loader } from "../ui/loader";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
@@ -51,7 +51,6 @@ export function CommentsDialog({
             commentCount: (prev.commentCount || 0) + 1,
           }));
         },
-        onError: () => toast.error("Failed to add comment"),
       },
     );
   };
@@ -71,8 +70,10 @@ export function CommentsDialog({
           {(() => {
             if (isLoading) {
               return (
-                <div className="text-muted-foreground flex items-center gap-2 text-sm">
-                  <Loader /> Loading comments...
+                <div className="space-y-4">
+                  <CommentItemSkeleton />
+                  <CommentItemSkeleton />
+                  <CommentItemSkeleton />
                 </div>
               );
             }
@@ -120,15 +121,15 @@ export function CommentsDialog({
               value={comment}
               onChange={(e) => setComment(e.target.value)}
             />
-            <Button onClick={handleAddComment} className="w-full">
-              Add Comment
+            <Button onClick={handleAddComment} disabled={addComment.isPending} className="w-full">
+              {addComment.isPending ? "Adding..." : "Add Comment"}
             </Button>
           </div>
         )}
 
         {/* View More Button */}
         <div className="mt-6 flex justify-center">
-          <Button variant="outline" onClick={() => router.push(`/prompt/${promptId}`)}>
+          <Button variant="outline" onClick={() => router.push(`/prompt/${promptId}?tab=comments`)}>
             View Full Discussion <ExternalLinkIcon className="ml-1 h-4 w-4" />
           </Button>
         </div>

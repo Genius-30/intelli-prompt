@@ -2,7 +2,7 @@ export interface SharedPrompt {
   _id: string;
   title: string;
   content: string;
-  versionId: string;
+  versionId: string | null;
   tags: string[];
   responseId: string;
   owner: {

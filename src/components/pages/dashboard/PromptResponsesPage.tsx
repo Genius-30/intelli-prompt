@@ -158,10 +158,10 @@ export default function PromptResponsesPage() {
                     </div>
                     <ModelResponseCard
                       responseId={res._id}
-                      provider={provider as keyof typeof AI_MODELS}
                       model={res.model}
                       temperature={res.temperature}
                       response={res.response}
+                      showSaveDeleteButton
                       initiallySaved
                     />
                   </div>

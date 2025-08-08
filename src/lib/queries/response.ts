@@ -11,17 +11,20 @@ interface ModelOption {
 }
 
 interface TestPromptInput {
-  versionId: string;
+  versionId?: string;
+  content?: string;
   models: ModelOption[];
   tokenEstimated?: number;
 }
 
 export function useGetResponse() {
   return useMutation({
-    mutationFn: async ({ versionId, models, tokenEstimated = 100 }: TestPromptInput) => {
-      const res = await axiosInstance.post(`/version/${versionId}/testModel`, {
+    mutationFn: async ({ versionId, models, content, tokenEstimated = 100 }: TestPromptInput) => {
+      const res = await axiosInstance.post(`/testModel`, {
         models,
         tokenEstimated,
+        content: content || "",
+        versionId: versionId || "",
       });
       return res.data.results;
     },
@@ -89,7 +92,7 @@ type SaveModelResponsePayload = {
 export const useSaveModelResponse = () => {
   return useMutation({
     mutationFn: async (payload: SaveModelResponsePayload) => {
-      const { data } = await axiosInstance.post("/testModel", payload);
+      const { data } = await axiosInstance.post("/testModel/save", payload);
       return data.modelResponse;
     },
   });

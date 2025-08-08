@@ -19,7 +19,7 @@ import { PromptContentInput } from "@/components/version/PromptContentInput";
 import { PromptEnhancer } from "@/components/prompt/PromptEnhancer";
 import type React from "react";
 import { SetActiveVersionButton } from "@/components/common/SetActiveVersionButton";
-import { SharePromptModal } from "@/components/community/SharePromptModal";
+import { SharePromptModal } from "@/components/sharedPrompt/SharePromptModal";
 import { estimateTokens } from "@/utils/tokeEstimate";
 import { toast } from "sonner";
 

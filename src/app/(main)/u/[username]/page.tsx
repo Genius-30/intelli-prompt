@@ -1,4 +1,3 @@
-import { Metadata } from "next";
 import { SITE_URL } from "@/lib/constants/SITE_URL";
 import UserProfilePage from "@/components/pages/public/UserProfilePage";
 import { getUserByUsername } from "@/lib/actions/user";
@@ -7,7 +6,7 @@ type Props = {
   readonly params: Promise<{ username: string }>;
 };
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+export async function generateMetadata({ params }: Props) {
   const { username } = await params;
   const user = await getUserByUsername(username);
 

@@ -47,8 +47,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={`scrollbar-thin ${inter.className} bg-card`} cz-shortcut-listen="true">
+    <html lang="en">
+      <body className={`scrollbar-thin ${inter.className} bg-card`}>
         <Providers>
           {children}
           <CustomToaster />

@@ -88,5 +88,10 @@
     "tsx": "^4.20.3",
     "tw-animate-css": "^1.3.4",
     "typescript": "^5.9.2"
+  },
+  "overrides": {
+    "@swc/core": "^1.3.100",
+    "aria-fs": "^0.4.5",
+    "typescript": "^5.9.2"
   }
 }

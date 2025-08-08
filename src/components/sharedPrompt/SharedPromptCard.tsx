@@ -82,12 +82,16 @@ export function SharedPromptCard({ prompt, showUser = true }: Readonly<SharedPro
   };
 
   const handleComment = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (!isSignedIn) return openAuthModal();
     setCommentsOpen(true);
   };
 
   const handleShare = (e: React.MouseEvent) => {
     e.preventDefault();
     const url = `${window.location.origin}/prompts/${prompt._id}`;
+
+    if (!isSignedIn) return openAuthModal();
 
     const maybeMarkShared = () => {
       if (!shareData.isShared) {
@@ -116,6 +120,12 @@ export function SharedPromptCard({ prompt, showUser = true }: Readonly<SharedPro
       toast.success("Link copied to clipboard");
       maybeMarkShared();
     }
+  };
+
+  const handleRunPrompt = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (!isSignedIn) return openAuthModal();
+    router.push(`/prompt/${prompt._id}?tab=test`);
   };
 
   const renderPromptContent = () => {
@@ -164,7 +174,7 @@ export function SharedPromptCard({ prompt, showUser = true }: Readonly<SharedPro
             </div>
           )}
           {prompt.isUserOwned && (
-            <div className="flex gap-2">
+            <div className="ml-auto flex gap-2">
               <Button
                 variant="ghost"
                 size="icon"
@@ -196,25 +206,25 @@ export function SharedPromptCard({ prompt, showUser = true }: Readonly<SharedPro
           >
             {prompt.title}
           </Link>
-
-          <div className="flex flex-wrap items-center gap-2">
-            {prompt.tags.map((tag) => (
-              <Badge key={tag} variant="secondary">
-                #{tag}
-              </Badge>
-            ))}
-          </div>
         </div>
 
         {/* Content */}
         <div>
           {renderPromptContent()}
 
-          <div className="flex justify-end">
+          <div className="flex items-start justify-between gap-2">
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+              {prompt.tags.map((tag) => (
+                <Badge key={tag} variant="secondary">
+                  #{tag}
+                </Badge>
+              ))}
+            </div>
+
             {prompt.content.length > 200 && (
               <button
                 onClick={() => setIsExpanded((prev) => !prev)}
-                className="text-primary hover:text-primary/80 mt-1 cursor-pointer self-end text-xs font-medium"
+                className="text-primary hover:text-primary/80 mt-1 cursor-pointer text-xs font-medium"
               >
                 {isExpanded ? "Show less" : "Show more"}
               </button>
@@ -272,32 +282,40 @@ export function SharedPromptCard({ prompt, showUser = true }: Readonly<SharedPro
             {/* Model Response Modal */}
             <ModelResponseModal responseId={prompt.responseId} />
 
-            <Button variant="outline" size="sm" onClick={() => router.push(`/run/${prompt._id}`)}>
+            <Button variant="outline" size="sm" onClick={handleRunPrompt}>
               <Play className="mr-1 h-4 w-4" />
-              Test Prompt
+              Run Prompt
             </Button>
           </div>
         </div>
       </CardContent>
-      <CommentsDialog
-        promptId={prompt._id}
-        open={commentsOpen}
-        onOpenChange={setCommentsOpen}
-        setCommentData={setCommentData}
-      />
-      <SharePromptModal
-        isOpen={isShareModalOpen}
-        onClose={() => setIsShareModalOpen(false)}
-        promptContent={prompt.content}
-        versionId={prompt.versionId}
-        isEdit={true}
-        sharedPromptId={prompt._id}
-        initialData={{
-          title: prompt.title,
-          tags: prompt.tags,
-          responseId: prompt.responseId,
-        }}
-      />
+
+      {/* Comments Dialog */}
+      {commentsOpen && (
+        <CommentsDialog
+          promptId={prompt._id}
+          open={commentsOpen}
+          onOpenChange={setCommentsOpen}
+          setCommentData={setCommentData}
+        />
+      )}
+
+      {/* Edit SharedPrompt Modal */}
+      {isSignedIn && prompt.isUserOwned && (
+        <SharePromptModal
+          isOpen={isShareModalOpen}
+          onClose={() => setIsShareModalOpen(false)}
+          promptContent={prompt.content}
+          versionId={prompt.versionId || ""}
+          isEdit={true}
+          sharedPromptId={prompt._id}
+          initialData={{
+            title: prompt.title,
+            tags: prompt.tags,
+            responseId: prompt.responseId,
+          }}
+        />
+      )}
     </Card>
   );
 }

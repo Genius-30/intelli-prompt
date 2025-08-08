@@ -30,14 +30,15 @@ export default function AppShell({ children }: { readonly children: ReactNode })
 
   const { mutate: updateStreak } = useUpdateStreak();
 
-  const afterSignInRedirectUrl = process.env.NEXT_PUBLIC_CLERK_SIGN_IN_REDIRECT_URL || "/explore";
+  const afterSignInRedirectUrl =
+    process.env.NEXT_PUBLIC_CLERK_SIGN_IN_FORCE_REDIRECT_URL || "/explore";
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
   useEffect(() => {
-    if (isSignedIn) return;
+    if (!isSignedIn && !isLoaded) return;
 
     const hasUpdatedStreak = sessionStorage.getItem("streak-updated");
 
@@ -60,7 +61,7 @@ export default function AppShell({ children }: { readonly children: ReactNode })
         },
       });
     }
-  }, [isSignedIn, updateStreak]);
+  }, [isSignedIn, updateStreak, isLoaded]);
 
   if (!mounted || !isLoaded) {
     return (
@@ -82,7 +83,7 @@ export default function AppShell({ children }: { readonly children: ReactNode })
 
   let shell: ReactNode;
 
-  // Signed‑in always wins
+  // Signed‑in users get the DashboardLayout
   if (isSignedIn) {
     shell = <DashboardLayout>{children}</DashboardLayout>;
   }

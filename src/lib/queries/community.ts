@@ -7,16 +7,18 @@ import { toast } from "sonner";
 type SharePromptPayload = {
   title: string;
   content: string;
+  versionId: string;
   tags?: string[];
   responseId: string;
 };
 
 export const useSharePrompt = () => {
   return useMutation({
-    mutationFn: async ({ title, content, tags, responseId }: SharePromptPayload) => {
+    mutationFn: async ({ title, content, versionId, tags, responseId }: SharePromptPayload) => {
       const { data } = await axiosInstance.post("/sharedPrompt", {
         title,
         content,
+        versionId,
         tags,
         responseId,
       });
