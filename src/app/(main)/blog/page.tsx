@@ -1,5 +1,5 @@
-import React from "react";
+import BlogsPage from "@/components/pages/public/BlogsPage";
 
 export default function page() {
-  return <div>Blog Page</div>;
+  return <BlogsPage />;
 }

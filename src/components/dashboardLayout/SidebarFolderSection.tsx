@@ -217,7 +217,7 @@ export function SidebarFolderSection() {
                             <p className="truncate">{folder.title}</p>
 
                             {promptCount > 0 && (
-                              <span className="text-muted-foreground bg-foreground/10 ml-2 flex-shrink-0 rounded-full px-1.5 py-0.5 text-xs">
+                              <span className="text-muted-foreground ml-2 flex-shrink-0 rounded-full px-1.5 py-0.5 text-xs">
                                 {promptCount}
                               </span>
                             )}

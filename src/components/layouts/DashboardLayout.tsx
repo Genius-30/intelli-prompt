@@ -129,7 +129,7 @@ export default function DashboardLayout({
                 asChild
                 variant="default"
                 size="sm"
-                className="border-0 bg-gradient-to-r from-[#FFD700] via-[#FFC300] to-[#FFB300] text-xs text-black shadow-sm hover:from-[#FFC300] hover:to-[#FFD700]"
+                className="xxs:flex hidden border-0 bg-gradient-to-r from-[#FFD700] via-[#FFC300] to-[#FFB300] text-xs text-black shadow-sm hover:from-[#FFC300] hover:to-[#FFD700]"
               >
                 <Link href="/pricing">Upgrade Plan</Link>
               </Button>

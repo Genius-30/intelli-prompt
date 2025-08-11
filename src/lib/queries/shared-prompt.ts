@@ -16,7 +16,7 @@ export const useGetSharedPrompt = (id: string, options = {}) => {
   });
 };
 
-export const useDeleteSharedPrompt = ({ userId }: { userId: string }) => {
+export const useDeleteSharedPrompt = () => {
   const queryClient = useQueryClient();
 
   return useMutation({

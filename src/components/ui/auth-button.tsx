@@ -29,7 +29,7 @@ const AuthButton = ({ className, links, children, ...props }: AuthButtonProps) =
     >
       <Button
         className={cn(
-          "relative min-w-38 rounded-3xl",
+          "relative min-w-38 rounded-xl",
           "bg-white dark:bg-black",
           "hover:bg-gray-50 dark:hover:bg-gray-950",
           "text-black dark:text-white",
@@ -59,8 +59,8 @@ const AuthButton = ({ className, links, children, ...props }: AuthButtonProps) =
                 "bg-black dark:bg-white",
                 "text-white dark:text-black",
                 "transition-all duration-300",
-                index === 0 && "rounded-l-3xl",
-                index === links.length - 1 && "rounded-r-3xl",
+                index === 0 && "rounded-l-xl",
+                index === links.length - 1 && "rounded-r-xl",
                 "border-r border-white/10 last:border-r-0 dark:border-black/10",
                 "hover:bg-gray-900 dark:hover:bg-gray-100",
                 "",

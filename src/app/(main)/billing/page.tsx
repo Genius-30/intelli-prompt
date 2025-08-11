@@ -1,3 +1,4 @@
+import BillingPage from "@/components/pages/dashboard/BillingPage";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -14,6 +15,6 @@ export const metadata: Metadata = {
   },
 };
 
-export default function BillingPage() {
-  return <div>Billing Page</div>;
+export default function page() {
+  return <BillingPage />;
 }

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+
 import { Prompt } from "@/models/prompt.model";
 import { SharedPrompt } from "@/models/sharedPrompt.model";
 import { User } from "@/models/user.model";
@@ -85,7 +86,7 @@ async function getUserStats(userId: string) {
 
   return {
     totalPrompts: {
-      label: "Total Prompts",
+      label: "Private Prompts",
       value: totalPrompts,
       trend: `${promptsDiff >= 0 ? "+" : ""}${promptsDiff} from last month`,
     },

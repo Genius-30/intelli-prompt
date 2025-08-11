@@ -13,8 +13,8 @@ import {
 } from "@/components/ui/resizable-navbar";
 
 import AuthButton from "../ui/auth-button";
+import { Github } from "@lobehub/icons";
 import Link from "next/link";
-import { Play } from "lucide-react";
 import ThemeToggle from "../common/ThemeToggle";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -75,12 +75,21 @@ export default function PublicNavbar() {
             <NavbarButton as="div" variant="secondary" className="p-0">
               <ThemeToggle />
             </NavbarButton>
+            <Link
+              href="https://github.com/Genius-30/intelli-prompt"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-0"
+            >
+              <NavbarButton as="div" variant="secondary" className="p-0">
+                <Github size={20} />
+              </NavbarButton>
+            </Link>
             <AuthButton
               links={shareLinks}
               className="from-primary to-primary/70 h-9 bg-gradient-to-b text-sm font-medium text-white shadow-[0px_2px_0px_0px_rgba(255,255,255,0.3)_inset]"
             >
               Get Started
-              {/* <Play size={10} className="border-none fill-white outline-none" /> */}
             </AuthButton>
           </div>
         </NavBody>
@@ -107,13 +116,23 @@ export default function PublicNavbar() {
               </Link>
             ))}
             <div className="flex flex-col items-start gap-2">
-              <NavbarButton variant="secondary" className="p-0">
+              <NavbarButton as="div" variant="secondary" className="p-0">
                 <ThemeToggle />
               </NavbarButton>
+              <Link
+                href="https://github.com/Genius-30/intelli-prompt"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-0"
+              >
+                <NavbarButton as="div" variant="secondary" className="p-0">
+                  <Github size={16} />
+                </NavbarButton>
+              </Link>
               <NavbarButton
                 onClick={() => route("/sign-in")}
                 variant="secondary"
-                className="w-full"
+                className="w-full text-left"
               >
                 Login
               </NavbarButton>

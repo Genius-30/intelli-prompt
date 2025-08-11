@@ -1,4 +1,4 @@
-import { LayoutDashboardIcon, LibraryIcon, TrophyIcon, UsersIcon } from "lucide-react";
+import { BookIcon, LayoutDashboardIcon, LibraryIcon, TrophyIcon, UsersIcon } from "lucide-react";
 import {
   SidebarGroup,
   SidebarGroupContent,
@@ -20,6 +20,7 @@ export function SidebarMainLinks() {
     { href: "/leaderboard", label: "Leaderboard", icon: TrophyIcon },
     { href: "/dashboard", label: "Dashboard", icon: LayoutDashboardIcon },
     { href: "/library", label: "My Library", icon: LibraryIcon },
+    { href: "/blog", label: "Blog", icon: BookIcon },
   ];
 
   return (

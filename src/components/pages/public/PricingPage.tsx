@@ -1,73 +1,18 @@
 "use client";
 
+import React, { useState } from "react";
 import { BadgeCheck, Check, Sparkle, Zap } from "lucide-react";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@clerk/nextjs";
 import { useCurrentUser } from "@/lib/queries/user";
 import { useRouter } from "next/navigation";
-
-const plans = [
-  {
-    key: "free",
-    title: "Free",
-    icon: <Sparkle className="text-primary h-6 w-6" />,
-    description: "Perfect for casual users & explorers",
-    price: "₹0 /mo",
-    subNote: "Unlimited usage for 1st month — no limits, all features unlocked!",
-    features: [
-      "3 Enhances/day",
-      "5 Prompt tests/day",
-      "Access to 2 AI models",
-      "Up to 10 saved prompts",
-      "2 prompt folders",
-      "Limited prompt history",
-      "100K tokens/month included",
-      "Community support",
-    ],
-    cta: "Start Free",
-    highlight: false,
-  },
-  {
-    key: "premium",
-    title: "Pro",
-    icon: <Zap className="h-6 w-6 text-yellow-500" />,
-    description: "For prompt engineers & AI power users",
-    price: "₹999 /mo (~$12)",
-    features: [
-      "Everything in Free",
-      "Unlimited Enhances & Prompt Tests",
-      "Access to all AI models (GPT, Claude, Gemini, etc.)",
-      "Up to 1,000 saved prompts",
-      "Extended usage limits ~5M tokens/month",
-      "Unlimited folders & versions",
-      "Priority email support",
-      "Full prompt history access",
-    ],
-    cta: "Upgrade Now",
-    highlight: true,
-  },
-  {
-    key: "enterprise",
-    title: "Enterprise",
-    icon: <BadgeCheck className="h-6 w-6 text-green-600" />,
-    description: "Best for professionals, teams & yearly savers",
-    price: "₹9,999 /yr (~$120)",
-    features: [
-      "Everything in Pro",
-      "2 months free (₹2,000 off)",
-      "Early access to new features",
-      "Unlimited Saved Prompts",
-      "Extended usage limits ~25M tokens/month",
-      "Annual billing convenience",
-      "Onboarding support (coming soon)",
-    ],
-    cta: "Go Yearly",
-    highlight: false,
-  },
-];
+import Script from "next/script";
+import { useActivatePlan, useCreateOrder } from "@/lib/queries/subscription";
+import { toast } from "sonner";
+import { Loader } from "@/components/ui/loader";
+import { plans } from "@/config/plan";
 
 export default function PricingPage() {
   const router = useRouter();
@@ -76,26 +21,114 @@ export default function PricingPage() {
     enabled: isSignedIn && isLoaded,
   });
 
+  const createOrder = useCreateOrder();
+  const activatePlanMutation = useActivatePlan();
+
+  const [selectedPlanKey, setSelectedPlanKey] = useState<string | null>(null);
+  const [currency, setCurrency] = useState<"INR" | "USD">("INR");
+
+  const handlePayment = (
+    planKey: string,
+    plan: "Premium" | "Enterprise",
+    currency: "INR" | "USD",
+  ) => {
+    setSelectedPlanKey(planKey);
+    createOrder.mutate(
+      { plan, currency },
+      {
+        onSuccess: (data) => {
+          if (!data?.order?.id) {
+            toast.error("Could not create Razorpay order");
+            setSelectedPlanKey(null);
+            return;
+          }
+
+          const options = {
+            key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID!,
+            amount: data.order.amount,
+            currency: data.order.currency,
+            name: "IntelliPrompt",
+            description: `${plan} Subscription`,
+            order_id: data.order.id,
+            handler: function (response: any) {
+              activatePlanMutation.mutate({
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+                plan,
+                currency: data.order.currency,
+              });
+            },
+            prefill: {
+              name: user?.fullname || "",
+              email: user?.email || "",
+            },
+            theme: { color: "#5959e5" },
+          };
+
+          const rzp = new (window as any).Razorpay(options);
+          rzp.open();
+        },
+        onError: () => {
+          setSelectedPlanKey(null);
+        },
+      },
+    );
+  };
+
   return (
-    <div className="">
-      <div className="flex-1">
-        <h2 className="text-foreground mb-2 text-center text-4xl font-bold">Choose Your Plan</h2>
-        <p className="text-muted-foreground mb-10 text-center">
+    <>
+      <Script
+        src="https://checkout.razorpay.com/v1/checkout.js"
+        strategy="lazyOnload"
+        onLoad={() => console.log("Razorpay script loaded")}
+      />
+
+      <div>
+        <h2 className="text-foreground mb-1 text-center text-4xl font-bold">Choose Your Plan</h2>
+        <p className="text-muted-foreground mb-6 text-center">
           Start for free, go monthly, or save with a yearly plan.
         </p>
 
+        {/* Currency selector */}
+        <div className="mb-8 flex justify-center">
+          <div className="relative inline-flex cursor-pointer items-center select-none">
+            <span
+              className={`rounded-l-full border border-gray-300 px-4 py-1 ${
+                currency === "INR"
+                  ? "bg-primary text-white"
+                  : "text-muted-foreground bg-white hover:bg-gray-100"
+              } transition-colors duration-300`}
+              onClick={() => setCurrency("INR")}
+            >
+              INR
+            </span>
+            <span
+              className={`-ml-px rounded-r-full border border-gray-300 px-4 py-1 ${
+                currency === "USD"
+                  ? "bg-primary text-white"
+                  : "text-muted-foreground bg-white hover:bg-gray-100"
+              } transition-colors duration-300`}
+              onClick={() => setCurrency("USD")}
+            >
+              USD
+            </span>
+          </div>
+        </div>
+
         <div className="grid gap-8 md:grid-cols-3">
-          {plans.map((plan, index) => {
-            const isCurrentPlan = user?.plan.toLowerCase() === plan.key;
+          {plans.map((plan) => {
+            const isCurrentPlan = user?.plan?.toLowerCase() === plan.key;
+            const isSelectedPlan = selectedPlanKey === plan.key;
 
             return (
               <Card
-                key={index}
+                key={plan.key}
                 className={cn(
-                  `transition-all duration-300`,
+                  "transition-all duration-300",
                   plan.title === "Pro"
-                    ? "border-primary scale-105 hover:scale-[103%]"
-                    : "hover:scale-[98%]",
+                    ? "border-primary scale-105 hover:scale-[107%]"
+                    : "hover:scale-[102%]",
                 )}
               >
                 <CardHeader className="text-center">
@@ -125,8 +158,29 @@ export default function PricingPage() {
                       Current Plan
                     </Button>
                   ) : (
-                    <Button className="w-full" variant={plan.highlight ? "default" : "outline"}>
-                      {plan.cta}
+                    <Button
+                      className="w-full"
+                      variant={plan.highlight ? "default" : "outline"}
+                      disabled={createOrder.isPending && !isSelectedPlan}
+                      onClick={() =>
+                        handlePayment(
+                          plan.key,
+                          plan.key === "premium"
+                            ? "Premium"
+                            : plan.key === "enterprise"
+                              ? "Enterprise"
+                              : "Premium",
+                          currency,
+                        )
+                      }
+                    >
+                      {createOrder.isPending && isSelectedPlan ? (
+                        <>
+                          <Loader /> Processing...
+                        </>
+                      ) : (
+                        plan.cta
+                      )}
                     </Button>
                   )}
                 </CardFooter>
@@ -135,6 +189,6 @@ export default function PricingPage() {
           })}
         </div>
       </div>
-    </div>
+    </>
   );
 }

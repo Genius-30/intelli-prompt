@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { getAuthenticatedUser } from "@/utils/getAuthenticatedUser";
 import { Subscription } from "@/models/subscription.model";
+import { getAuthenticatedUser } from "@/utils/getAuthenticatedUser";
 
 export async function GET() {
   try {
@@ -8,7 +8,8 @@ export async function GET() {
     if (error) return error;
 
     const history = await Subscription.find({ ownerId: userId })
-      .sort({ subscriptionStart: -1 }).lean();
+      .sort({ subscriptionStart: -1 })
+      .lean();
 
     const formatted = history.map((sub) => ({
       plan: sub.plan,
@@ -20,7 +21,10 @@ export async function GET() {
       createdAt: sub.createdAt,
     }));
 
-    return NextResponse.json({ message: "Billing history fetched successfully", history: formatted }, { status: 200 });
+    return NextResponse.json(
+      { message: "Billing history fetched successfully", history: formatted },
+      { status: 200 },
+    );
   } catch (err) {
     return NextResponse.json({ message: "Error fetching billing history", err }, { status: 500 });
   }
