@@ -1,7 +1,7 @@
 "use client";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { ChevronsUpDown, LogOut, Receipt, Settings, User } from "lucide-react";
+import { ChevronsUpDown, LogOut, Receipt, Settings, ShieldCheck, User } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../ui/collapsible";
 import {
   Sidebar,
@@ -20,11 +20,16 @@ import { SignOutButton, useClerk, useUser } from "@clerk/nextjs";
 import { Badge } from "@/components/ui/badge";
 import { BreadcrumbResponsive } from "../dashboardLayout/BreadCrumbResponsive";
 import { Button } from "@/components/ui/button";
+import { Github } from "@lobehub/icons";
 import Link from "next/link";
 import Logo from "../Logo";
 import { SidebarFolderSection } from "@/components/dashboardLayout/SidebarFolderSection";
 import { SidebarMainLinks } from "@/components/dashboardLayout/SidebarMainLinks";
 import ThemeToggle from "../common/ThemeToggle";
+import { cn } from "@/lib/utils";
+import { getPlanColor } from "@/lib/ui-utils";
+import { useCurrentUser } from "@/lib/queries/user";
+import { useRouter } from "next/navigation";
 
 export default function DashboardLayout({
   children,
@@ -33,6 +38,21 @@ export default function DashboardLayout({
 }>) {
   const { user } = useUser();
   const { openUserProfile } = useClerk();
+  const { data: currentUser } = useCurrentUser();
+
+  const router = useRouter();
+
+  const getPlanColor = (plan: string) => {
+    switch (plan) {
+      case "Premium":
+        return "border-primary text-primary";
+      case "Enterprise":
+        return "border-blue-500 text-blue-500";
+      default:
+        return "border-muted-foreground text-muted-foreground";
+    }
+  };
+
   if (!user) return null;
 
   return (
@@ -115,23 +135,36 @@ export default function DashboardLayout({
           <div className="flex flex-1 items-center justify-between gap-2">
             <BreadcrumbResponsive />
 
-            <div className="ml-auto flex items-center space-x-2">
+            <div className="ml-auto flex items-center">
               <ThemeToggle />
 
-              <Badge
-                variant="outline"
-                className="border-primary text-primary mr-3 border-2 text-xs"
+              <Button
+                variant="ghost"
+                className="flex cursor-pointer items-center justify-center p-0"
+                onClick={() => window.open("https://github.com/Genius-30/intelli-prompt", "_blank")}
               >
-                Pro
-              </Badge>
+                <Github size={32} />
+              </Button>
+
+              {currentUser?.plan && (
+                <Badge
+                  variant="outline"
+                  className={cn(
+                    "mx-2 border-2 text-xs font-semibold capitalize sm:mr-4",
+                    getPlanColor(currentUser.plan),
+                  )}
+                >
+                  {currentUser.plan}
+                </Badge>
+              )}
 
               <Button
-                asChild
                 variant="default"
                 size="sm"
-                className="xxs:flex hidden border-0 bg-gradient-to-r from-[#FFD700] via-[#FFC300] to-[#FFB300] text-xs text-black shadow-sm hover:from-[#FFC300] hover:to-[#FFD700]"
+                onClick={() => router.push("/pricing")}
+                className="xs:flex hidden items-center border-0 bg-gradient-to-r from-[#FFD700] via-[#FFC300] to-[#FFB300] text-xs text-black shadow-sm hover:from-[#FFC300] hover:to-[#FFD700]"
               >
-                <Link href="/pricing">Upgrade Plan</Link>
+                <ShieldCheck className="h-4 w-4" /> Upgrade Plan
               </Button>
             </div>
           </div>

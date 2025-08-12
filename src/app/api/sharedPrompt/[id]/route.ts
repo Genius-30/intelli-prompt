@@ -1,4 +1,5 @@
 import "@/models/modelResponse.model";
+
 import { NextResponse } from "next/server";
 import { SharedPrompt } from "@/models/sharedPrompt.model";
 import { getAuthenticatedUser } from "@/utils/getAuthenticatedUser";
@@ -39,7 +40,7 @@ export async function PATCH(req: Request, { params }: { params: any }) {
     }
 
     const { newTitle, tags, responseId } = await req.json();
-    if (!newTitle || !responseId || !tags || tags.length === 0) {
+    if (!newTitle || !tags || tags.length === 0) {
       return NextResponse.json({ message: "invalid input" }, { status: 400 });
     }
 

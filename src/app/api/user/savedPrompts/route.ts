@@ -62,6 +62,7 @@ async function getSavedPrompts(userId: any) {
       $project: {
         title: 1,
         content: 1,
+        versionId: 1,
         tags: 1,
         createdAt: 1,
         responseId: 1,

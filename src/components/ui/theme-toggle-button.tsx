@@ -5,6 +5,7 @@ import { MoonIcon, SunIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import React from "react";
+import { cn } from "@/lib/utils";
 import { useTheme } from "next-themes";
 
 interface ThemeToggleAnimationProps {
@@ -12,6 +13,7 @@ interface ThemeToggleAnimationProps {
   start?: AnimationStart;
   showLabel?: boolean;
   url?: string;
+  className?: string;
 }
 
 export default function ThemeToggleButton({
@@ -19,6 +21,7 @@ export default function ThemeToggleButton({
   start = "top-left",
   showLabel = false,
   url = "",
+  className = "",
 }: ThemeToggleAnimationProps) {
   const { theme, setTheme } = useTheme();
 
@@ -62,7 +65,7 @@ export default function ThemeToggleButton({
       onClick={toggleTheme}
       variant="ghost"
       size="icon"
-      className="group relative h-9 w-9 p-0"
+      className={cn("group relative h-9 w-9 cursor-pointer p-0", className)}
       name="Theme Toggle Button"
     >
       <SunIcon className="size-[1.2rem] scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />

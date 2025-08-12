@@ -211,7 +211,7 @@ export function SidebarFolderSection() {
                           onClick={() => navigateToFolder(folder)}
                           className="flex w-full items-center gap-2"
                         >
-                          <Folder className="h-4 w-4 flex-shrink-0" />
+                          <Folder className="h-4 w-4 flex-shrink-0 fill-current" />
 
                           <div className="flex w-full min-w-0 items-center justify-between">
                             <p className="truncate">{folder.title}</p>

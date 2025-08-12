@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import connectDb from "@/lib/db";
+
 import { SharedPrompt } from "@/models/sharedPrompt.model";
+import connectDb from "@/lib/db";
 import { getAuthenticatedUser } from "@/utils/getAuthenticatedUser";
 import { getSetCache } from "@/lib/redisCache";
 import { rateLimit } from "@/lib/rateLimit";
@@ -43,6 +44,7 @@ async function getTrendingPosts(userId?: string | null) {
   const baseProject: any = {
     title: 1,
     content: 1,
+    versionId: 1,
     tags: 1,
     createdAt: 1,
     responseId: 1,

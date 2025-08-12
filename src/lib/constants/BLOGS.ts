@@ -11,8 +11,8 @@ interface Article {
   content: string;
 }
 
-export const improvePromting: Article = {
-  _id: "2",
+export const improvePrompting: Article = {
+  _id: "1",
   title: "Ask Smarter Than the Top 1%: 5 AI Prompting Habits That Actually Work",
   excerpt:
     "Want to get better answers from AI tools like IntelliPrompt? Learn 5 elite-level prompting habits that help you think clearer, debug faster, and build smarter.",
@@ -74,7 +74,7 @@ Can you help me understand [specific ask] or guide me on [what to explore]?
 };
 
 export const topChatGPTPrompts: Article = {
-  _id: "1",
+  _id: "2",
   title: "Top 10 ChatGPT Prompts for Developers in 2025",
   excerpt:
     "Discover the most effective ChatGPT prompts every developer needs in 2025 to boost productivity and write cleaner code.",
@@ -127,7 +127,7 @@ export const topChatGPTPrompts: Article = {
 };
 
 export const organizeAIpromptsGuide: Article = {
-  _id: "2",
+  _id: "3",
   title: "How to Organize AI Prompts Like a Pro: Your 2025 Guide",
   excerpt:
     "Master prompt management in 2025 with our guide to organizing prompts, versioning, folders, and metadata.",
@@ -168,7 +168,7 @@ export const organizeAIpromptsGuide: Article = {
 };
 
 export const openRouterVsOpenAI: Article = {
-  _id: "3",
+  _id: "4",
   title: "OpenRouter vs. OpenAI: Which AI Gateway Should You Choose?",
   excerpt:
     "Compare OpenRouter and OpenAI side-by-side—features, pricing, and rate limits to pick the best gateway.",
@@ -209,7 +209,7 @@ export const openRouterVsOpenAI: Article = {
 };
 
 export const marketingPromptUseCases: Article = {
-  _id: "4",
+  _id: "5",
   title: "5 Creative Prompt Engineering Use Cases for Marketers",
   excerpt:
     "Explore 5 innovative prompt engineering tips that marketers can use to generate ad copy, social posts, SEO keywords, and more.",
@@ -247,7 +247,7 @@ export const marketingPromptUseCases: Article = {
 };
 
 export const promptVersioningArticle: Article = {
-  _id: "5",
+  _id: "6",
   title: "What Is Prompt Versioning and Why You Need It",
   excerpt:
     "Learn what prompt versioning is, why version control matters, and how to implement it in IntelliPrompt for reliable AI workflows.",

@@ -35,9 +35,8 @@ export default function PublicNavbar() {
       onClick: () => router.push("/sign-in"),
       label: "Go to Sign In",
       className: `
-      bg-muted dark:bg-neutral-900 
-      text-neutral-800 dark:text-neutral-200 
-      hover:bg-neutral-200 dark:hover:bg-neutral-800 
+      bg-gray-100 dark:bg-gray-200 hover:bg-gray-200 dark:hover:bg-gray-300
+      text-neutral-800
       font-medium tracking-wide
       transition-colors duration-200
     `.trim(),
@@ -75,16 +74,13 @@ export default function PublicNavbar() {
             <NavbarButton as="div" variant="secondary" className="p-0">
               <ThemeToggle />
             </NavbarButton>
-            <Link
-              href="https://github.com/Genius-30/intelli-prompt"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="p-0"
+            <NavbarButton
+              variant="secondary"
+              className="mr-2 flex items-center justify-center p-0"
+              onClick={() => window.open("https://github.com/Genius-30/intelli-prompt", "_blank")}
             >
-              <NavbarButton as="div" variant="secondary" className="p-0">
-                <Github size={20} />
-              </NavbarButton>
-            </Link>
+              <Github size={20} />
+            </NavbarButton>
             <AuthButton
               links={shareLinks}
               className="from-primary to-primary/70 h-9 bg-gradient-to-b text-sm font-medium text-white shadow-[0px_2px_0px_0px_rgba(255,255,255,0.3)_inset]"
@@ -116,23 +112,20 @@ export default function PublicNavbar() {
               </Link>
             ))}
             <div className="flex flex-col items-start gap-2">
-              <NavbarButton as="div" variant="secondary" className="p-0">
-                <ThemeToggle />
+              <NavbarButton as="div" variant="secondary" className="h-auto w-auto p-0">
+                <ThemeToggle className="w-auto" />
               </NavbarButton>
-              <Link
-                href="https://github.com/Genius-30/intelli-prompt"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-0"
+              <NavbarButton
+                variant="secondary"
+                className="mr-2 flex items-center justify-center p-0"
+                onClick={() => window.open("https://github.com/Genius-30/intelli-prompt", "_blank")}
               >
-                <NavbarButton as="div" variant="secondary" className="p-0">
-                  <Github size={16} />
-                </NavbarButton>
-              </Link>
+                <Github size={20} />
+              </NavbarButton>
               <NavbarButton
                 onClick={() => route("/sign-in")}
                 variant="secondary"
-                className="w-full text-left"
+                className="mt-4 w-auto px-0"
               >
                 Login
               </NavbarButton>

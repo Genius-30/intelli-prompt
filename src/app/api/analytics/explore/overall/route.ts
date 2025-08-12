@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import connectDb from "@/lib/db";
+
 import { SharedPrompt } from "@/models/sharedPrompt.model";
+import connectDb from "@/lib/db";
 import { getAuthenticatedUser } from "@/utils/getAuthenticatedUser";
 import { getSetCache } from "@/lib/redisCache";
 import { rateLimit } from "@/lib/rateLimit";
@@ -48,7 +49,7 @@ export async function GET(req: NextRequest) {
 
     // Cache only the paginated data
     const data = await getSetCache(cacheKey, 60, () =>
-      getTrendingPosts({ userId, skip, limit, search })
+      getTrendingPosts({ userId, skip, limit, search }),
     );
 
     const hasMore = page * limit < total;
@@ -98,6 +99,7 @@ async function getTrendingPosts({
   const baseProject: any = {
     title: 1,
     content: 1,
+    versionId: 1,
     tags: 1,
     createdAt: 1,
     responseId: 1,

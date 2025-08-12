@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import connectDb from "@/lib/db";
+
 import { SharedPrompt } from "@/models/sharedPrompt.model";
+import connectDb from "@/lib/db";
 import { getAuthenticatedUser } from "@/utils/getAuthenticatedUser";
 import { getSetCache } from "@/lib/redisCache";
 import { rateLimit } from "@/lib/rateLimit";
@@ -37,6 +38,7 @@ async function getAllSharedPrompts(personId: string, userId?: string | null) {
   const baseFields: any = {
     title: 1,
     content: 1,
+    versionId: 1,
     tags: 1,
     modelUsed: 1,
     createdAt: 1,

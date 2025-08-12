@@ -21,10 +21,10 @@ import { TagMultiSelect } from "../common/TagMultiSelect";
 import { Textarea } from "@/components/ui/textarea";
 import { flattenPromptTags } from "@/utils/flattenPromptTags";
 import { toast } from "sonner";
-import { useCurrentUser } from "@/lib/queries/user";
 import { useGetAllResponsesForVersion } from "@/lib/queries/response";
 import { useSharePrompt } from "@/lib/queries/community";
 import { useUpdateSharedPrompt } from "@/lib/queries/shared-prompt";
+import { useUser } from "@clerk/nextjs";
 
 interface SharePromptModalProps {
   readonly isOpen: boolean;
@@ -53,7 +53,7 @@ export function SharePromptModal({
   const [selectedTags, setSelectedTags] = useState<string[]>(initialData?.tags || []);
   const [selectedResponseId, setSelectedResponseId] = useState<string | null>(null);
 
-  const { data: currentUser } = useCurrentUser();
+  const { user } = useUser();
   const { mutate: sharePrompt, isPending: isSharing } = useSharePrompt();
   const { mutate: updatePrompt, isPending: isUpdating } = useUpdateSharedPrompt();
   const { data: responses = [], isLoading: isLoadingResponses } =
@@ -125,7 +125,7 @@ export function SharePromptModal({
     );
   };
 
-  const isFormValid = title.trim() && selectedTags.length > 0 && isEdit && selectedResponseId;
+  const isFormValid = title.trim() && selectedTags.length > 0 && (isEdit || selectedResponseId);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -149,17 +149,15 @@ export function SharePromptModal({
         {/* Scrollable Content */}
         <div className="space-y-6 overflow-y-auto px-6 py-6">
           {/* User Card */}
-          {currentUser && (
+          {user && (
             <Card className="bg-muted/10 rounded-lg p-0">
               <CardContent className="flex items-center gap-3 px-4 py-2">
                 <Avatar className="ring-primary/20 h-8 w-8 ring-2">
-                  <AvatarImage src={currentUser.avatar} alt={currentUser.username} />
-                  <AvatarFallback>
-                    {currentUser.username?.charAt(0).toUpperCase() || "YOU"}
-                  </AvatarFallback>
+                  <AvatarImage src={user.imageUrl} alt={user.username || "YOU"} />
+                  <AvatarFallback>{user.username?.charAt(0).toUpperCase() || "YOU"}</AvatarFallback>
                 </Avatar>
                 <div>
-                  <p className="text-sm font-medium">{currentUser.username || "YOU"}</p>
+                  <p className="text-sm font-medium">{user.username || "YOU"}</p>
                   <p className="text-muted-foreground text-xs">Publishing as</p>
                 </div>
               </CardContent>

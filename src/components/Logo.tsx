@@ -9,7 +9,7 @@ function Logo({
   readonly textClassName?: string;
 }) {
   return (
-    <div className="text-md text-primary flex items-center gap-1 font-mono font-bold tracking-wide select-none md:gap-2 md:text-lg">
+    <div className="text-md text-primary dark:text-foreground flex items-center gap-1 font-mono font-bold tracking-wide select-none md:gap-2 md:text-lg">
       <Image
         src="/logo.png"
         alt="logo"
