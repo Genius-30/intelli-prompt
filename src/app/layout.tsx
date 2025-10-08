@@ -48,7 +48,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`scrollbar-thin ${inter.className} bg-card`}>
+      <body className={`scrollbar-thin ${inter.className} bg-[#090014]`}>
         <Providers>
           {children}
           <CustomToaster />

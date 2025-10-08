@@ -9,7 +9,7 @@ export default function PublicLayout({
   return (
     <>
       <PublicNavbar />
-      <main className="mx-auto mt-18 min-h-[calc(100vh-104px)] w-full max-w-7xl overflow-hidden p-4 md:min-h-[100vh-136px] md:p-8">
+      <main className="mx-auto mt-18 min-h-[calc(100vh-104px)] w-full overflow-hidden md:min-h-[100vh-136px] py-4 md:py-8">
         {children}
       </main>
       <PublicFooter />
