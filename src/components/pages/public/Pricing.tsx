@@ -90,7 +90,7 @@ export default function PricingSection() {
   };
 
   return (
-    <section className="relative min-h-screen flex flex-col items-center justify-center text-white overflow-hidden bg-[#090014] px-4 py-20">
+    <section id="pricing" className="relative min-h-screen flex flex-col items-center justify-center text-white overflow-hidden bg-[#090014] px-4 py-20">
   <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="lazyOnload" />
 
   {/* ===== Glow Background ===== */}

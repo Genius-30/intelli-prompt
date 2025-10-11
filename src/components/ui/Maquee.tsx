@@ -39,7 +39,7 @@ function Marquee() {
       <div className="flex overflow-hidden">
         <div
           ref={marqueeRef}
-          className="flex animate-marquee gap-12 sm:gap-24 items-center px-6 sm:px-8"
+          className="flex animate-marquee gap-12 md:mt-20 sm:gap-24 items-center px-6 sm:px-8"
         >
           {models.map((item, idx) => (
             <Image

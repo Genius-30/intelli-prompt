@@ -26,7 +26,7 @@ export default function PublicNavbar() {
     { name: "Explore", link: "/explore" },
     { name: "Leaderboard", link: "/leaderboard" },
     { name: "Blog", link: "/blog" },
-    { name: "Pricing", link: "/pricing" },
+    { name: "Pricing", link: "/#pricing" },
   ];
 
   const shareLinks = [
