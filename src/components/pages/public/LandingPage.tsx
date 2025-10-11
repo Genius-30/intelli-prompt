@@ -14,7 +14,7 @@ export default function Hero() {
       {/* Hero Section */}
       <section className="hero md:mb-72">
         <DotBackgroundDemo className="extra absolute -top-10">
-          <div className="sm:mt-96 mx-auto z-10 px-4 sm:px-8">
+          <div className="sm:mt-[500px] mx-auto z-10 px-4 sm:px-8">
             <div className="transition-all pb-10 max-w-6xl mx-auto text-center duration-1000">
               <div className="mb-2">
                 <Badge className="bg-gradient-to-br from-purple-400/40 to-purple-300/10 text-purple-200 font-normal text-xs sm:text-sm rounded-3xl border-purple-400/50 mb-2 py-1 pb-1.5 px-4">
@@ -23,7 +23,7 @@ export default function Hero() {
                 </Badge>
               </div>
 
-              <h1 className="text-3xl sm:text-6xl w-screen mx-auto font-bold mb-4 leading-tight">
+              <h1 className="text-3xl sm:text-6xl mx-auto font-bold mb-4 leading-tight">
                 <span className="bg-gradient-to-b from-purple-100 to-purple-300 bg-clip-text text-transparent">
                   Create Smarter <span className="bg-gradient-to-b from-purple-200 to-purple-700 bg-clip-text text-transparent">Prompts</span> with <br className="hidden md:block"/>AI-Powered Assistance
                 </span>

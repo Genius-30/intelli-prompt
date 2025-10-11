@@ -121,7 +121,7 @@ export const topChatGPTPrompts: Article = {
   <p class="mb-4">Set up automated testing, linting, and deployments.</p>
 
   <h2 class="text-2xl font-bold mt-8 mb-4">Conclusion & CTA</h2>
-  <p class="mb-4">Implement these <strong>AI prompt engineering</strong> examples to elevate your workflow. Start auto-generating code with IntelliPrompt today—<a href="#" class="text-indigo-600 underline">Sign up free</a>!</p>
+  <p class="mb-4">Implement these <strong>AI prompt engineering</strong> examples to elevate your workflow. Start auto-generating code with IntelliPrompt today—<a href="#" class="text-purple-600 underline">Sign up free</a>!</p>
 
   </div>`,
 };
