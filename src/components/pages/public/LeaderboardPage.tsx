@@ -68,7 +68,7 @@ export default function LeaderboardPage() {
   };
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto">
+    <div className="space-y-6 container lg:max-w-7xl mx-auto">
       {/* Header */}
       <div className="flex w-full items-center justify-between">
         <div>

@@ -20,7 +20,7 @@ export const improvePrompting: Article = {
   author: "Mohd Zaid",
   date: "August 7, 2025",
   readTime: "6 min read",
-  image: "/images/article2.jpeg",
+  image: "/blog/blog1.jpeg",
   slug: "ask-better-questions-with-ai",
   content: `<div class="article-content">
 
@@ -82,7 +82,7 @@ export const topChatGPTPrompts: Article = {
   author: "Mohd Zaid",
   date: "July 31, 2025",
   readTime: "7 min read",
-  image: "/images/article1.jpeg",
+  image: "/blog/blog2.jpeg",
   slug: "top-chatgpt-prompts-2025",
   content: `<div class="article-content">
 
@@ -135,7 +135,7 @@ export const organizeAIpromptsGuide: Article = {
   author: "Genius Porwal",
   date: "July 31, 2025",
   readTime: "6 min read",
-  image: "/images/article2.jpeg",
+  image: "/blog/blog3.jpeg",
   slug: "organize-ai-prompts-2025",
   content: `<div class="article-content">
 
@@ -176,7 +176,7 @@ export const openRouterVsOpenAI: Article = {
   author: "Mohd Zaid",
   date: "July 31, 2025",
   readTime: "7 min read",
-  image: "/images/article3.jpeg",
+  image: "/blog/blog4.jpeg",
   slug: "openrouter-vs-openai",
   content: `<div class="article-content">
 
@@ -217,7 +217,7 @@ export const marketingPromptUseCases: Article = {
   author: "Genius Porwal",
   date: "July 31, 2025",
   readTime: "6 min read",
-  image: "/images/article4.jpeg",
+  image: "/blog/blog5.jpeg",
   slug: "prompt-engineering-marketers",
   content: `<div class="article-content">
 
@@ -255,7 +255,7 @@ export const promptVersioningArticle: Article = {
   author: "Mohd Zaid",
   date: "July 31, 2025",
   readTime: "6 min read",
-  image: "/images/article5.jpeg",
+  image: "/blog/blog6.jpeg",
   slug: "prompt-versioning-explained",
   content: `<div class="article-content">
 
