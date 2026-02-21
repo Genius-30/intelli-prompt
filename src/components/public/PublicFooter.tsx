@@ -10,7 +10,7 @@ export default function PublicFooter() {
           </div>
           <div className="text-center text-gray-400 md:text-right">
             <p>
-              &copy; {new Date().getFullYear()} IntelliStack. Crafted for the future of AI
+              &copy; {new Date().getFullYear()} IntelliPrompt. Crafted for the future of AI
               engineering.
             </p>
           </div>

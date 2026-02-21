@@ -1,8 +1,8 @@
-import { emailQueue } from '@/lib/emailQueue';
-import { Follow } from '@/models/follow.model';
-import { User } from '@/models/user.model';
-import { getAuthenticatedUser } from '@/utils/getAuthenticatedUser';
-import { NextResponse } from 'next/server';
+import { Follow } from "@/models/follow.model";
+import { NextResponse } from "next/server";
+import { User } from "@/models/user.model";
+import { emailQueue } from "@/lib/emailQueue";
+import { getAuthenticatedUser } from "@/utils/getAuthenticatedUser";
 
 export async function POST(req: Request) {
   try {
@@ -11,32 +11,37 @@ export async function POST(req: Request) {
 
     const { postTitle, postLink } = await req.json();
     if (!postTitle || !postLink) {
-      return NextResponse.json({ message: 'Missing required fields' }, { status: 400 });
+      return NextResponse.json({ message: "Missing required fields" }, { status: 400 });
     }
 
     const follows = await Follow.find({ followeeId: userId }).lean();
     if (!follows.length) {
-      return NextResponse.json({ message: 'No followers found' }, { status: 404 });
+      return NextResponse.json({ message: "No followers found" }, { status: 404 });
     }
 
-    const followerIds = follows.map(f => f.followerId);
+    const followerIds = follows.map((f) => f.followerId);
 
-    const users = await User.find({ _id: { $in: followerIds }, newsletter: true }).select('email').lean();
+    const users = await User.find({ _id: { $in: followerIds }, newsletter: true })
+      .select("email")
+      .lean();
     if (!users.length) {
-      return NextResponse.json({ message: 'No newsletter subscribers among followers' }, { status: 404 });
+      return NextResponse.json(
+        { message: "No newsletter subscribers among followers" },
+        { status: 404 },
+      );
     }
 
     // Add jobs to the emailQueue for each user
     for (const user of users) {
-      await emailQueue.add('notifyFollowers', {
+      await emailQueue.add("notifyFollowers", {
         user,
         postTitle,
         postLink,
       });
     }
-  
-    return NextResponse.json({ message: 'email queued!' }, { status: 200 });
+
+    return NextResponse.json({ message: "email queued!" }, { status: 200 });
   } catch (error) {
-    return NextResponse.json({ message: 'Internal Server Error', error }, { status: 500 });
+    return NextResponse.json({ message: "Internal Server Error", error }, { status: 500 });
   }
 }

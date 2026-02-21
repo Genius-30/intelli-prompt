@@ -20,16 +20,16 @@ export async function GET(req: Request) {
 }
 
 // updates user profile
-export async function PATCH(req:Request) {
+export async function PATCH(req: Request) {
   try {
     const { userId, error } = await getAuthenticatedUser();
     if (error) return error;
 
     const updateFields: any = {};
 
-    const { bio, socials } = await req.json()
+    const { bio, socials } = await req.json();
     if (bio !== undefined) {
-      if (typeof bio !== 'string' || bio.length > 120) {
+      if (typeof bio !== "string" || bio.length > 120) {
         return NextResponse.json({ message: "Invalid bio or too lenghty" }, { status: 400 });
       }
       updateFields.bio = bio;
@@ -40,9 +40,9 @@ export async function PATCH(req:Request) {
         !Array.isArray(socials) ||
         socials.some(
           (item) =>
-            typeof item.label !== 'string' ||
-            typeof item.url !== 'string' ||
-            !/^https?:\/\/.+/.test(item.url)
+            typeof item.label !== "string" ||
+            typeof item.url !== "string" ||
+            !/^https?:\/\/.+/.test(item.url),
         )
       ) {
         return NextResponse.json({ message: "Invalid socials format" }, { status: 400 });
@@ -50,19 +50,16 @@ export async function PATCH(req:Request) {
       updateFields.socials = socials;
     }
 
-    if(Object.keys(updateFields).length === 0){
+    if (Object.keys(updateFields).length === 0) {
       return NextResponse.json({ message: "No valid fields to update" }, { status: 400 });
     }
 
-    const updated = await User.updateOne(
-      { _id: userId },
-      { $set: updateFields }
-    )
-    if(updated.modifiedCount === 0){
+    const updated = await User.updateOne({ _id: userId }, { $set: updateFields });
+    if (updated.modifiedCount === 0) {
       return NextResponse.json({ message: "err updating user details" }, { status: 500 });
     }
 
-    return NextResponse.json({ message: "user updated" }, { status: 200 })
+    return NextResponse.json({ message: "user updated" }, { status: 200 });
   } catch (err) {
     return NextResponse.json({ message: "err updating user details" }, { status: 500 });
   }
