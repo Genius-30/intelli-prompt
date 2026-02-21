@@ -3,7 +3,6 @@
 import { AnimatePresence, motion, useMotionValueEvent, useScroll } from "framer-motion";
 import { MenuIcon, XIcon } from "lucide-react";
 import React, { useRef, useState } from "react";
-
 import Image from "next/image";
 import Link from "next/link";
 import { cn } from "@/lib/utils";

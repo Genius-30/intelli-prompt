@@ -1,5 +1,6 @@
 "use client";
 
+import { DotBackgroundDemo } from "@/components/ui/dotBackground";
 import { SignIn } from "@clerk/nextjs";
 import { dark } from "@clerk/themes";
 import { useTheme } from "next-themes";
@@ -8,7 +9,8 @@ export default function SignInPage() {
   const { resolvedTheme } = useTheme();
 
   return (
-    <div className="flex items-center justify-center">
+    <div>
+      <DotBackgroundDemo className="w-screen h-auto extra">
       <SignIn
         path="/sign-in"
         routing="path"
@@ -18,6 +20,7 @@ export default function SignInPage() {
           baseTheme: resolvedTheme === "dark" ? dark : undefined,
         }}
       />
+      </DotBackgroundDemo>
     </div>
   );
 }

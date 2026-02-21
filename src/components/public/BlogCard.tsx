@@ -26,7 +26,7 @@ export function BlogCard({ article }: BlogCardProps) {
             <div className="absolute top-3 left-3">
               <Badge
                 variant="secondary"
-                className="bg-muted-foreground px-2 py-1 text-xs backdrop-blur-sm"
+                className="bg-transparent border border-primary px-2 py-1 text-xs backdrop-blur-sm"
               >
                 {article.category}
               </Badge>

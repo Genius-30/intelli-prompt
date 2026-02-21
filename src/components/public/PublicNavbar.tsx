@@ -15,7 +15,7 @@ import {
 import AuthButton from "../ui/auth-button";
 import { Github } from "@lobehub/icons";
 import Link from "next/link";
-import ThemeToggle from "../common/ThemeToggle";
+// import ThemeToggle from "../common/ThemeToggle";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -26,7 +26,7 @@ export default function PublicNavbar() {
     { name: "Explore", link: "/explore" },
     { name: "Leaderboard", link: "/leaderboard" },
     { name: "Blog", link: "/blog" },
-    { name: "Pricing", link: "/pricing" },
+    { name: "Pricing", link: "/#pricing" },
   ];
 
   const shareLinks = [
@@ -71,9 +71,9 @@ export default function PublicNavbar() {
           <NavbarLogo />
           <NavItems items={navItems} />
           <div className="flex items-center gap-2">
-            <NavbarButton as="div" variant="secondary" className="p-0">
+            {/* <NavbarButton as="div" variant="secondary" className="p-0">
               <ThemeToggle />
-            </NavbarButton>
+            </NavbarButton> */}
             <NavbarButton
               variant="secondary"
               className="mr-2 flex items-center justify-center p-0"
@@ -83,7 +83,7 @@ export default function PublicNavbar() {
             </NavbarButton>
             <AuthButton
               links={shareLinks}
-              className="from-primary to-primary/70 h-9 bg-gradient-to-b text-sm font-medium text-white shadow-[0px_2px_0px_0px_rgba(255,255,255,0.3)_inset]"
+              className="from-purple-600 to-purple-800 h-9 bg-gradient-to-b text-sm font-medium text-white shadow-[0px_2px_0px_0px_rgba(255,255,255,0.3)_inset]"
             >
               Get Started
             </AuthButton>
@@ -112,9 +112,9 @@ export default function PublicNavbar() {
               </Link>
             ))}
             <div className="flex flex-col items-start gap-2">
-              <NavbarButton as="div" variant="secondary" className="h-auto w-auto p-0">
+              {/* <NavbarButton as="div" variant="secondary" className="h-auto w-auto p-0">
                 <ThemeToggle className="w-auto" />
-              </NavbarButton>
+              </NavbarButton> */}
               <NavbarButton
                 variant="secondary"
                 className="mr-2 flex items-center justify-center p-0"

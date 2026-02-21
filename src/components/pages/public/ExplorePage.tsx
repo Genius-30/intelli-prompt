@@ -55,7 +55,7 @@ export default function ExploreClient() {
   const hasMoreOverall = overallDataResponse?.pagination?.hasMore;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 container lg:max-w-7xl mx-auto">
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-1">
         <div>

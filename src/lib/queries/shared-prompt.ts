@@ -28,7 +28,7 @@ export const useDeleteSharedPrompt = () => {
       queryClient.invalidateQueries({ queryKey: ["overall-shared-prompts"] });
       queryClient.invalidateQueries({ queryKey: ["trending-shared-prompts"] });
       queryClient.invalidateQueries({ queryKey: ["userLibrary"] });
-      queryClient.invalidateQueries({ queryKey: ["userSharedPrompts", userId] });
+      queryClient.invalidateQueries({ queryKey: ["userSharedPrompts", data] });
     },
     onError: (error: any) => {
       toast.error(
